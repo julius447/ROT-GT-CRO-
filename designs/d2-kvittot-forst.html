@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Design 2 — Kvittot först</title>
+<title>Design 2 — Kvittot först (v2, statisk fullbredd)</title>
 <style>
 /* ================= Ampy tokens (real) ================= */
 @font-face {
@@ -26,15 +26,22 @@
   --subtle: #eaeff3;
   --r-md: 14px;
   --r-lg: 22px;
-  --r-xl: 28px;
+  --r-xl: 32px;                       /* kanon: 3.2rem */
   --shadow-1: 0 1px 2px rgba(15,18,60,.06), 0 1px 1px rgba(15,18,60,.04);
   --shadow-2: 0 6px 16px -4px rgba(15,18,60,.10), 0 2px 6px rgba(15,18,60,.06);
-  --shadow-3: 0 24px 50px -10px rgba(15,18,60,.14), 0 8px 16px -6px rgba(15,18,60,.08);
+  --shadow-3: 0 24px 50px -10px rgba(15,18,60,.18), 0 8px 16px -6px rgba(15,18,60,.10);
   --shadow-teal: 0 12px 30px -8px rgba(0,169,145,.45);
-  --ring: 0 0 0 3px rgba(0,169,145,.28);
+  /* fokusring: vit inre + navy yttre = synlig på BÅDE vitt och teal (≥3:1) */
+  --ring: 0 0 0 3px #fff, 0 0 0 6px var(--navy);
   --fast: 140ms;
   --normal: 280ms;
   --ease: cubic-bezier(0.2, 0.6, 0.2, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* fullbredds-rytm (ägardirektiv 2026-08-14: vitmarginalregeln pensionerad) */
+  --edge: 28px;                       /* liten kantpadding — blocket går nära skärmkant */
+  --pad-x: clamp(24px, 4.4vw, 76px);  /* kortets inre luft */
+  --pad-y: clamp(34px, 3.6vw, 64px);
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { -webkit-text-size-adjust: 100%; }
@@ -43,236 +50,214 @@ body {
   background: var(--offwhite);
   color: var(--ink);
   line-height: 1.5;
-  padding: 36px 20px 88px;
+  padding: 30px var(--edge) 80px;
 }
-button { font: inherit; }
 a { -webkit-tap-highlight-color: transparent; }
-:focus-visible { outline: none; box-shadow: var(--ring); }
+/* transparent outline = indikatorn överlever forced-colors / Windows HCM */
+:focus-visible { outline: 2px solid transparent; outline-offset: 2px; box-shadow: var(--ring); }
 
 /* ================= Design label row ================= */
 .wf-label {
-  max-width: 1160px; margin: 0 auto 16px;
-  display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap;
-  font-size: 12.5px; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; color: var(--faint);
+  display: flex; justify-content: flex-start; align-items: baseline; gap: 18px; flex-wrap: wrap;
+  margin: 0 0 16px; padding: 0 4px;
+  font-size: 12.5px; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
 }
-.wf-label a { color: var(--teal); text-decoration: none; font-weight: 600; letter-spacing: 0; text-transform: none; font-size: 13.5px; }
-.wf-label a:hover { color: var(--teal-bright); }
+/* liten text = aldrig teal (teal klarar bara stor/fet text på vitt) */
+.wf-label a {
+  color: var(--navy); text-decoration: none; font-weight: 600; letter-spacing: 0;
+  text-transform: none; font-size: 13.5px; display: inline-block; padding: 10px 8px; border-radius: 8px;
+}
+.wf-label a:hover { text-decoration: underline; }
 
-/* ================= The block ================= */
+/* ================= The block (full-bleed card) ================= */
 .block {
-  max-width: 1160px; margin: 0 auto;
-  background: #fff; border-radius: var(--r-xl); box-shadow: var(--shadow-3);
-  padding: 60px 64px 52px;
+  width: 100%; position: relative;
+  background: #fff; border: 1px solid var(--line);
+  border-radius: var(--r-xl); box-shadow: var(--shadow-3);
+  padding: var(--pad-y) var(--pad-x);
+  animation: fade 400ms var(--ease-out) both;
 }
+/* enter: opacity only — en 1384px-platta ska aldrig glida in */
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+.left  { animation: fade 400ms var(--ease-out)  60ms both; }
+.panel { animation: fade 400ms var(--ease-out) 120ms both; }
+
 .grid {
-  display: grid; grid-template-columns: 1.08fr 0.92fr; gap: 56px; align-items: stretch;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(460px, 37vw, 600px);
+  gap: clamp(48px, 5.5vw, 96px);
+  align-items: stretch;
 }
 
-/* ---------- Left: headline + receipt ---------- */
-.eyebrow {
-  display: inline-flex; align-items: center; gap: 8px;
-  font-size: 12.5px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: var(--teal);
-  margin-bottom: 14px;
-}
-.eyebrow::before { content: ""; width: 20px; height: 2px; background: var(--teal); border-radius: 2px; }
+/* ---------- Left: H2 + processen 1-2-3 ---------- */
 h2 {
-  font-size: clamp(27px, 2.9vw, 38px);
-  font-weight: 600; line-height: 1.14; letter-spacing: -0.015em;
-  margin-bottom: 12px; max-width: 21ch;
+  font-size: clamp(28px, 3.5vw, 54px);
+  font-weight: 800; line-height: 1.05; letter-spacing: -0.022em;
+  /* INGEN balance/measure-kapning på bredden — spalten ska styra, annars uppstår hålet */
+  max-width: 26ch; text-wrap: pretty;
+  margin-bottom: clamp(30px, 3vw, 46px);
 }
 h2 .accent { color: var(--teal); white-space: nowrap; }
-.sub {
-  color: var(--muted); font-weight: 300; font-size: 16.5px; line-height: 1.55;
-  margin-bottom: 28px; max-width: 46ch;
+
+.steps { list-style: none; display: flex; flex-direction: column; gap: clamp(30px, 2.9vw, 40px); }
+.step { display: grid; grid-template-columns: 44px 1fr; gap: 20px; position: relative; }
+.step .n {
+  grid-row: 1 / span 2; align-self: start; margin-top: -8px;   /* optisk mitt mot h3:ans första rad */
+  width: 44px; height: 44px; border-radius: 50%;
+  border: 2px solid var(--teal); background: #fff; color: var(--navy);
+  font-weight: 700; font-size: 17px;
+  display: grid; place-items: center; position: relative; z-index: 1;
+  font-variant-numeric: tabular-nums;
+}
+.step h3 { font-size: clamp(19px, 1.5vw, 23px); font-weight: 700; line-height: 1.2; letter-spacing: -0.012em; }
+.step p { color: var(--muted); font-weight: 300; font-size: clamp(15px, 1.2vw, 18px); line-height: 1.5; margin-top: 2px; max-width: 72ch; }
+/* den ENDA streckade idén i blocket */
+.step:not(:last-child)::before {
+  content: ""; position: absolute; left: 21px; top: 44px; bottom: calc(-1 * clamp(30px, 2.9vw, 40px) - 4px);
+  border-left: 2px dashed rgba(15,18,60,.18);
 }
 
-/* — Receipt: the scene — */
-.receipt {
-  background: #fff;
-  border: 1px solid var(--line-strong);
-  border-radius: 18px;
-  box-shadow: var(--shadow-2);
-  padding: 26px 30px 24px;
-  position: relative;
-}
-.receipt::before { /* teal spine — the receipt is the value object */
-  content: ""; position: absolute; left: -1px; top: 22px; bottom: 22px; width: 3px;
-  background: var(--teal); border-radius: 0 3px 3px 0; opacity: .9;
-}
-.r-cap {
-  font-size: 11.5px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: var(--muted);
-  display: flex; justify-content: space-between; align-items: center;
-  padding-bottom: 14px; margin-bottom: 4px; border-bottom: 1px solid var(--line);
-}
-.r-cap .bolt { width: 13px; height: 13px; display: block; }
-.r-row {
-  display: flex; align-items: baseline; gap: 12px;
-  padding: 13px 0; font-size: 16.5px;
-}
-.r-row .lbl { font-weight: 400; color: var(--ink); flex: none; }
-.r-row .dots { flex: 1; border-bottom: 2px dotted rgba(15,18,60,.16); transform: translateY(-5px); min-width: 24px; }
-.r-row .amt { font-weight: 600; white-space: nowrap; flex: none; }
-.offert-pill {
-  display: inline-block; background: var(--offwhite);
-  border: 1.5px dashed rgba(15,18,60,.32); border-radius: 999px;
-  padding: 4px 14px; font-weight: 600; font-size: 14px; color: var(--navy); letter-spacing: .01em;
-}
-/* deduct row */
-.r-row.deduct .lbl { display: inline-flex; align-items: center; gap: 9px; }
-.r-row.deduct .amt { color: var(--teal); font-size: 19px; font-weight: 700; }
-.badge {
-  flex: none; width: 22px; height: 22px; border-radius: 50%;
-  display: inline-grid; place-items: center; position: relative;
-  transform: translateY(4px);
-}
-.badge svg { position: absolute; inset: 0; margin: auto; transition: opacity var(--normal) var(--ease); }
-.badge .i-lock { width: 12px; height: 12px; opacity: 1; }
-.badge .i-check { width: 12px; height: 12px; opacity: 0; }
-.badge { background: var(--subtle); transition: background var(--normal) var(--ease); }
-/* total */
-.r-total {
-  border-top: 2px solid var(--navy);
-  margin-top: 10px; padding-top: 16px;
-  display: flex; justify-content: space-between; align-items: baseline; gap: 14px;
-}
-.r-total .t-label {
-  font-weight: 800; font-size: 15px; letter-spacing: .09em; text-transform: uppercase; color: var(--navy);
-}
-.r-total .amt { font-weight: 800; font-size: 27px; letter-spacing: -0.01em; color: var(--navy); white-space: nowrap; }
-/* lock states */
-.locked { transition: opacity var(--normal) var(--ease), filter var(--normal) var(--ease), transform var(--normal) var(--ease); }
-.receipt.waiting .locked { opacity: .45; filter: grayscale(1); transform: translateY(2px); }
-.receipt:not(.waiting) .r-total { transition-delay: 70ms; }
-.receipt:not(.waiting) .badge { background: var(--teal-soft); }
-.receipt:not(.waiting) .badge .i-lock { opacity: 0; }
-.receipt:not(.waiting) .badge .i-check { opacity: 1; }
-.receipt:not(.waiting) .r-total .amt { animation: pop var(--normal) var(--ease); }
-@keyframes pop { 0% { transform: scale(1); } 45% { transform: scale(1.045); } 100% { transform: scale(1); } }
-/* hint + fine print */
-.unlock-hint {
-  display: flex; align-items: center; gap: 8px; overflow: hidden;
-  margin-top: 14px; max-height: 48px; opacity: 1;
-  font-size: 14px; font-weight: 500; color: var(--ink);
-  transition: opacity var(--normal) var(--ease), max-height var(--normal) var(--ease), margin-top var(--normal) var(--ease);
-}
-.unlock-hint .arr { color: var(--teal); font-weight: 700; }
-.unlock-hint .arr.down { display: none; }
-/* hidden once BOTH questions are answered (either outcome) — no layout jump, fades/collapses */
-.receipt:not(.waiting) .unlock-hint,
-.receipt.answered .unlock-hint { opacity: 0; max-height: 0; margin-top: 0; }
-.fine {
-  font-size: 13px; color: var(--muted); font-weight: 300; line-height: 1.5;
-  margin-top: 16px; padding-top: 14px; border-top: 1px dashed var(--line-strong);
-}
-
-/* ---------- Right: the check ---------- */
+/* ---------- Right: panelen (samma kortstil ägaren gillar) ---------- */
 .panel {
-  background: #fff; border: 1px solid var(--line-strong); border-radius: 18px;
-  box-shadow: var(--shadow-2); padding: 30px 30px 28px;
+  --panel-pad-x: clamp(22px, 2.2vw, 34px);
+  position: relative; overflow: hidden;
+  container-type: inline-size;
+  background: #fff; border: 1px solid var(--line-strong); border-radius: var(--r-lg);
+  box-shadow: var(--shadow-2);
+  padding: clamp(24px, 2.2vw, 34px) var(--panel-pad-x) clamp(24px, 2vw, 30px);
   display: flex; flex-direction: column;
 }
-.panel-h { font-weight: 600; font-size: 21px; letter-spacing: -0.01em; margin-bottom: 3px; }
-.panel-sub { font-size: 14.5px; color: var(--muted); font-weight: 300; margin-bottom: 12px; }
-.q {
-  display: flex; align-items: center; justify-content: space-between; gap: 16px;
-  padding: 17px 0; border-bottom: 1px solid var(--line);
+/* signaturmotivet: blixten som vattenstämpel (kanon), inte som strökryss i caption */
+.panel::after {
+  content: ""; position: absolute; top: -26px; right: -22px; width: 190px; height: 190px; z-index: 0;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M60 3 L22 54 L45 54 L40 97 L80 41 L55 41 Z' fill='%2300a991'/%3E%3C/svg%3E") no-repeat center / contain;
+  opacity: .06; pointer-events: none;
 }
-.q:has(+ .verdict) { border-bottom: 0; }
-.q-label { font-size: 16px; font-weight: 500; }
-.seg { display: flex; background: var(--offwhite); border-radius: 999px; padding: 3px; flex: none; }
-.seg button {
-  border: 0; background: transparent; cursor: pointer;
-  font-weight: 500; font-size: 15px; color: var(--muted);
-  padding: 10px 24px; min-width: 68px; min-height: 44px; border-radius: 999px;
-  transition: background var(--fast) var(--ease), color var(--fast) var(--ease), box-shadow var(--fast) var(--ease);
+.panel > * { position: relative; z-index: 1; }
+
+.p-cap {
+  font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--navy);
+  padding-bottom: 15px; border-bottom: 1px solid var(--line);
 }
-.seg button:hover { color: var(--ink); }
-.seg button.on { background: var(--navy); color: #fff; }
-.seg button.on.no { background: #fff; color: var(--navy); box-shadow: 0 1px 4px rgba(9,11,50,.20); }
-.seg button:focus-visible,
-.seg button.on.no:focus-visible { box-shadow: var(--ring); }
-/* verdict — a persistent slot: dashed placeholder → filled besked */
-.verdict {
-  flex: 1 0 auto; min-height: 86px; margin-top: 16px;
-  display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
-  background: rgba(245,249,255,.55);
-  border: 1.5px dashed rgba(15,18,60,.14); border-radius: var(--r-md);
-  padding: 16px 20px; font-size: 14.5px; line-height: 1.5;
-  color: var(--muted); font-weight: 300;
+
+.r-row {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap; row-gap: 6px;
+  padding: 15px 0; font-size: 17px;
 }
-.verdict.show { animation: rise var(--normal) var(--ease); align-items: stretch; text-align: left; font-weight: 400; font-size: 15px; }
-@keyframes rise { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
-.verdict.ok { background: var(--teal-soft); border: 1px solid rgba(0,169,145,.28); color: var(--ink); }
-.verdict.hm { background: var(--subtle); border: 1px solid var(--line-strong); color: var(--ink); }
-.verdict strong { font-weight: 600; }
+.r-row + .r-row { border-top: 1px solid var(--line); }
+.r-row .lbl { font-weight: 400; color: var(--ink); flex: 0 1 auto; min-width: 0; }
+.r-row .dots { flex: 1 1 28px; align-self: center; border-bottom: 2px dotted rgba(15,18,60,.16); min-width: 28px; }
+.r-row .amt { font-weight: 600; white-space: nowrap; flex: none; margin-left: auto; font-variant-numeric: tabular-nums; }
+.offert-pill {
+  display: inline-block; background: var(--offwhite);
+  border: 1px solid var(--line-strong); border-radius: 999px;
+  padding: 5px 15px; font-weight: 600; font-size: 14.5px; color: var(--navy); letter-spacing: .01em;
+}
+/* avdragsraden — full styrka, statisk */
+.r-row.deduct .amt { color: var(--teal); font-size: 20px; font-weight: 700; }
+
+/* totalen — kvittots terminala beat: en egen platta, inte ännu en regel */
+.r-total {
+  margin: 14px calc(-1 * var(--panel-pad-x)) 0;
+  padding: 22px var(--panel-pad-x) 22px;
+  background: rgba(0,169,145,.055); border-radius: var(--r-md);
+  display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 6px 14px;
+}
+.r-total .t-label { font-weight: 800; font-size: 15px; letter-spacing: .09em; text-transform: uppercase; color: var(--navy); }
+.r-total .amt {
+  font-weight: 800; font-size: clamp(26px, 2.1vw, 32px); letter-spacing: -0.012em;
+  color: var(--navy); white-space: nowrap; font-variant-numeric: tabular-nums;
+}
+/* undantaget står DÄR misstaget görs — inte tre rader ned i finstilten */
+.r-total .t-note {
+  grid-column: 1 / -1;
+  font-size: 13.5px; font-weight: 400; color: var(--muted); line-height: 1.45; text-wrap: pretty;
+}
+
+.fine {
+  font-size: 13.5px; color: var(--muted); font-weight: 400; line-height: 1.5;
+  margin-top: 10px; text-wrap: pretty; font-variant-numeric: tabular-nums;
+}
+
 /* CTA */
-.cta-wrap { margin-top: auto; padding-top: 22px; display: flex; flex-direction: column; gap: 12px; }
+.cta-wrap { margin-top: auto; padding-top: 32px; display: flex; flex-direction: column; gap: 12px; }
+.cta-wrap::before { content: ""; display: block; height: 1px; background: var(--line); margin-bottom: 24px; }
+/* [GAP] ÄGARGRIND / TOKENFRÅGA — kontrast, systemnivå (ändras INTE lokalt):
+   vit text på --teal #00a991 = 2,99:1. WCAG kräver 3:1 för stor/fet text.
+   Gäller .cta (19px/700), h2 .accent (54px/800) och .r-row.deduct .amt (20px/700).
+   Rekommendation till ägaren: en egen TEXT-teal (t.ex. #00806e ≈ 4,9:1 mot vitt) för
+   fylld knapp + teal-text, medan #00a991 behålls som ren FYLLNAD (ring, blixt, platta).
+   Tills beslutet är taget: hover ändrar INTE längre bakgrunden (#00b39a gjorde det värre). */
 .cta {
-  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  display: inline-flex; align-items: center; justify-content: center; text-align: center;
   background: var(--teal); color: #fff; text-decoration: none;
-  font-weight: 600; font-size: 16.5px; letter-spacing: .005em;
-  padding: 16px 30px; min-height: 54px; border-radius: 999px;
+  font-weight: 700; font-size: 19px; letter-spacing: .005em; line-height: 1.25;
+  padding: 17px 28px; min-height: 56px; border-radius: 999px;
   box-shadow: var(--shadow-teal);
-  transition: transform var(--fast) var(--ease), box-shadow var(--fast) var(--ease), background var(--fast) var(--ease);
+  transition: transform var(--fast) var(--ease), box-shadow var(--fast) var(--ease);
 }
-.cta:hover { transform: translateY(-1px); background: #00b39a; }
-.cta:focus-visible { box-shadow: var(--shadow-teal), var(--ring); }
+.cta span { text-wrap: balance; }
+.cta:hover { transform: translateY(-1px); box-shadow: 0 16px 34px -8px rgba(0,169,145,.55); }
+.cta:focus-visible { box-shadow: var(--ring); }   /* teal-glowen släpps i fokus — annars syns ringen inte */
 .cta:active { transform: translateY(0); }
-.cta .arr { font-weight: 700; }
-.tel { font-size: 14.5px; color: var(--muted); font-weight: 300; text-align: center; }
-.tel a { color: var(--navy); font-weight: 600; text-decoration: none; white-space: nowrap; }
-.tel a:hover { color: var(--teal); }
-
-/* ---------- Footer strip: the 1-2-3 ---------- */
-.steps-strip {
-  display: flex; gap: 24px; margin-top: 46px; padding-top: 30px;
-  border-top: 1px solid var(--line);
+.tel { font-size: 15px; color: var(--muted); font-weight: 400; text-align: center; }
+.tel a {
+  color: var(--navy); font-weight: 600; white-space: nowrap;
+  text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1.5px;
+  display: inline-block; padding: 6px 4px; border-radius: 8px; font-variant-numeric: tabular-nums;
 }
-.mini-step { flex: 1; display: flex; gap: 13px; align-items: flex-start; position: relative; }
-.mini-step .n {
-  flex: none; width: 30px; height: 30px; border-radius: 50%;
-  border: 2px solid var(--teal); color: var(--teal); background: #fff;
-  font-weight: 600; font-size: 13.5px;
-  display: grid; place-items: center; position: relative; z-index: 1;
-}
-.mini-step b { display: block; font-weight: 600; font-size: 15.5px; line-height: 1.3; }
-.mini-step span { display: block; color: var(--muted); font-weight: 300; font-size: 14px; margin-top: 2px; }
-.mini-step:not(:last-child)::after {
-  content: ""; position: absolute; top: 14px; left: calc(100% - 18px); width: 36px;
-  border-top: 2px dashed rgba(15,18,60,.20);
+@media (pointer: coarse) {
+  .tel a { padding: 12px 14px; border: 1.5px solid var(--line-strong); border-radius: 999px; }
 }
 
-/* ================= Mobile ================= */
+/* Kvittot byter layout på PANELENS bredd, aldrig på viewportens.
+   (Den gamla viewport-regeln dödade ledarprickarna 768–1120 där panelen är som BREDAST.) */
+@container (max-width: 400px) {
+  .r-row { flex-direction: column; align-items: flex-start; gap: 6px; }
+  .r-row .dots { display: none; }
+  .r-row .amt { margin-left: 0; }
+  .r-total { grid-template-columns: 1fr; gap: 2px; }
+  .offert-pill { font-size: 13.5px; padding: 4px 12px; }
+}
+
+/* ========== Mellanläge: tvåspalt kvar, panelen kompakteras ========== */
+@media (max-width: 1120px) {
+  .grid { grid-template-columns: minmax(0, 1fr) clamp(430px, 42vw, 500px); gap: 44px; }
+}
+
+/* ========== Staplat: H2 → stegen → panelen ========== */
+@media (max-width: 1000px) {
+  .grid { grid-template-columns: 1fr; gap: 34px; max-width: 700px; margin-inline: auto; }
+  h2 { max-width: 24ch; }
+}
+
+/* ================= Mobil ================= */
 @media (max-width: 900px) {
-  body { padding: 24px 14px 64px; }
-  .block { padding: 34px 22px 34px; border-radius: var(--r-lg); }
-  .grid { grid-template-columns: 1fr; gap: 26px; }
-  h2 { max-width: none; }
-  .sub { margin-bottom: 22px; }
-  .receipt { padding: 20px 20px 18px; }
-  .r-row { font-size: 15.5px; padding: 12px 0; flex-wrap: wrap; row-gap: 4px; }
-  .r-row .amt { margin-left: auto; }
-  .r-row .dots { min-width: 16px; }
-  /* the deduct row wraps at 390px — drop the leader dots so they never point at nothing */
-  .r-row.deduct { gap: 10px; }
-  .r-row.deduct .lbl { gap: 7px; }
-  .r-row.deduct .dots { display: none; }
-  .r-row.deduct .amt { font-size: 17px; }
-  .r-total .amt { font-size: 23px; }
-  .r-total .t-label { font-size: 13.5px; }
-  .unlock-hint .arr.right { display: none; }
-  .unlock-hint .arr.down { display: inline; }
-  .panel { padding: 22px 20px 22px; }
-  .q { flex-direction: column; align-items: stretch; gap: 10px; }
-  .seg { width: 100%; }
-  .seg button { flex: 1; }
-  .verdict { min-height: 60px; }
-  .cta { padding: 16px 16px; font-size: 15.5px; gap: 8px; }
-  .steps-strip { flex-direction: column; gap: 18px; margin-top: 32px; padding-top: 24px; }
-  .mini-step:not(:last-child)::after {
-    top: 40px; left: 14px; right: auto; bottom: -12px;
-    border-top: 0; border-left: 2px dashed rgba(15,18,60,.16);
-  }
+  :root { --edge: 14px; }
+  body { padding: 20px var(--edge) 56px; }
+  .wf-label { font-size: 11px; letter-spacing: .1em; margin-bottom: 12px; }
+  .wf-label a { display: none; }          /* preview-krom — stjäl höjd på mobil */
+  .block { border-radius: var(--r-lg); padding: 30px 20px 30px; }
+  .grid { gap: 30px; max-width: 640px; }
+  h2 { max-width: 24ch; margin-bottom: 26px; }
+  .step { grid-template-columns: 38px 1fr; gap: 15px; }
+  .step .n { width: 38px; height: 38px; font-size: 15.5px; }
+  .step:not(:last-child)::before { left: 18px; top: 38px; }
+  .step p { max-width: 62ch; }
+  .panel { --panel-pad-x: 16px; padding: 22px var(--panel-pad-x) 22px; }
+  .r-row { font-size: 16px; padding: 13px 0; }
+  .r-total { padding: 18px var(--panel-pad-x); }
+  .r-total .amt { font-size: 26px; }
+  .r-total .t-label { font-size: 13px; }
+  .cta { width: 100%; font-size: 17.5px; padding: 16px 14px; }
+  .tel { font-size: 14.5px; }
+  .tel a { padding: 12px 14px; }          /* ≥44px tryckyta även utan coarse pointer */
+  .panel::after { width: 132px; height: 132px; top: -18px; right: -14px; opacity: .05; }
+}
+@media (max-width: 600px) {
+  .grid { max-width: none; }
+  h2 { max-width: none; text-wrap: balance; }
+  .step p { max-width: none; }
 }
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
@@ -281,132 +266,73 @@ h2 .accent { color: var(--teal); white-space: nowrap; }
 </head>
 <body>
 
-<div class="wf-label"><span>Design 2 · Kvittot först</span><a href="index.html">← alla designer</a></div>
+<div class="wf-label">
+  <span>Design 2 · Kvittot först — v2 statisk fullbredd</span>
+  <a href="../wireframes/index.html">← wireframes</a>
+</div>
 
 <section class="block" aria-label="ROT-avdrag för byte av elcentral">
   <div class="grid">
 
     <div class="left">
-      <span class="eyebrow">ROT-avdrag 2026</span>
-      <!-- [GAP] "draget direkt på fakturan" — ägargrind: bekräfta att avdraget dras direkt på fakturan innan ship -->
+      <!-- [GAP] "draget direkt på fakturan" — ägargrind: bekräfta fakturamodellen innan ship -->
       <h2>Byta elcentral med <span class="accent">30&nbsp;% ROT-avdrag</span>, draget direkt på fakturan</h2>
-      <p class="sub">Vi lämnar inte ut priser på sajten: varje jobb offereras. Men mekaniken är alltid densamma.</p>
 
-      <div class="receipt waiting" id="receipt">
-        <div class="r-cap">
-          <span>Så räknas ditt pris</span>
-          <svg class="bolt" viewBox="0 0 100 100" aria-hidden="true"><path d="M60 3 L22 54 L45 54 L40 97 L80 41 L55 41 Z" fill="#00a991"/></svg>
-        </div>
-
-        <div class="r-row">
-          <span class="lbl">Elcentral + installation</span>
-          <span class="dots" aria-hidden="true"></span>
-          <span class="amt"><span class="offert-pill">Skräddarsydd offert</span></span>
-        </div>
-
-        <div class="r-row deduct locked">
-          <span class="lbl">
-            <span class="badge" aria-hidden="true">
-              <svg class="i-lock" viewBox="0 0 24 24" fill="none" stroke="#565e82" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
-              <svg class="i-check" viewBox="0 0 24 24" fill="none" stroke="#00a991" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5 10 18.5 20 6"/></svg>
-            </span>
-            ROT-avdrag, 30&nbsp;% av arbetet
-          </span>
-          <span class="dots" aria-hidden="true"></span>
-          <span class="amt">−30&nbsp;%</span>
-        </div>
-
-        <div class="r-total locked">
-          <span class="t-label">Ditt pris efter ROT</span>
-          <span class="amt">70&nbsp;% av arbetet</span>
-        </div>
-
-        <div class="unlock-hint">
-          <span class="arr right" aria-hidden="true">→</span>
-          <span class="arr down" aria-hidden="true">↓</span>
-          Svara på två frågor så ser du om avdragsraderna gäller dig
-        </div>
-
-        <!-- [GAP] Formuleringen "Materialet omfattas inte av ROT" + frågebanken kräver elektriker/ägar-signering före ship -->
-        <p class="fine">Taket är 50&nbsp;000&nbsp;kr per person och år. Materialet omfattas inte av ROT.</p>
-      </div>
+      <ol class="steps">
+        <li class="step">
+          <span class="n" aria-hidden="true">1</span>
+          <h3>Vi räknar på ditt ROT</h3>
+          <!-- [GAP] löftet "räknar ut avdraget innan du bestämmer dig" — ägarbekräftelse före ship -->
+          <p>En av våra elektriker går igenom ditt projekt och räknar ut vad avdraget drar av, innan du bestämmer dig.</p>
+        </li>
+        <li class="step">
+          <span class="n" aria-hidden="true">2</span>
+          <h3>Vi skickar en auktoriserad elektriker</h3>
+          <p>En av våra auktoriserade elektriker utför installationen.</p>
+        </li>
+        <li class="step">
+          <span class="n" aria-hidden="true">3</span>
+          <h3>Vi sköter Skatteverket</h3>
+          <!-- [GAP] fakturamodell + ansökningshantering: ägarbekräftelse före ship -->
+          <p>Vi drar avdraget på fakturan och skickar in ansökan åt dig.</p>
+        </li>
+      </ol>
     </div>
 
-    <div class="panel">
-      <h3 class="panel-h">Gäller avdraget dig?</h3>
-      <p class="panel-sub">Två frågor, tio sekunder.</p>
+    <section class="panel" aria-labelledby="pcap">
+      <h3 class="p-cap" id="pcap">Så räknas ditt pris</h3>
 
-      <div class="q">
-        <span class="q-label" id="q-own">Äger du bostaden?</span>
-        <div class="seg" data-q="own" role="radiogroup" aria-labelledby="q-own">
-          <button type="button" role="radio" data-v="ja" aria-checked="false">Ja</button>
-          <button type="button" role="radio" data-v="nej" aria-checked="false">Nej</button>
-        </div>
-      </div>
-      <div class="q">
-        <span class="q-label" id="q-tax">Betalar du inkomstskatt?</span>
-        <div class="seg" data-q="tax" role="radiogroup" aria-labelledby="q-tax">
-          <button type="button" role="radio" data-v="ja" aria-checked="false">Ja</button>
-          <button type="button" role="radio" data-v="nej" aria-checked="false">Nej</button>
-        </div>
+      <div class="r-row">
+        <span class="lbl">Elcentral + installation</span>
+        <span class="dots" aria-hidden="true"></span>
+        <span class="amt"><span class="offert-pill">Skräddarsydd offert</span></span>
       </div>
 
-      <div class="verdict" id="verdict" aria-live="polite">Ditt besked visas här när du svarat.</div>
+      <div class="r-row deduct">
+        <span class="lbl">ROT-avdrag, 30&nbsp;% av arbetet</span>
+        <span class="dots" aria-hidden="true"></span>
+        <span class="amt">−30&nbsp;%</span>
+      </div>
+
+      <!-- [FACT] ROT = 30 % av arbetskostnaden; material omfattas ej.
+           src: ampy-foretagsdata rate-tabell / web:skatteverket.se -->
+      <div class="r-total">
+        <span class="t-label">Ditt pris efter ROT</span>
+        <span class="amt">70&nbsp;% av arbetet</span>
+        <span class="t-note">Materialet omfattas inte av ROT.</span>
+      </div>
+
+      <p class="fine">Taket är 50&nbsp;000&nbsp;kr per person och år. ROT förutsätter att du äger bostaden och har avdrag kvar för året.</p>
 
       <div class="cta-wrap">
         <!-- [GAP] CTA-mål-URL = ägarbeslut (href="#" är placeholder) -->
-        <a class="cta" href="#">Begär offert med ROT inräknat <span class="arr" aria-hidden="true">→</span></a>
+        <a class="cta" href="#"><span>Begär offert med <span style="white-space:nowrap">ROT&nbsp;inräknat&nbsp;→</span></span></a>
         <p class="tel">Hellre prata? <a href="tel:0102657979">Ring 010-265&nbsp;79&nbsp;79</a></p>
       </div>
-    </div>
+    </section>
 
-  </div>
-
-  <div class="steps-strip">
-    <div class="mini-step"><div class="n" aria-hidden="true">1</div><div><b>Vi räknar på ditt ROT</b><span>innan du bestämmer dig</span></div></div>
-    <div class="mini-step"><div class="n" aria-hidden="true">2</div><div><b>Auktoriserad elektriker</b><span>utför installationen</span></div></div>
-    <div class="mini-step"><div class="n" aria-hidden="true">3</div><div><b>Vi sköter Skatteverket</b><span>avdrag + ansökan, klart</span></div></div>
   </div>
 </section>
 
-<script>
-(function () {
-  var state = {};
-  var receipt = document.getElementById('receipt');
-  var verdict = document.getElementById('verdict');
-
-  document.querySelectorAll('.seg').forEach(function (seg) {
-    seg.querySelectorAll('button').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        seg.querySelectorAll('button').forEach(function (b) {
-          b.classList.remove('on', 'no');
-          b.setAttribute('aria-checked', 'false');
-        });
-        btn.classList.add('on');
-        if (btn.dataset.v === 'nej') btn.classList.add('no');
-        btn.setAttribute('aria-checked', 'true');
-        state[seg.dataset.q] = btn.dataset.v;
-        update();
-      });
-    });
-  });
-
-  function update() {
-    if (!(state.own && state.tax)) return;
-    receipt.classList.add('answered'); /* both answered — the unlock-hint no longer applies */
-    verdict.classList.remove('show'); /* restart the rise animation on ok<->hm switches */
-    void verdict.offsetWidth;
-    if (state.own === 'ja' && state.tax === 'ja') {
-      verdict.className = 'verdict ok show';
-      verdict.innerHTML = '<span><strong>Troligen ja.</strong> Exakt belopp beror på din skatt; vi räknar ut det i offerten.</span>';
-      receipt.classList.remove('waiting');
-    } else {
-      verdict.className = 'verdict hm show';
-      verdict.innerHTML = '<span><strong>Osäkert.</strong> Hör av dig så tittar vi på ditt fall, ibland finns en annan väg.</span>';
-      receipt.classList.add('waiting');
-    }
-  }
-})();
-</script>
 </body>
 </html>
