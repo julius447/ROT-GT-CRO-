@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="sv-SE">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>W3 — Processen som verktyg</title>
+<link rel="stylesheet" href="_base.css">
+<style>
+  .head { text-align: center; max-width: 720px; margin: 0 auto 40px; }
+  .head .sub { margin-top: 8px; }
+  .rail { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; position: relative; }
+  .card { border: 1px solid var(--line); border-radius: var(--r-sm); padding: 24px; display: flex; flex-direction: column; gap: 12px; position: relative; background: #fff; }
+  .card .n { width: 34px; height: 34px; border-radius: 50%; background: var(--teal); color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: 15px; }
+  .card h3 { font-size: 20px; font-weight: 600; }
+  .card p.desc { font-size: 14.5px; color: var(--muted); font-weight: 300; }
+  .rail .card:not(:last-child)::after { content: ""; position: absolute; top: 40px; right: -24px; width: 24px; border-top: 2px dashed rgba(9,11,50,.2); }
+  .card .body { margin-top: auto; }
+  .card .q { border-bottom: 0; padding: 8px 0 0; flex-direction: column; align-items: stretch; gap: 8px; }
+  .card .q .q-label { font-size: 14.5px; }
+  .card .verdict { margin-top: 10px; font-size: 13.5px; padding: 12px 14px; }
+  .card .receipt { padding: 16px 18px; margin-top: 4px; }
+  .card .receipt .row { font-size: 13.5px; padding: 6px 0; }
+  .card .receipt .total .t-label { font-size: 14px; }
+  .card .receipt .total .amt { font-size: 16px; }
+  .card3-points { list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: 14px; color: var(--muted); font-weight: 300; }
+  .card3-points li { display: flex; gap: 8px; align-items: flex-start; }
+  .card3-points li::before { content: "✓"; color: var(--teal); font-weight: 700; }
+  .footer { margin-top: 36px; display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
+  @media (max-width: 900px) {
+    .rail { grid-template-columns: 1fr; }
+    .rail .card:not(:last-child)::after { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wf-label"><span>Wireframe 3 · PROCESSEN SOM VERKTYG — de tre stegen ÄR gränssnittet</span><a href="index.html">← alla wireframes</a></div>
+
+<div class="block">
+  <div class="head">
+    <h2>Från fråga till färdigt jobb, med <span class="accent">30&nbsp;% ROT</span> hela vägen</h2>
+    <p class="sub">Tre steg. Ditt enda jobb är att tacka ja.</p>
+  </div>
+
+  <div class="rail">
+    <div class="card">
+      <div class="n">1</div>
+      <h3>Kvalificeras du?</h3>
+      <p class="desc">Börja här: två frågor, tio sekunder.</p>
+      <div class="body">
+        <div class="q">
+          <span class="q-label">Äger du bostaden?</span>
+          <div class="seg" data-q="own"><button data-v="ja">Ja</button><button data-v="nej">Nej</button></div>
+        </div>
+        <div class="q">
+          <span class="q-label">Betalar du inkomstskatt?</span>
+          <div class="seg" data-q="tax"><button data-v="ja">Ja</button><button data-v="nej">Nej</button></div>
+        </div>
+        <div class="verdict" id="verdict"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="n">2</div>
+      <h3>Så räknas ditt pris</h3>
+      <p class="desc">Varje jobb offereras, mekaniken är alltid densamma.</p>
+      <div class="body">
+        <div class="receipt">
+          <div class="row"><span>Elcentral + installation</span><span class="amt"><span class="offert-pill">Offert</span></span></div>
+          <div class="row deduct"><span>ROT, 30&nbsp;% av arbetet</span><span class="amt">−30&nbsp;%</span></div>
+          <div class="total"><span class="t-label">DITT PRIS</span><span class="amt">70&nbsp;% av arbetet</span></div>
+          <p class="fine">Dras direkt på fakturan. Tak: 50&nbsp;000&nbsp;kr/person och år.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="n">3</div>
+      <h3>Vi gör resten</h3>
+      <p class="desc">Från installation till Skatteverket.</p>
+      <div class="body">
+        <ul class="card3-points">
+          <li>Auktoriserad elektriker utför jobbet</li>
+          <li>Vi drar avdraget på fakturan</li>
+          <li>Vi skickar in ROT-ansökan åt dig</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <a class="cta" href="#">Begär offert med ROT inräknat</a>
+    <a class="cta ghost" href="#">Ring 010-265&nbsp;79&nbsp;79</a>
+  </div>
+</div>
+
+<p class="annot"><b>Idén:</b> i stället för verktyg + kvitto + process som tre separata saker blir processen själva gränssnittet: steg 1 är kollen, steg 2 är prismekaniken, steg 3 är löftet. Läses vänster→höger som dagens block (minst ombyggnad mentalt), men varje steg gör riktigt jobb. <b>Grindar:</b> samma som övriga (frågebank, GAP&nbsp;1, ACF-rader per tjänst).</p>
+
+<script>
+const state = {};
+document.querySelectorAll('.seg').forEach(seg => {
+  seg.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      seg.querySelectorAll('button').forEach(b => b.classList.remove('on','no'));
+      btn.classList.add('on'); if (btn.dataset.v==='nej') btn.classList.add('no');
+      state[seg.dataset.q] = btn.dataset.v;
+      const v = document.getElementById('verdict');
+      if (!(state.own && state.tax)) return;
+      if (state.own==='ja' && state.tax==='ja') {
+        v.className = 'verdict ok';
+        v.innerHTML = '<strong>Troligen ja!</strong> Exakt belopp beror på din skatt; det räknar vi ut i offerten.';
+      } else {
+        v.className = 'verdict hm';
+        v.innerHTML = '<strong>Osäkert.</strong> Hör av dig så tittar vi på ditt fall.';
+      }
+    });
+  });
+});
+</script>
+</body>
+</html>
