@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="sv-SE">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GT Generisk · Kvittot först (blockfamiljen)</title>
+<style>
+/* ================= Ampy tokens (real) ================= */
+@font-face {
+  font-display: swap;
+  font-family: "Outfit";
+  src: url("../assets/fonts/Outfit-VariableFont_wght.woff2") format("woff2-variations");
+  font-weight: 100 900;
+}
+:root {
+  --navy: #090b32;
+  --teal: #00a991;
+  /* WCAG: #00a991 på vitt = 2.96:1 → underkänner 3:1 för stor text.
+     --teal-text (#009b85, 3.48:1 vitt / 3.30:1 offwhite) för ALL teal-satt text;
+     #00a991 behålls för ytor + CTA-gradient. (typo P0-1 + ux P1-4) */
+  --teal-text: #009b85;
+  --teal-bright: #1cc4af;
+  --teal-soft: #e0f5f2;
+  --offwhite: #f5f9ff;
+  --ink: #0f123c;
+  --muted: #565e82;
+  --faint: #8a90ac;
+  --line: rgba(15, 18, 60, 0.10);
+  --line-strong: rgba(15, 18, 60, 0.16);
+  --subtle: #eaeff3;
+  --r-md: 14px;
+  --r-lg: 22px;
+  --r-xl: 32px;                       /* kanon: 3.2rem */
+  --shadow-1: 0 1px 2px rgba(15,18,60,.06), 0 1px 1px rgba(15,18,60,.04);
+  --shadow-2: 0 6px 16px -4px rgba(15,18,60,.10), 0 2px 6px rgba(15,18,60,.06);
+  --shadow-3: 0 24px 50px -10px rgba(15,18,60,.18), 0 8px 16px -6px rgba(15,18,60,.10);
+  /* fokusring: vit inre + navy yttre = synlig på BÅDE vitt och teal (≥3:1) */
+  --ring: 0 0 0 3px #fff, 0 0 0 6px var(--navy);
+  --fast: 140ms;
+  --normal: 280ms;
+  --ease: cubic-bezier(0.2, 0.6, 0.2, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* fullbredds-rytm (ägardirektiv 2026-08-14: vitmarginalregeln pensionerad) */
+  --edge: 28px;                       /* liten kantpadding — blocket går nära skärmkant */
+  /* clamp-ändpunkter kvantiserade till 8-bas (spacing P2-12) */
+  --pad-x: clamp(24px, 4.4vw, 80px);  /* kortets inre luft */
+  --pad-y: clamp(32px, 3.6vw, 64px);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  font-family: "Outfit", system-ui, -apple-system, sans-serif;
+  background: var(--offwhite);
+  color: var(--ink);
+  line-height: 1.5;
+  padding: 30px var(--edge) 80px;
+}
+a { -webkit-tap-highlight-color: transparent; }
+/* transparent outline = indikatorn överlever forced-colors / Windows HCM */
+:focus-visible { outline: 2px solid transparent; outline-offset: 2px; box-shadow: var(--ring); }
+
+/* ================= Design label row ================= */
+.wf-label {
+  display: flex; justify-content: flex-start; align-items: baseline; gap: 18px; flex-wrap: wrap;
+  margin: 0 0 16px; padding: 0 4px;
+  font-size: 12.5px; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
+}
+/* liten text = aldrig teal (teal klarar bara stor/fet text på vitt) */
+.wf-label a {
+  color: var(--navy); text-decoration: none; font-weight: 600; letter-spacing: 0;
+  text-transform: none; font-size: 13.5px; display: inline-block; padding: 10px 8px; border-radius: 8px;
+}
+.wf-label a:hover { text-decoration: underline; }
+
+/* ================= The block (full-bleed card) ================= */
+.block {
+  width: 100%; position: relative;
+  background: #fff; border: 1px solid var(--line);
+  border-radius: var(--r-xl); box-shadow: var(--shadow-3);
+  padding: var(--pad-y) var(--pad-x);
+  animation: fade 400ms var(--ease-out) both;
+}
+/* enter: opacity only — en 1384px-platta ska aldrig glida in */
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+.left  { animation: fade 400ms var(--ease-out)  60ms both; }
+.panel { animation: fade 400ms var(--ease-out) 120ms both; }
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(460px, 37vw, 600px);
+  gap: clamp(48px, 5.5vw, 96px);
+  align-items: stretch;
+}
+
+/* ---------- Left: H2 + processen 1-2-3 ---------- */
+/* SAJTMATCH (ground truth, theme-style): h2 = var(--aptext-2-5xl) & vikt 500.
+   28→40px via exakt samma clamp-kurva som live-sajten. */
+h2 {
+  font-size: clamp(28px, calc(1.25vw + 24px), 40px);
+  font-weight: 500; line-height: 1.18; letter-spacing: normal; /* ground truth sätter bara size+weight (typo P2-5) */
+  max-width: 30ch; text-wrap: pretty;
+  /* H2→steg ≥1.4× steg↔steg (56 mot 40 @1440) — hierarkisk kontrast (spacing P0-1, ux P1-2) */
+  margin-bottom: clamp(44px, 4vw, 56px);
+}
+h2 .accent { color: var(--teal-text); white-space: nowrap; }
+
+.steps { --sgap: clamp(32px, 3vw, 40px); list-style: none; display: flex; flex-direction: column; gap: var(--sgap); }
+.step { display: grid; grid-template-columns: 44px 1fr; gap: 16px; position: relative; }
+/* ikonen: mjuk teal-fylld cirkel (lugnare än outline-ring), navy siffra — ingen ram */
+.step .n {
+  grid-row: 1 / span 2; align-self: start; margin-top: -8px;   /* optisk mitt mot h3:ans första rad */
+  width: 44px; height: 44px; border-radius: 50%;
+  background: var(--teal-soft); color: var(--navy);
+  font-weight: 600; font-size: 16px;
+  display: grid; place-items: center; position: relative; z-index: 1;
+  font-variant-numeric: tabular-nums;
+}
+.step h3 { font-size: clamp(19px, 1.5vw, 22px); font-weight: 600; line-height: 1.25; letter-spacing: normal; }
+.step p { color: var(--muted); font-weight: 300; font-size: clamp(15px, 1.2vw, 17px); line-height: 1.55; margin-top: 4px; max-width: 62ch; }
+/* den ENDA streckade idén i blocket — 4px andrum i båda ändar, når aldrig in under cirkeln */
+.step:not(:last-child)::before {
+  content: ""; position: absolute; left: 21px; top: 40px; bottom: calc(-1 * var(--sgap) + 12px);
+  border-left: 2px dashed rgba(15,18,60,.15);
+}
+
+/* ---------- Right: panelen (samma kortstil ägaren gillar, blixten borttagen per ägarorder) ---------- */
+.panel {
+  /* symmetrisk vertikal padding, 8-bas-ändpunkter (spacing P2-7 + P2-12) */
+  --panel-pad-x: clamp(24px, 2.2vw, 32px);
+  position: relative;
+  container-type: inline-size;
+  background: #fff; border: 1px solid var(--line-strong); border-radius: var(--r-lg);
+  box-shadow: var(--shadow-2);
+  padding: clamp(24px, 2.2vw, 32px) var(--panel-pad-x);
+  display: flex; flex-direction: column;
+}
+
+/* rubriken är ACF-mallbar: "Så räknas ROT" / "Så räknas Grön Teknik" */
+.p-cap {
+  font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--navy);
+  padding-bottom: 16px; border-bottom: 1px solid var(--line);
+}
+
+/* kvittots vertikala rytm på 4/8-bas (spacing P1-5) */
+.r-row {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap; row-gap: 6px;
+  padding: 16px 0; font-size: 17px;
+}
+.r-row + .r-row { border-top: 1px solid var(--line); }
+.r-row .lbl { font-weight: 400; color: var(--ink); flex: 0 1 auto; min-width: 0; }
+.r-row .dots { flex: 1 1 28px; align-self: center; border-bottom: 2px dotted rgba(15,18,60,.16); min-width: 28px; }
+.r-row .amt { font-weight: 600; white-space: nowrap; flex: none; margin-left: auto; font-variant-numeric: tabular-nums; }
+.offert-pill {
+  display: inline-block; background: var(--offwhite);
+  border: 1px solid var(--line-strong); border-radius: 999px;
+  padding: 4px 15px; font-weight: 600; font-size: 14.5px; color: var(--navy); letter-spacing: .01em;
+}
+/* avdragsraden — full styrka, statisk */
+.r-row.deduct .amt { color: var(--teal-text); font-size: 20px; font-weight: 700; }
+
+/* totalen — kvittots terminala beat: en egen platta, inte ännu en regel */
+.r-total {
+  margin: 16px calc(-1 * var(--panel-pad-x)) 0;
+  padding: 24px var(--panel-pad-x);
+  background: rgba(0,169,145,.055); border-radius: var(--r-md);
+  display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 6px 14px;
+}
+/* caps-stilen = exakt .p-cap (ETT caps-system i panelen); vikt max 700 — 800 är off-canon (typo P1-2) */
+.r-total .t-label { font-weight: 700; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--navy); }
+.r-total .amt {
+  font-weight: 700; font-size: clamp(26px, 2.1vw, 32px); letter-spacing: -0.012em; line-height: 1.1;
+  color: var(--navy); white-space: nowrap; font-variant-numeric: tabular-nums;
+}
+/* undantaget står DÄR misstaget görs — inte tre rader ned i finstilten */
+.r-total .t-note {
+  grid-column: 1 / -1;
+  font-size: 13.5px; font-weight: 400; color: var(--muted); line-height: 1.45; text-wrap: pretty;
+}
+
+/* villkorstexten: UNDER raderna, FÖRE CTA:n (ägarorder d) */
+.fine {
+  font-size: 13.5px; color: var(--muted); font-weight: 400; line-height: 1.5;
+  margin-top: 12px; text-wrap: pretty; font-variant-numeric: tabular-nums;
+}
+
+/* ================= CTA — EXAKT sajtens .hero_2__primary-button (ground truth) ================= */
+/* EN spacing-källa per avstånd (spacing P1-3): fine→divider 32 (padding-top),
+   divider→CTA 24 (::before margin), CTA→tel 16 (.tel margin) — linjen fäster vid CTA-zonen */
+.cta-wrap { margin-top: auto; padding-top: 32px; display: flex; flex-direction: column; align-items: center; gap: 0; }
+.cta-wrap::before { content: ""; display: block; align-self: stretch; height: 1px; background: var(--line); margin-bottom: 24px; }
+.cta {
+  display: inline-flex; align-items: center; justify-content: center; gap: 16px;
+  min-height: 58px; padding: 11px 24px; border-radius: 16px;
+  font-size: 16px; font-weight: 500; line-height: 1; white-space: nowrap;
+  color: hsl(237 35% 24%); text-decoration: none;
+  background: linear-gradient(120deg, #55ff9a 0%, #5eb1bf 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.45), 0 2px 4px rgba(9,11,50,.06), 0 10px 26px -6px rgba(94,199,160,.45);
+  transition: transform .16s ease, box-shadow .16s ease, filter .16s ease;
+}
+.cta .cta-arrow { flex: none; transition: transform .16s ease; }
+.cta:hover {
+  transform: translateY(-1.5px);
+  filter: saturate(1.06) brightness(1.02);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.45), 0 3px 6px rgba(9,11,50,.08), 0 14px 32px -6px rgba(94,199,160,.6);
+}
+.cta:hover .cta-arrow { transform: scale(1.18); }
+.cta:active { transform: translateY(0); }
+.cta:focus-visible {
+  outline: 3px solid #090b32; outline-offset: 3px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.45), 0 2px 4px rgba(9,11,50,.06), 0 10px 26px -6px rgba(94,199,160,.45);
+}
+
+/* telefonen: ren fritext-länk (aldrig knappyta) — desktop OCH mobil */
+.tel { font-size: 15px; color: var(--muted); font-weight: 400; text-align: center; margin-top: 16px; }
+/* tryckyta ≥44px via min-height (osynlig — utseendet förblir ren text). spacing P0-2 / typo P1-3 / ux P0-1 */
+.tel a {
+  color: var(--navy); font-weight: 600; white-space: nowrap;
+  text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1.5px;
+  display: inline-flex; align-items: center; min-height: 44px; padding: 0 8px;
+  border-radius: 8px; font-variant-numeric: tabular-nums;
+}
+
+/* ================= Kvittoraderna byter struktur på PANELENS bredd, aldrig viewportens.
+   Smal panel → varje rad blir en mini-platta (totalplattans struktur som förlaga):
+   liten versal etikett över, värdet under — inga prickar, ingen pill. ================= */
+@container (max-width: 400px) {
+  .r-row { display: grid; gap: 5px; padding: 16px 0; }
+  .r-row .dots { display: none; }
+  .r-row .lbl {
+    font-size: 12.5px; font-weight: 600; letter-spacing: .09em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .r-row .amt { margin-left: 0; font-size: 17px; white-space: normal; }
+  .offert-pill {
+    background: none; border: 0; border-radius: 0; padding: 0;
+    font-size: 17px; font-weight: 600; color: var(--ink); letter-spacing: 0;
+  }
+  .r-row.deduct .amt { font-size: 20px; }
+  .r-total { grid-template-columns: 1fr; gap: 4px; }
+}
+/* Fallback för Safari ≤15.x utan container-queries (mobil P2-3): spegla det staplade
+   radläget på viewport-bredd så "ord på ord"-defekten aldrig återuppstår */
+@supports not (container-type: inline-size) {
+  @media (max-width: 480px) {
+    .r-row { display: grid; gap: 5px; padding: 16px 0; }
+    .r-row .dots { display: none; }
+    .r-row .lbl {
+      font-size: 12.5px; font-weight: 600; letter-spacing: .09em;
+      text-transform: uppercase; color: var(--muted);
+    }
+    .r-row .amt { margin-left: 0; font-size: 17px; white-space: normal; }
+    .offert-pill {
+      background: none; border: 0; border-radius: 0; padding: 0;
+      font-size: 17px; font-weight: 600; color: var(--ink); letter-spacing: 0;
+    }
+    .r-row.deduct .amt { font-size: 20px; }
+    .r-total { grid-template-columns: 1fr; gap: 4px; }
+  }
+}
+
+/* ========== Mellanläge: tvåspalt kvar, panelen kompakteras ========== */
+@media (max-width: 1120px) {
+  .grid { grid-template-columns: minmax(0, 1fr) clamp(430px, 42vw, 500px); gap: 44px; }
+}
+
+/* ========== Staplat: H2 → stegen → panelen ========== */
+@media (max-width: 1000px) {
+  /* sektionsbytet steg→panel = blockets största avstånd (spacing P1-4) */
+  .grid { grid-template-columns: 1fr; gap: 48px; max-width: 700px; margin-inline: auto; }
+  h2 { max-width: 26ch; }
+}
+
+/* ================= Mobil ================= */
+@media (max-width: 900px) {
+  :root { --edge: 10px; }                 /* bredare huvudcontainer (ägarorder 8) */
+  body { padding: 18px var(--edge) 56px; }
+  .wf-label { font-size: 11px; letter-spacing: .1em; margin-bottom: 12px; }
+  .wf-label a { display: none; }          /* preview-krom — stjäl höjd på mobil */
+  .block { border-radius: var(--r-lg); padding: 28px 16px; }
+  /* steg→panel = sektionsbyte, blockets största avstånd (spacing P1-4) */
+  .grid { gap: 48px; max-width: 640px; }
+  /* H2: sajt-clampen ger 28px här; vikt 500 = lugnare (ägarorder 5).
+     H2→steg 44 mot steg↔steg 28 = ≥1.5× kontrast (ägarorder 6, spacing P0-1) */
+  h2 { max-width: none; margin-bottom: 44px; }
+  .steps { --sgap: 28px; }
+  .step { grid-template-columns: 38px 1fr; gap: 14px; }
+  .step .n { width: 38px; height: 38px; font-size: 15px; margin-top: -6px; }
+  /* -18px ger 4/4px andrum kring linjen vid gap 28 (spacing P2-8, omräknad mot nya gapet) */
+  .step:not(:last-child)::before { left: 18px; top: 36px; bottom: -18px; }
+  .step p { max-width: none; }
+  .panel { --panel-pad-x: 14px; padding: 24px var(--panel-pad-x) 20px; }  /* bredare innercontainer (ägarorder 8); topp/botten-balans (spacing P2-11) */
+  .r-total { padding: 16px var(--panel-pad-x); }
+  .r-total .amt { font-size: 25px; }
+  /* staplat läge 481-900: CTA:n ska inte spänna 600px+ (facit-notering @768) */
+  .cta { width: auto; max-width: 100%; padding: 11px 24px; gap: 12px; }
+  .cta-wrap { padding-top: 28px; }
+}
+@media (max-width: 480px) {
+  .cta { width: 100%; padding: 11px 16px; gap: 10px; }
+  .tel { font-size: 14.5px; }
+}
+/* ≤345px: CTA-innehållet (nowrap 16px per sajtstilen) kräver ~239px — kompaktare CTA + bredare
+   containrar (i linje med ägarorder 8) räddar 320-läget utan att röra sajtens 16px/500 */
+@media (max-width: 345px) {
+  .block { padding-inline: 14px; }
+  .panel { --panel-pad-x: 12px; }
+  .cta { gap: 6px; padding: 11px 10px; }
+  .cta .cta-arrow { width: 15px; height: 15px; }
+}
+/* Säkerhetsnät ≤330px (mobil P2-2): 15px håller en rad vid normal zoom (medveten
+   avvikelse från sajtens 16px, enbart <330px); radbrytning tillåten så Androids
+   font-boost/user-zoom aldrig klipper texten ut ur knappen */
+@media (max-width: 330px) {
+  .cta { font-size: 15px; white-space: normal; line-height: 1.2; text-align: center; }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="wf-label">
+  <span>GT generisk · laddbox i [ort]</span>
+  <a href="familj.html">← blockfamiljen</a>
+</div>
+
+<section class="block" aria-label="Grön Teknik-avdrag för laddbox med installation">
+  <div class="grid">
+
+    <div class="left">
+      <!-- [GAP fakturamodell] "draget direkt på fakturan" — ägargrind: bekräfta fakturamodellen innan ship
+           (samma grind som ROT-blocket; live-verifierad formulering i faktabas-gt-produkt §3).
+           [Ort] = programmatisk ACF-slot — sidan äger orten, blocket påstår ALDRIG lokal närvaro. -->
+      <h2>Laddbox i <span data-slot="ort">[Ort]</span> med <span class="accent"><span data-slot="sats">50&nbsp;%</span> Grön Teknik</span>, draget direkt på fakturan</h2>
+
+      <ol class="steps">
+        <li class="step">
+          <span class="n" aria-hidden="true">1</span>
+          <h3>Vi räknar på ditt hem</h3>
+          <!-- Offert utan mekanik = tomt säljsamtal (faktabas-gt-generisk F3) — prisfaktorerna är obligatoriska. -->
+          <p>Avståndet till elcentralen, en- eller trefas och om du behöver lastbalansering avgör priset mer än märket på boxen. Offerten visar ditt pris efter avdraget, innan du bestämmer dig.</p>
+        </li>
+        <li class="step">
+          <span class="n" aria-hidden="true">2</span>
+          <h3>En auktoriserad elektriker installerar hemma hos dig</h3>
+          <!-- Paketkravet står som VILLKOR + köpråd före köpet, inte som självberöm (faktabas-gt-generisk §1:
+               "köp inte boxen själv på nätet först, då blir det bara avdrag på arbetstimmarna. Skatteverket som
+               auktoritet, inte Ampy som säljare"). Villkoret upprepas i totalplattans .t-note. -->
+          <p>Skatteverket kräver att samma företag både levererar och installerar, annars gäller avdraget inte materialet. Köper du boxen själv på nätet först blir det bara avdrag på arbetstiden. Vi levererar box och arbete i samma jobb.</p>
+        </li>
+        <li class="step">
+          <span class="n" aria-hidden="true">3</span>
+          <h3>Du slipper pappersarbetet</h3>
+          <!-- [GAP fakturamodell] fakturamodell + ansökningshantering: ägarbekräftelse före ship -->
+          <p>Avdraget dras direkt på fakturan, så du ligger aldrig ute med pengarna. Ansökan till Skatteverket skickar vi in åt dig.</p>
+        </li>
+      </ol>
+    </div>
+
+    <section class="panel" aria-labelledby="pcap">
+      <!-- Rubriken är ACF-mallbar: ROT-sidor = "Så räknas ROT", GT-sidor = "Så räknas Grön Teknik" -->
+      <h3 class="p-cap" id="pcap"><span data-slot="avdrag">Så räknas Grön Teknik</span></h3>
+
+      <!-- data-slot="tjanst" är LADDBOX-ONLY. Byt ALDRIG till "Solcellsbatteri" här: batteri är solcellsgrindat
+           (GT kräver egen solelproduktion, annars kan ROT 30 % på arbetet gälla i stället) och kräver en EGEN
+           blockvariant som bär grind-fotnoten. Ett batteriblock utan grind = fälla F5, faktabas-gt-generisk §4. -->
+      <div class="r-row">
+        <span class="lbl"><span data-slot="tjanst">Laddbox</span> + installation</span>
+        <span class="dots" aria-hidden="true"></span>
+        <span class="amt"><span class="offert-pill">Skräddarsydd offert</span></span>
+      </div>
+
+      <!-- [GAP-1, BLOCKERANDE] 50 % vs 48,5 %: sajten räknar flat 50 % (×2 verifierat ×7), motorn/gold-copyn
+           48,5 % (97-schablonen). Raden följer sajtlinjen tills ägaren stänger frågan; §4.6 kallar
+           konflikten go-live-blocker.
+           OBS: satsen står i FYRA strängar, alla märkta data-slot="sats" — H2, avdragsraden nedan,
+           totalplattan och finstilten. Landar GAP-1 på 48,5 % måste ALLA FYRA ändras ihop.
+           Ingen kronsiffra visas, så blocket överlever båda utfallen strukturellt. -->
+      <div class="r-row deduct">
+        <span class="lbl">Grön Teknik på arbete och material</span>
+        <span class="dots" aria-hidden="true"></span>
+        <span class="amt">−<span data-slot="sats">50&nbsp;%</span></span>
+      </div>
+
+      <!-- [FACT] GT laddbox = 50 % av arbete OCH material (ägarbekräftad kanon; laddbox är INTE solcellsgrindad,
+           batterigrind-fotnoten får ALDRIG in här, faktabas-gt-generisk F5).
+           src: ampy-foretagsdata rate-kanon + faktabas-gt-produkt §1
+           Etiketten är medvetet kort och avdragsneutral ("efter avdrag"): dels håller den EN rad i hela
+           laptopbandet som basens etikett gör, dels överlever den både GAP-1 och en tjänstebyte.
+           .t-note bär (a) "kan"-hedgen på totalutfallet — skattereduktion, inte bidrag, faktabas §1/§3 —
+           och (b) paketVILLKORET, inte ett självberöm. -->
+      <div class="r-total">
+        <span class="t-label">Ditt pris efter avdrag</span>
+        <span class="amt"><span data-slot="sats">50&nbsp;%</span> av totalen</span>
+        <span class="t-note">Avdraget kan bli mindre om du inte har tillräckligt med skatt att räkna av. Till skillnad från ROT omfattas även materialet, men bara om samma företag både levererar och installerar.</span>
+      </div>
+
+      <!-- Lokalfrågan (P0 på ortssidor): statligt avdrag, samma i hela Sverige, OCH andra halvan av
+           lokalsvaret ("inget kommunalt bidrag att jaga") som faktabas-gt-generisk §1 kallar den lokala
+           sanning ingen konkurrent säger. Nationell formulering tillåten per ägardirektiv 2026-07-18.
+           "En egen pott skild från ROT" = faktabas §1 (GT och ROT har separata tak, 50 000 + 50 000).
+           Hedge: "skatt att räkna av" (skattereduktion, inte bidrag).
+           [GAP-3] BRF/företag → Naturvårdsverkets "Ladda bilen"-stöd ligger medvetet UTANFÖR blocket
+           (ägargrind kvarstår); "privatperson som äger bostaden" är blockets enda avgränsning mot F2/F6. -->
+      <p class="fine">Grön Teknik är ett statligt avdrag, samma <span data-slot="sats">50&nbsp;%</span> i hela Sverige, och det finns inget kommunalt bidrag du behöver jaga. Taket är 50&nbsp;000&nbsp;kr per person och år, en egen pott skild från ROT, och är ni två ägare kan ni dela på det. Avdraget förutsätter att du är privatperson, äger bostaden och har skatt att räkna av.</p>
+
+      <div class="cta-wrap">
+        <!-- [GAP] CTA-mål-URL = ägarbeslut (href="#" är placeholder).
+             Knappstilen = EXAKT sajtens .hero_2__primary-button (ägarens referens "Kostnadsfri rådgivning").
+             CTA-TEXTEN ÄR EN PARITETSGRIND: basens ≤345/≤330-brytpunkter är kalibrerade mot basens
+             textlängd ("Begär offert med ROT inräknat"). Blir texten längre spricker knappen 331-384px
+             (iPhone SE 375 / Android 360). Ny text mäter smalare än basens på alla bredder 320-480.
+             Lägg ALDRIG till ord här utan att mäta om 320-480-svepet. -->
+        <a class="cta" href="#">Begär offert med Grön Teknik
+          <svg class="cta-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <p class="tel">Hellre prata? <a href="tel:+46102657979">Ring 010-265&nbsp;79&nbsp;79</a></p>
+      </div>
+    </section>
+
+  </div>
+</section>
+
+</body>
+</html>

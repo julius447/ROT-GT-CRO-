@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="sv-SE">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Blockfamiljen · Hemförsäkring (eljour/felsökning/besiktning)</title>
+<style>
+/* ================= Ampy tokens (real) ================= */
+@font-face {
+  font-display: swap;
+  font-family: "Outfit";
+  src: url("../assets/fonts/Outfit-VariableFont_wght.woff2") format("woff2-variations");
+  font-weight: 100 900;
+}
+:root {
+  --navy: #090b32;
+  --teal: #00a991;
+  /* WCAG: #00a991 på vitt = 2.96:1 → underkänner 3:1 för stor text.
+     --teal-text (#009b85, 3.48:1 vitt / 3.30:1 offwhite) för ALL teal-satt text;
+     #00a991 behålls för ytor + CTA-gradient. (typo P0-1 + ux P1-4) */
+  --teal-text: #009b85;
+  --teal-bright: #1cc4af;
+  --teal-soft: #e0f5f2;
+  --offwhite: #f5f9ff;
+  --ink: #0f123c;
+  --muted: #565e82;
+  --faint: #8a90ac;
+  --line: rgba(15, 18, 60, 0.10);
+  --line-strong: rgba(15, 18, 60, 0.16);
+  --subtle: #eaeff3;
+  --r-md: 14px;
+  --r-lg: 22px;
+  --r-xl: 32px;                       /* kanon: 3.2rem */
+  --shadow-1: 0 1px 2px rgba(15,18,60,.06), 0 1px 1px rgba(15,18,60,.04);
+  --shadow-2: 0 6px 16px -4px rgba(15,18,60,.10), 0 2px 6px rgba(15,18,60,.06);
+  --shadow-3: 0 24px 50px -10px rgba(15,18,60,.18), 0 8px 16px -6px rgba(15,18,60,.10);
+  /* fokusring: vit inre + navy yttre = synlig på BÅDE vitt och teal (≥3:1) */
+  --ring: 0 0 0 3px #fff, 0 0 0 6px var(--navy);
+  --fast: 140ms;
+  --normal: 280ms;
+  --ease: cubic-bezier(0.2, 0.6, 0.2, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* fullbredds-rytm (ägardirektiv 2026-08-14: vitmarginalregeln pensionerad) */
+  --edge: 28px;                       /* liten kantpadding — blocket går nära skärmkant */
+  /* clamp-ändpunkter kvantiserade till 8-bas (spacing P2-12) */
+  --pad-x: clamp(24px, 4.4vw, 80px);  /* kortets inre luft */
+  --pad-y: clamp(32px, 3.6vw, 64px);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  font-family: "Outfit", system-ui, -apple-system, sans-serif;
+  background: var(--offwhite);
+  color: var(--ink);
+  line-height: 1.5;
+  padding: 30px var(--edge) 80px;
+}
+a { -webkit-tap-highlight-color: transparent; }
+/* transparent outline = indikatorn överlever forced-colors / Windows HCM */
+:focus-visible { outline: 2px solid transparent; outline-offset: 2px; box-shadow: var(--ring); }
+
+/* ================= Design label row ================= */
+.wf-label {
+  display: flex; justify-content: flex-start; align-items: baseline; gap: 18px; flex-wrap: wrap;
+  margin: 0 0 16px; padding: 0 4px;
+  font-size: 12.5px; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
+}
+/* liten text = aldrig teal (teal klarar bara stor/fet text på vitt) */
+.wf-label a {
+  color: var(--navy); text-decoration: none; font-weight: 600; letter-spacing: 0;
+  text-transform: none; font-size: 13.5px; display: inline-block; padding: 10px 8px; border-radius: 8px;
+}
+.wf-label a:hover { text-decoration: underline; }
+
+/* ================= The block (full-bleed card) ================= */
+.block {
+  width: 100%; position: relative;
+  background: #fff; border: 1px solid var(--line);
+  border-radius: var(--r-xl); box-shadow: var(--shadow-3);
+  padding: var(--pad-y) var(--pad-x);
+  animation: fade 400ms var(--ease-out) both;
+}
+/* enter: opacity only — en 1384px-platta ska aldrig glida in */
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+.left  { animation: fade 400ms var(--ease-out)  60ms both; }
+.panel { animation: fade 400ms var(--ease-out) 120ms both; }
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(460px, 37vw, 600px);
+  gap: clamp(48px, 5.5vw, 96px);
+  align-items: stretch;
+}
+
+/* ---------- Left: H2 + processen 1-2-3 ---------- */
+/* SAJTMATCH (ground truth, theme-style): h2 = var(--aptext-2-5xl) & vikt 500.
+   28→40px via exakt samma clamp-kurva som live-sajten. */
+h2 {
+  font-size: clamp(28px, calc(1.25vw + 24px), 40px);
+  font-weight: 500; line-height: 1.18; letter-spacing: normal; /* ground truth sätter bara size+weight (typo P2-5) */
+  max-width: 30ch; text-wrap: pretty;
+  /* H2→steg ≥1.4× steg↔steg (56 mot 40 @1440) — hierarkisk kontrast (spacing P0-1, ux P1-2) */
+  margin-bottom: clamp(44px, 4vw, 56px);
+}
+h2 .accent { color: var(--teal-text); white-space: nowrap; }
+
+.steps { --sgap: clamp(32px, 3vw, 40px); list-style: none; display: flex; flex-direction: column; gap: var(--sgap); }
+.step { display: grid; grid-template-columns: 44px 1fr; gap: 16px; position: relative; }
+/* ikonen: mjuk teal-fylld cirkel (lugnare än outline-ring), navy siffra — ingen ram */
+.step .n {
+  grid-row: 1 / span 2; align-self: start; margin-top: -8px;   /* optisk mitt mot h3:ans första rad */
+  width: 44px; height: 44px; border-radius: 50%;
+  background: var(--teal-soft); color: var(--navy);
+  font-weight: 600; font-size: 16px;
+  display: grid; place-items: center; position: relative; z-index: 1;
+  font-variant-numeric: tabular-nums;
+}
+.step h3 { font-size: clamp(19px, 1.5vw, 22px); font-weight: 600; line-height: 1.25; letter-spacing: normal; }
+.step p { color: var(--muted); font-weight: 300; font-size: clamp(15px, 1.2vw, 17px); line-height: 1.55; margin-top: 4px; max-width: 62ch; }
+/* den ENDA streckade idén i blocket — 4px andrum i båda ändar, når aldrig in under cirkeln */
+.step:not(:last-child)::before {
+  content: ""; position: absolute; left: 21px; top: 40px; bottom: calc(-1 * var(--sgap) + 12px);
+  border-left: 2px dashed rgba(15,18,60,.15);
+}
+
+/* ---------- Right: panelen (samma kortstil ägaren gillar, blixten borttagen per ägarorder) ---------- */
+.panel {
+  /* symmetrisk vertikal padding, 8-bas-ändpunkter (spacing P2-7 + P2-12) */
+  --panel-pad-x: clamp(24px, 2.2vw, 32px);
+  position: relative;
+  container-type: inline-size;
+  background: #fff; border: 1px solid var(--line-strong); border-radius: var(--r-lg);
+  box-shadow: var(--shadow-2);
+  padding: clamp(24px, 2.2vw, 32px) var(--panel-pad-x);
+  display: flex; flex-direction: column;
+}
+
+/* rubriken är ACF-mallbar: "Så räknas ROT" / "Så räknas Grön Teknik" */
+.p-cap {
+  font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--navy);
+  padding-bottom: 16px; border-bottom: 1px solid var(--line);
+}
+
+/* kvittots vertikala rytm på 4/8-bas (spacing P1-5) */
+.r-row {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap; row-gap: 6px;
+  padding: 16px 0; font-size: 17px;
+}
+.r-row + .r-row { border-top: 1px solid var(--line); }
+.r-row .lbl { font-weight: 400; color: var(--ink); flex: 0 1 auto; min-width: 0; }
+.r-row .dots { flex: 1 1 28px; align-self: center; border-bottom: 2px dotted rgba(15,18,60,.16); min-width: 28px; }
+.r-row .amt { font-weight: 600; white-space: nowrap; flex: none; margin-left: auto; font-variant-numeric: tabular-nums; }
+.offert-pill {
+  display: inline-block; background: var(--offwhite);
+  border: 1px solid var(--line-strong); border-radius: 999px;
+  padding: 4px 15px; font-weight: 600; font-size: 14.5px; color: var(--navy); letter-spacing: .01em;
+}
+/* avdragsraden — full styrka, statisk */
+.r-row.deduct .amt { color: var(--teal-text); font-size: 20px; font-weight: 700; }
+
+/* totalen — kvittots terminala beat: en egen platta, inte ännu en regel */
+.r-total {
+  margin: 16px calc(-1 * var(--panel-pad-x)) 0;
+  padding: 24px var(--panel-pad-x);
+  background: rgba(0,169,145,.055); border-radius: var(--r-md);
+  display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 6px 14px;
+}
+/* caps-stilen = exakt .p-cap (ETT caps-system i panelen); vikt max 700 — 800 är off-canon (typo P1-2) */
+.r-total .t-label { font-weight: 700; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--navy); }
+.r-total .amt {
+  font-weight: 700; font-size: clamp(26px, 2.1vw, 32px); letter-spacing: -0.012em; line-height: 1.1;
+  color: var(--navy); white-space: nowrap; font-variant-numeric: tabular-nums;
+}
+/* undantaget står DÄR misstaget görs — inte tre rader ned i finstilten */
+.r-total .t-note {
+  grid-column: 1 / -1;
+  font-size: 13.5px; font-weight: 400; color: var(--muted); line-height: 1.45; text-wrap: pretty;
+}
+
+/* villkorstexten: UNDER raderna, FÖRE CTA:n (ägarorder d) */
+.fine {
+  font-size: 13.5px; color: var(--muted); font-weight: 400; line-height: 1.5;
+  margin-top: 12px; text-wrap: pretty; font-variant-numeric: tabular-nums;
+}
+
+/* ================= CTA — EXAKT sajtens .hero_2__primary-button (ground truth) ================= */
+/* EN spacing-källa per avstånd (spacing P1-3): fine→divider 32 (padding-top),
+   divider→CTA 24 (::before margin), CTA→tel 16 (.tel margin) — linjen fäster vid CTA-zonen */
+.cta-wrap { margin-top: auto; padding-top: 32px; display: flex; flex-direction: column; align-items: center; gap: 0; }
+.cta-wrap::before { content: ""; display: block; align-self: stretch; height: 1px; background: var(--line); margin-bottom: 24px; }
+.cta {
+  display: inline-flex; align-items: center; justify-content: center; gap: 16px;
+  min-height: 58px; padding: 11px 24px; border-radius: 16px;
+  font-size: 16px; font-weight: 500; line-height: 1; white-space: nowrap;
+  color: hsl(237 35% 24%); text-decoration: none;
+  background: linear-gradient(120deg, #55ff9a 0%, #5eb1bf 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.45), 0 2px 4px rgba(9,11,50,.06), 0 10px 26px -6px rgba(94,199,160,.45);
+  transition: transform .16s ease, box-shadow .16s ease, filter .16s ease;
+}
+.cta .cta-arrow { flex: none; transition: transform .16s ease; }
+.cta:hover {
+  transform: translateY(-1.5px);
+  filter: saturate(1.06) brightness(1.02);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.45), 0 3px 6px rgba(9,11,50,.08), 0 14px 32px -6px rgba(94,199,160,.6);
+}
+.cta:hover .cta-arrow { transform: scale(1.18); }
+.cta:active { transform: translateY(0); }
+.cta:focus-visible {
+  outline: 3px solid #090b32; outline-offset: 3px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.45), 0 2px 4px rgba(9,11,50,.06), 0 10px 26px -6px rgba(94,199,160,.45);
+}
+
+/* telefonen: ren fritext-länk (aldrig knappyta) — desktop OCH mobil */
+.tel { font-size: 15px; color: var(--muted); font-weight: 400; text-align: center; margin-top: 16px; }
+/* tryckyta ≥44px via min-height (osynlig — utseendet förblir ren text). spacing P0-2 / typo P1-3 / ux P0-1 */
+.tel a {
+  color: var(--navy); font-weight: 600; white-space: nowrap;
+  text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1.5px;
+  display: inline-flex; align-items: center; min-height: 44px; padding: 0 8px;
+  border-radius: 8px; font-variant-numeric: tabular-nums;
+}
+
+/* ================= Kvittoraderna byter struktur på PANELENS bredd, aldrig viewportens.
+   Smal panel → varje rad blir en mini-platta (totalplattans struktur som förlaga):
+   liten versal etikett över, värdet under — inga prickar, ingen pill. ================= */
+@container (max-width: 400px) {
+  .r-row { display: grid; gap: 5px; padding: 16px 0; }
+  .r-row .dots { display: none; }
+  .r-row .lbl {
+    font-size: 12.5px; font-weight: 600; letter-spacing: .09em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .r-row .amt { margin-left: 0; font-size: 17px; white-space: normal; }
+  .offert-pill {
+    background: none; border: 0; border-radius: 0; padding: 0;
+    font-size: 17px; font-weight: 600; color: var(--ink); letter-spacing: 0;
+  }
+  .r-row.deduct .amt { font-size: 20px; }
+  .r-total { grid-template-columns: 1fr; gap: 4px; }
+}
+/* Fallback för Safari ≤15.x utan container-queries (mobil P2-3): spegla det staplade
+   radläget på viewport-bredd så "ord på ord"-defekten aldrig återuppstår */
+@supports not (container-type: inline-size) {
+  @media (max-width: 480px) {
+    .r-row { display: grid; gap: 5px; padding: 16px 0; }
+    .r-row .dots { display: none; }
+    .r-row .lbl {
+      font-size: 12.5px; font-weight: 600; letter-spacing: .09em;
+      text-transform: uppercase; color: var(--muted);
+    }
+    .r-row .amt { margin-left: 0; font-size: 17px; white-space: normal; }
+    .offert-pill {
+      background: none; border: 0; border-radius: 0; padding: 0;
+      font-size: 17px; font-weight: 600; color: var(--ink); letter-spacing: 0;
+    }
+    .r-row.deduct .amt { font-size: 20px; }
+    .r-total { grid-template-columns: 1fr; gap: 4px; }
+  }
+}
+
+/* ========== Mellanläge: tvåspalt kvar, panelen kompakteras ========== */
+@media (max-width: 1120px) {
+  .grid { grid-template-columns: minmax(0, 1fr) clamp(430px, 42vw, 500px); gap: 44px; }
+}
+
+/* ========== Staplat: H2 → stegen → panelen ========== */
+@media (max-width: 1000px) {
+  /* sektionsbytet steg→panel = blockets största avstånd (spacing P1-4) */
+  .grid { grid-template-columns: 1fr; gap: 48px; max-width: 700px; margin-inline: auto; }
+  h2 { max-width: 26ch; }
+}
+
+/* ================= Mobil ================= */
+@media (max-width: 900px) {
+  :root { --edge: 10px; }                 /* bredare huvudcontainer (ägarorder 8) */
+  body { padding: 18px var(--edge) 56px; }
+  .wf-label { font-size: 11px; letter-spacing: .1em; margin-bottom: 12px; }
+  .wf-label a { display: none; }          /* preview-krom — stjäl höjd på mobil */
+  .block { border-radius: var(--r-lg); padding: 28px 16px; }
+  /* steg→panel = sektionsbyte, blockets största avstånd (spacing P1-4) */
+  .grid { gap: 48px; max-width: 640px; }
+  /* H2: sajt-clampen ger 28px här; vikt 500 = lugnare (ägarorder 5).
+     H2→steg 44 mot steg↔steg 28 = ≥1.5× kontrast (ägarorder 6, spacing P0-1) */
+  h2 { max-width: none; margin-bottom: 44px; }
+  .steps { --sgap: 28px; }
+  .step { grid-template-columns: 38px 1fr; gap: 14px; }
+  .step .n { width: 38px; height: 38px; font-size: 15px; margin-top: -6px; }
+  /* -18px ger 4/4px andrum kring linjen vid gap 28 (spacing P2-8, omräknad mot nya gapet) */
+  .step:not(:last-child)::before { left: 18px; top: 36px; bottom: -18px; }
+  .step p { max-width: none; }
+  .panel { --panel-pad-x: 14px; padding: 24px var(--panel-pad-x) 20px; }  /* bredare innercontainer (ägarorder 8); topp/botten-balans (spacing P2-11) */
+  .r-total { padding: 16px var(--panel-pad-x); }
+  .r-total .amt { font-size: 25px; }
+  /* staplat läge 481-900: CTA:n ska inte spänna 600px+ (facit-notering @768) */
+  .cta { width: auto; max-width: 100%; padding: 11px 24px; gap: 12px; }
+  .cta-wrap { padding-top: 28px; }
+}
+@media (max-width: 480px) {
+  .cta { width: 100%; padding: 11px 16px; gap: 10px; }
+  .tel { font-size: 14.5px; }
+}
+/* ≤345px: CTA-innehållet (nowrap 16px per sajtstilen) kräver ~239px — kompaktare CTA + bredare
+   containrar (i linje med ägarorder 8) räddar 320-läget utan att röra sajtens 16px/500 */
+@media (max-width: 345px) {
+  .block { padding-inline: 14px; }
+  .panel { --panel-pad-x: 12px; }
+  .cta { gap: 6px; padding: 11px 10px; }
+  .cta .cta-arrow { width: 15px; height: 15px; }
+}
+/* Säkerhetsnät ≤330px (mobil P2-2): 15px håller en rad vid normal zoom (medveten
+   avvikelse från sajtens 16px, enbart <330px); radbrytning tillåten så Androids
+   font-boost/user-zoom aldrig klipper texten ut ur knappen */
+@media (max-width: 330px) {
+  .cta { font-size: 15px; white-space: normal; line-height: 1.2; text-align: center; }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="wf-label">
+  <span>Blockfamiljen · Hemförsäkring</span>
+  <a href="familj.html">← blockfamiljen</a>
+</div>
+
+<!-- ============================================================
+     HEMFÖRSÄKRINGS-BLOCKET (eljour / felsökning / elbesiktning)
+     ROT gäller INTE här (inget åtgärdande arbete). Försäkringen ersätter
+     SKADAN, inte tjänsten (faktabas-hemforsakring §0-§1) — därför lovar
+     blocket UNDERLAGET, aldrig utfallet. Register: lugnt och konkret,
+     besökaren har ofta strömmen borta (F8).
+     Akut/112-logiken ägs av SIDAN, inte blocket (faktabas §2).
+
+     SHIP-GATES (blockerande, ägaren svarar innan blocket går live):
+       [GAP-1] jourpriser saknas i datalagret → rad 1 bär en pill, ingen siffra.
+               Pillens löfte "Prisbesked på telefon" måste vara operativt sant.
+       [GAP-2]/[GAP-3] underlagsleveransen i steg 2 (felrapport + specificerad
+               faktura + foton) måste vara Ampys FAKTISKA standardleverans.
+       [GAP-5] ROT-raden ("åtgärden efter felsökningen kan omfattas") är
+               strukturellt UTELÄMNAD. H2:ns "Ren felsökning ger inget
+               ROT-avdrag" följer §1.8 ordagrant, men hela ROT-formuleringen
+               är gated på Skatteverkskoll + /elinstallation/-motsägelsen.
+       [GAP-6] rådgivningsrisk (F6): blocket uttalar sig om tredje parts avtal.
+               Jurist-/ägar-OK krävs för hela försäkringsspåret, inklusive
+               "kan ersätta en del" och totalplattans not.
+       [GAP-8] anmälningsordningen ("måste jag ringa bolaget först?"): mekaniken
+               saknas i datalagret. Blocket PÅSTÅR ingen ordning — steg 3
+               avväpnar den uttryckligen ("när och hur ditt bolag kräver")
+               i stället för att låta trappan 1→2→3 skriva ut en ordning.
+       [GAP] sekundärlänkens mål-URL (/offert/ = playbookens rutt, ej ägarlåst).
+     [GAP-7] boendeform: löst med en uttalad mening i finstilten (§1.6) i
+     stället för differentiering — hedgen täcker nu även ansvarsgränsen.
+     ============================================================ -->
+<section class="block" aria-label="Vad felsökningen kan kosta dig och vad hemförsäkringen kan ersätta">
+  <div class="grid">
+
+    <div class="left">
+      <!-- H2 ur faktabasens copy-färdiga riktning (erkänn förlusten först, ge vägen sen),
+           omskriven utan tankstreck per UI-regeln. "en del" (inte "stora delar") — [GAP-6].
+           "REN felsökning" = §1.8 ordagrant: leder besöket till ett åtgärdande arbete kan
+           den delen omfattas av ROT. Den raden skrivs INTE ut här ([GAP-5]), men H2:n får
+           heller inte påstå det platta motsatta.
+           Formuleringen ligger nära §1.8 ordagrant ("ROT medges inte för ren felsökning")
+           OCH är den enda varianten som aldrig bryter "ROT-avdraget" mitt itu: uppmätt
+           320→1600, 0 delade ord (jfr "Ren felsökning ger inget ROT-avdrag", som bryter
+           efter bindestrecket på 1366/1440). -->
+      <h2>ROT-avdraget gäller inte för ren felsökning. Men vid skada kan <span class="accent">din hemförsäkring</span> ersätta en del</h2>
+
+      <ol class="steps">
+        <li class="step">
+          <span class="n" aria-hidden="true">1</span>
+          <h3>Vi felsöker och dokumenterar</h3>
+          <!-- Prislöftet står EN gång i blocket (pillen i panelen, där kunden ställer frågan).
+               [FACT] behörighetsargumentet: ersättningen kan sättas ned eller utebli om skadan
+               orsakats av obehörigt/icke fackmannamässigt elarbete (LF aktsamhetskrav).
+               src: faktabas-hemforsakring §1.2. Hedgat med "kan" åt båda hållen. -->
+          <p>En auktoriserad elektriker hittar felet och dokumenterar orsaken. Att jobbet görs av ett registrerat elinstallationsföretag skyddar din rätt till ersättning: efter obehörigt elarbete kan den sättas ned eller utebli.</p>
+        </li>
+        <li class="step">
+          <span class="n" aria-hidden="true">2</span>
+          <h3>Du får underlaget till ditt bolag</h3>
+          <!-- [GAP-2]/[GAP-3] SHIP-GATE (blockerande): felrapport + specificerad faktura
+               (arbete/material/utryckning separat) + foton måste vara Ampys faktiska
+               standardleverans vid eljour i dag. Annars brister löftet vid första kunden. -->
+          <p>Specificerad faktura, foton och en skriftlig beskrivning av felet och orsaken. Det är det underlag ditt försäkringsbolag frågar efter.</p>
+        </li>
+        <li class="step">
+          <span class="n" aria-hidden="true">3</span>
+          <h3>Du anmäler till ditt försäkringsbolag</h3>
+          <!-- Candour: Ampy anmäler INTE skadan och lovar INTE utfall (faktabas §2).
+               [GAP-8]: trappan 1→2→3 skulle annars SKRIVA UT en anmälningsordning (fixa →
+               fakturera → anmäl). Många villkor kräver kontakt/godkännande FÖRE arbetet (F5).
+               Första satsen avväpnar ordningen utan att påstå mekaniken. -->
+          <p>Anmälan gör du själv, när och hur ditt bolag kräver. Försäkringen är ditt avtal, och vad som ersätts avgörs av dina villkor och installationens ålder. Vi kan inte lova utfallet.</p>
+        </li>
+      </ol>
+    </div>
+
+    <section class="panel" aria-labelledby="pcap">
+      <!-- Rubriken är ACF-mallbar och delar slot-nyckel med familjen (ROT/GT = data-slot="avdrag").
+           Nyckeln är familjens ACF-fält, INTE ett påstående om ett avdrag: denna yta har ingen
+           procentsats, därför ALDRIG "Så räknas avdraget" (faktabas §2). Rubriktexten är §2:s
+           korta alternativ — håller EN rad i hela svepet, som basens "Så räknas ROT". -->
+      <h3 class="p-cap" id="pcap"><span data-slot="avdrag">Så kan kostnaden landa</span></h3>
+
+      <div class="r-row">
+        <!-- data-slot="tjanst" = familjens rad 1-slot (basen: "Elcentral" + installation) -->
+        <span class="lbl"><span data-slot="tjanst">Utryckning + felsökning</span></span>
+        <span class="dots" aria-hidden="true"></span>
+        <!-- [GAP-1, BLOCKERANDE] jourpriser (framkörning/minimidebitering/jourtillägg) saknas helt
+             i datalagret → pill i stället för kr-belopp. Pillen är grundad i faktabasens CTA-löfte
+             "vi säger vad det kan kosta innan vi åker" (§2) — ägargrind: operativt sant?
+             Kort form så raden håller EN rad i laptop-bandet (basens kvittorytm). -->
+        <span class="amt"><span class="offert-pill">Prisbesked på telefon</span></span>
+      </div>
+
+      <div class="r-row deduct">
+        <!-- Ingen procentsats FÅR uppfinnas (faktabas §3) — värdet är hedgad text, inte en siffra.
+             Skade-villkoret bärs av H2 + totalplattan + villkorstexten (etiketten hålls kort
+             så kvittoraden ryms på EN rad, basens rytm). -->
+        <span class="lbl">Din hemförsäkring</span>
+        <span class="dots" aria-hidden="true"></span>
+        <span class="amt">kan ersätta en del</span>
+      </div>
+
+      <!-- KVITTOTS TERMINALA BEAT — säger det som ALLTID är sant, aldrig utfallet.
+           §3 bannlyser "kostar dig bara självrisken" som generell utsaga och F3 bannlyser
+           löften om ersättningsnivå (Folksam C35: vid kortslutning/överslag/överspänning
+           gäller INTE 80 %-taket → åldersavdraget kan gå till 100 %, då betalar kunden allt).
+           Därför "minst självrisken" (ett golv för kundens del) i stället för "ofta
+           självrisken" (ett tak för kundens del = ett utfallslöfte). [GAP-6] ship-gate.
+           [FACT] Grundsjälvrisker: Folksam 1 800 kr (A3) · If 1 800 kr · LF typiskt 1 500–3 000 kr.
+           Copy-säkert spann "ofta 1 500–3 000 kr", inga bolagsnamn ([GAP-4]).
+           src: faktabas-hemforsakring §1.4 + §1.5 (Folksam S2940 26-01, if.se, LF VH16). -->
+      <div class="r-total">
+        <span class="t-label">Du betalar alltid</span>
+        <span class="amt">minst självrisken</span>
+        <span class="t-note">Självrisken är ofta 1&nbsp;500–3&nbsp;000&nbsp;kr och står i ditt försäkringsbrev. På äldre installationer kan åldersavdrag göra att du betalar mer, ibland hela kostnaden.</span>
+      </div>
+
+      <!-- Ärlig avgränsning, dubbelriktat hedgad (marknadsföringslagen: aldrig platt "gäller inte om",
+           faktabas §3) — och besiktning kopplas ALDRIG till ersättning.
+           [GAP-7] boendeformen: hedgen "ditt villkor" täcker villkorsINNEHÅLL, inte ansvarsGRÄNSEN.
+           I hyresrätt är fast el fastighetsägarens ansvar och hemförsäkringen täcker bara lösöret;
+           i BRF slutar föreningens ansvar normalt vid elcentralen. src: §1.6 (Elsäkerhetsverket). -->
+      <p class="fine">Gäller vid skada som din försäkring täcker, till exempel efter blixt, överspänning eller kortslutning. Ren felsökning utan skada och förebyggande besiktning täcks normalt inte. Bor du i bostadsrätt eller hyresrätt gäller andra regler för den fasta elen. Vad som gäller står i just ditt villkor, vi gissar inte åt dig.</p>
+
+      <div class="cta-wrap">
+        <!-- CTA: TELEFON PRIMÄR (faktabasens rekommendation §2 — akut kontext, ingen offertform).
+             Knappstilen = EXAKT sajtens .hero_2__primary-button; endast innehållet bytt. -->
+        <a class="cta" href="tel:+46102657979">Ring oss på 010-265&nbsp;79&nbsp;79
+          <svg class="cta-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <!-- [GAP] sekundärlänkens mål: /offert/ = webb-playbookens rutt för icke-akut intent
+             (aldrig href="#" — en död länk får inte gå live). Ägarbeslut: är /offert/ rätt
+             landning för felsökning/besiktning, eller en egen förfrågningssida? -->
+        <p class="tel">Inte akut? <a href="/offert/">Skicka en förfrågan i stället</a></p>
+      </div>
+    </section>
+
+  </div>
+</section>
+
+</body>
+</html>
