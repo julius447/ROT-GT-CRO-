@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="sv-SE">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design 4 — Ett kort (wizard)</title>
+<style>
+/* ============================================================
+   D4 · ETT KORT — hi-fi. Ampy tokens only.
+   ============================================================ */
+@font-face {
+  font-display: swap; font-family: "Outfit";
+  src: url("../assets/fonts/Outfit-VariableFont_wght.woff2") format("woff2-variations");
+  font-weight: 100 900;
+}
+:root {
+  --navy: #090b32; --navy-2: #0d1145;
+  --teal: #00a991; --teal-bright: #1cc4af; --teal-soft: #e0f5f2;
+  --offwhite: #f5f9ff; --white: #ffffff;
+  --ink: #0f123c; --muted: #565e82; --faint: #8a90ac;
+  --line: rgba(15,18,60,.10); --line-strong: rgba(15,18,60,.16);
+  --r-md: 14px; --r-lg: 22px; --r-xl: 32px; --r-pill: 999px;
+  --shadow-2: 0 6px 16px -4px rgba(15,18,60,.10), 0 2px 6px rgba(15,18,60,.06);
+  --shadow-3: 0 24px 50px -10px rgba(15,18,60,.16), 0 8px 16px -6px rgba(15,18,60,.08);
+  --shadow-teal: 0 12px 30px -8px rgba(0,169,145,.45);
+  --ring: 0 0 0 3px rgba(0,169,145,.40);
+  --fast: 140ms; --normal: 250ms;
+  --ease: cubic-bezier(.2,.6,.2,1);
+  --ease-out: cubic-bezier(.16,1,.3,1);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  font-family: "Outfit", system-ui, -apple-system, sans-serif;
+  background: var(--offwhite); color: var(--ink);
+  line-height: 1.5; padding: 32px 16px 80px;
+  -webkit-font-smoothing: antialiased;
+}
+button { font: inherit; color: inherit; }
+a { color: inherit; }
+
+/* — etikettrad — */
+.wf-label {
+  max-width: 1140px; margin: 0 auto 14px;
+  font-size: 12.5px; font-weight: 500; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--muted); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+}
+.wf-label a { color: var(--teal); text-decoration: none; font-weight: 600; letter-spacing: 0; text-transform: none; font-size: 13.5px; }
+.wf-label a:hover { text-decoration: underline; }
+
+/* — sektionsblocket — */
+.block {
+  max-width: 1140px; margin: 0 auto;
+  background: var(--white); border-radius: var(--r-xl);
+  box-shadow: var(--shadow-2);
+  padding: 72px 56px 64px;
+}
+.stage { max-width: 620px; margin: 0 auto; text-align: center; }
+
+.eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 12.5px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 18px;
+}
+.eyebrow::before, .eyebrow::after {
+  content: ""; width: 22px; height: 1px; background: var(--line-strong);
+}
+h2 {
+  font-size: clamp(28px, 4vw, 42px); font-weight: 500;
+  line-height: 1.12; letter-spacing: -0.015em; color: var(--navy);
+}
+h2 .accent { color: var(--teal); font-weight: 600; white-space: nowrap; }
+.sub {
+  color: var(--muted); font-weight: 300;
+  font-size: clamp(15px, 2vw, 17.5px);
+  margin: 12px auto 34px;
+}
+
+/* — kortet: den fokuserade scenen — */
+.tool {
+  position: relative;
+  background:
+    radial-gradient(420px 190px at 50% -60px, rgba(0,169,145,.055), transparent 70%),
+    var(--offwhite);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 58px 44px 40px;
+  min-height: 324px;
+  display: flex; flex-direction: column; justify-content: center;
+  overflow: hidden;
+}
+
+/* progress-prickar */
+.dots {
+  position: absolute; top: 22px; left: 0; right: 0;
+  display: flex; justify-content: center; align-items: center; gap: 7px;
+}
+.dots i {
+  width: 7px; height: 7px; border-radius: var(--r-pill);
+  background: rgba(15,18,60,.14);
+  transition: width var(--normal) var(--ease), background var(--normal) var(--ease);
+}
+.dots i.on { background: var(--teal); }
+.dots i.now { width: 22px; }
+.stepcount {
+  position: absolute; top: 17px; right: 20px;
+  font-size: 12px; font-weight: 500; letter-spacing: .06em;
+  color: var(--muted); font-variant-numeric: tabular-nums;
+}
+
+/* visually hidden (SR only) */
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  margin: -1px; padding: 0; border: 0;
+  clip: rect(0 0 0 0); clip-path: inset(50%);
+  overflow: hidden; white-space: nowrap;
+}
+
+/* faces */
+.face { display: none; flex-direction: column; align-items: center; gap: 24px; }
+.face.show { display: flex; animation: facein var(--normal) var(--ease-out); }
+@keyframes facein { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.q-big {
+  font-size: clamp(20px, 2.6vw, 25px); font-weight: 500; line-height: 1.3;
+  color: var(--navy); max-width: 26em; outline: none;
+}
+
+/* Ja/Nej-knapparna */
+.btn-row { display: flex; gap: 14px; justify-content: center; width: 100%; }
+.btn-row button {
+  flex: 0 1 190px; min-height: 60px;
+  font-weight: 600; font-size: 18px; letter-spacing: .01em;
+  padding: 15px 24px; border-radius: var(--r-pill);
+  border: 1.5px solid var(--line-strong); background: var(--white);
+  color: var(--navy); cursor: pointer;
+  box-shadow: 0 1px 2px rgba(15,18,60,.05);
+  transition: transform var(--fast) var(--ease), box-shadow var(--fast) var(--ease),
+              border-color var(--fast) var(--ease), background var(--fast) var(--ease),
+              color var(--fast) var(--ease);
+}
+.btn-row button:hover { border-color: var(--teal); box-shadow: 0 6px 16px -6px rgba(0,169,145,.35); transform: translateY(-2px); }
+.btn-row button:active { transform: translateY(0) scale(.97); }
+.btn-row button.picked { background: var(--teal); border-color: var(--teal); color: var(--white); box-shadow: var(--shadow-teal); }
+.btn-row button:focus-visible, .back:focus-visible, .cta:focus-visible { outline: none; box-shadow: var(--ring); }
+.btn-row button:focus-visible { border-color: var(--teal); }
+.cta.ghost:focus-visible { border-color: var(--teal); }
+
+.back {
+  background: none; border: 0; color: var(--muted);
+  font-size: 13.5px; font-weight: 400; cursor: pointer;
+  min-height: 44px; padding: 10px 14px; border-radius: var(--r-pill);
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: color var(--fast) var(--ease);
+}
+.back:hover { color: var(--navy); text-decoration: underline; text-underline-offset: 3px; }
+
+/* — resultat: payoff — */
+.verdict { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.verdict .v-icon {
+  width: 40px; height: 40px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 8px;
+}
+.verdict.ok .v-icon { background: var(--teal); box-shadow: var(--shadow-teal); }
+.verdict.hm .v-icon { background: var(--white); border: 1.5px solid var(--line-strong); }
+.verdict .v-title { font-size: 24px; font-weight: 700; color: var(--navy); letter-spacing: -0.01em; }
+.verdict .v-sub { font-size: 15px; font-weight: 300; color: var(--muted); max-width: 34em; line-height: 1.55; }
+.verdict .v-sub strong { font-weight: 600; color: var(--ink); }
+.v-tel {
+  display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+  min-height: 44px; padding: 10px 20px; border-radius: var(--r-pill);
+  color: var(--teal); font-weight: 600; font-size: 16px;
+  text-decoration: none; border: 1.5px solid rgba(0,169,145,.35);
+  background: var(--white);
+  transition: border-color var(--fast) var(--ease), box-shadow var(--fast) var(--ease), transform var(--fast) var(--ease);
+}
+.v-tel:hover { border-color: var(--teal); box-shadow: 0 6px 16px -6px rgba(0,169,145,.35); transform: translateY(-2px); }
+.v-tel:focus-visible { outline: none; box-shadow: var(--ring); border-color: var(--teal); }
+.v-tel[hidden] { display: none; }
+
+/* kvittot */
+.receipt {
+  width: 100%; max-width: 460px; text-align: left;
+  background: var(--white); border: 1px solid var(--line);
+  border-radius: var(--r-md); padding: 26px 26px 22px;
+  box-shadow: var(--shadow-2);
+}
+.receipt .row {
+  display: flex; justify-content: space-between; align-items: center; gap: 14px;
+  padding: 11px 0; font-size: 15.5px; font-weight: 400; color: var(--ink);
+}
+.receipt .row + .row { border-top: 1px dashed var(--line-strong); }
+.receipt .row .amt { font-weight: 600; white-space: nowrap; }
+.offert-pill {
+  display: inline-block; background: var(--offwhite);
+  border: 1.5px dashed rgba(15,18,60,.30); border-radius: 8px;
+  padding: 3px 12px; font-weight: 600; font-size: 13.5px; color: var(--navy);
+}
+.chip-deduct {
+  display: inline-block; background: var(--teal-soft);
+  border-radius: var(--r-pill); padding: 3px 12px;
+  font-weight: 700; font-size: 14px; color: var(--navy);
+  font-variant-numeric: tabular-nums;
+}
+.receipt .total {
+  margin-top: 14px; border-radius: 12px;
+  background: var(--navy);
+  padding: 14px 18px;
+  display: flex; justify-content: space-between; align-items: baseline; gap: 14px;
+}
+.receipt .total .t-label {
+  font-weight: 600; font-size: 12.5px; letter-spacing: .12em; text-transform: uppercase;
+  color: rgba(255,255,255,.72);
+}
+.receipt .total .amt { font-weight: 700; font-size: 19px; color: var(--teal-bright); letter-spacing: -0.01em; white-space: nowrap; }
+.receipt .fine { font-size: 14px; color: var(--muted); font-weight: 300; margin-top: 13px; line-height: 1.5; }
+
+/* staggered payoff-reveal */
+.face.show .r-1, .face.show .r-2, .face.show .r-3 { animation: rowin 260ms var(--ease-out) both; }
+.face.show .r-2 { animation-delay: 70ms; }
+.face.show .r-3 { animation-delay: 140ms; }
+@keyframes rowin { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* — CTA — */
+.cta-wrap { margin-top: 34px; display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+.cta {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  background: var(--teal); color: var(--white);
+  font-weight: 600; font-size: 16.5px;
+  padding: 16px 32px; min-height: 56px; border-radius: var(--r-pill);
+  border: 0; cursor: pointer; text-decoration: none;
+  box-shadow: var(--shadow-teal);
+  transition: transform var(--fast) var(--ease), box-shadow var(--fast) var(--ease), background var(--fast) var(--ease);
+}
+.cta:hover { background: var(--teal-bright); transform: translateY(-2px); }
+.cta:active { transform: translateY(0); }
+.cta.ghost {
+  background: transparent; color: var(--navy); box-shadow: none;
+  border: 1.5px solid var(--line-strong); font-weight: 500;
+}
+.cta.ghost:hover { background: var(--white); border-color: var(--navy); transform: translateY(-2px); }
+.cta.ghost svg { color: var(--teal); }
+
+/* — processen som en rad — */
+.steps-inline {
+  margin-top: 30px; padding-top: 26px; border-top: 1px solid var(--line);
+  display: flex; justify-content: center; align-items: center; gap: 10px 0;
+  font-size: 14px; color: var(--muted); font-weight: 300; flex-wrap: wrap;
+}
+.steps-inline .st { display: inline-flex; align-items: center; gap: 9px; white-space: nowrap; }
+.steps-inline .n {
+  width: 24px; height: 24px; flex: none; border-radius: 50%;
+  border: 1.7px solid var(--teal); color: var(--navy);
+  font-size: 12px; font-weight: 700;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--white);
+}
+.steps-inline .st b { color: var(--ink); font-weight: 500; }
+.steps-inline .sep {
+  width: 34px; height: 0; margin: 0 12px;
+  border-top: 2px dashed rgba(15,18,60,.18);
+}
+
+/* — mobil — */
+@media (max-width: 767px) {
+  body { padding: 24px 12px 64px; }
+  .block { padding: 40px 20px 36px; border-radius: var(--r-lg); }
+  .tool { padding: 56px 20px 30px; min-height: 320px; }
+  .q-big { font-size: 20px; }
+  .btn-row { gap: 10px; }
+  .btn-row button { flex: 1 1 0; min-height: 56px; font-size: 17px; padding: 14px 10px; }
+  .stepcount { right: 16px; }
+  .receipt { padding: 20px 18px 18px; }
+  .receipt .row { font-size: 14.5px; }
+  .receipt .total { padding: 13px 16px; flex-direction: column; align-items: flex-start; gap: 3px; }
+  .receipt .total .amt { font-size: 19px; }
+  .cta-wrap { flex-direction: column; align-items: stretch; margin-top: 28px; }
+  .cta { width: 100%; }
+  .steps-inline { flex-direction: column; align-items: flex-start; gap: 14px; margin-top: 26px; }
+  .steps-inline .sep { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+</style>
+<noscript>
+<style>
+  /* utan JS: göm frågespelet, visa kvittot statiskt — CTA + processraden bär blocket */
+  #f1, #f2, .dots, .stepcount, #verdictBox, #vTel, #f3 .back { display: none !important; }
+  #f3 { display: flex !important; animation: none !important; }
+  .tool { padding-top: 40px; }
+</style>
+</noscript>
+</head>
+<body>
+
+<div class="wf-label"><span>Design 4 · Ett kort — en fråga i taget</span><a href="index.html">&larr; alla designer</a></div>
+
+<section class="block" aria-label="Kvalificeras du för ROT-avdrag?">
+  <div class="stage">
+    <span class="eyebrow">ROT-avdrag 2026</span>
+    <h2>Kvalificeras du för <span class="accent">30&nbsp;% ROT?</span></h2>
+    <p class="sub">Svara på två frågor. Tar tio sekunder.</p>
+
+    <div class="tool">
+      <div class="dots" aria-hidden="true"><i class="on now" id="d1"></i><i id="d2"></i></div>
+      <span class="stepcount" id="stepcount" aria-hidden="true">1&thinsp;/&thinsp;2</span>
+      <p class="sr-only" role="status" aria-live="polite" id="announce"></p>
+
+      <div class="face show" id="f1">
+        <h3 class="q-big" tabindex="-1"><span class="sr-only">Fråga 1 av 2: </span>Äger du bostaden där jobbet ska göras?</h3>
+        <div class="btn-row">
+          <button type="button" onclick="answer(this,1,'ja')">Ja</button>
+          <button type="button" onclick="answer(this,1,'nej')">Nej</button>
+        </div>
+      </div>
+
+      <div class="face" id="f2">
+        <h3 class="q-big" tabindex="-1"><span class="sr-only">Fråga 2 av 2: </span>Betalar du inkomstskatt i Sverige?</h3>
+        <div class="btn-row">
+          <button type="button" onclick="answer(this,2,'ja')">Ja</button>
+          <button type="button" onclick="answer(this,2,'nej')">Nej</button>
+        </div>
+        <button type="button" class="back" onclick="goto_(1)">&larr; Ändra förra svaret</button>
+      </div>
+
+      <div class="face" id="f3">
+        <div class="verdict r-1" id="verdictBox">
+          <span class="v-icon" id="vIcon" aria-hidden="true"></span>
+          <span class="v-title" id="vTitle" tabindex="-1"></span>
+          <p class="v-sub" id="vSub"></p>
+        </div>
+        <a class="v-tel r-2" id="vTel" href="tel:0102657979" hidden>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          Ring 010-265&nbsp;79&nbsp;79
+        </a>
+        <div class="receipt r-2" id="resultReceipt">
+          <!-- [MALL] Tjänsteraden byts per tjänstesida vid Bricks-mappning — data-slot="tjanst". "Elcentral + installation" är platshållare för elcentral-sidan. -->
+          <div class="row"><span data-slot="tjanst">Elcentral + installation</span><span class="amt"><span class="offert-pill">Skräddarsydd offert</span></span></div>
+          <div class="row"><span>ROT-avdrag, 30&nbsp;% av arbetet</span><span class="amt"><span class="chip-deduct">&minus;30&nbsp;%</span></span></div>
+          <div class="total"><span class="t-label">Ditt pris efter ROT</span><span class="amt">70&nbsp;% av arbetet</span></div>
+          <p class="fine">Avdraget dras direkt på fakturan. Taket är 50&nbsp;000&nbsp;kr per person och år.</p>
+        </div>
+        <button type="button" class="back r-3" onclick="restart()">&larr; Gör om kollen</button>
+      </div>
+    </div>
+
+    <div class="cta-wrap">
+      <a class="cta" href="#offert">Begär offert med ROT inräknat</a>
+      <a class="cta ghost" href="tel:0102657979">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        Ring 010-265&nbsp;79&nbsp;79
+      </a>
+    </div>
+
+    <div class="steps-inline" aria-label="Så går det till">
+      <span class="st"><span class="n" aria-hidden="true">1</span><b>Vi räknar på ditt ROT</b></span>
+      <span class="sep" aria-hidden="true"></span>
+      <span class="st"><span class="n" aria-hidden="true">2</span><b>Elektriker gör jobbet</b></span>
+      <span class="sep" aria-hidden="true"></span>
+      <span class="st"><span class="n" aria-hidden="true">3</span><b>Vi sköter Skatteverket</b></span>
+    </div>
+  </div>
+</section>
+
+<script>
+const a = {};
+const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+let pending = null;
+
+function goto_(n) {
+  clearTimeout(pending); pending = null;
+  document.querySelectorAll('.face').forEach(f => f.classList.remove('show'));
+  document.querySelectorAll('.btn-row button').forEach(b => { b.classList.remove('picked'); b.disabled = false; });
+  const face = document.getElementById('f' + n);
+  face.classList.add('show');
+  for (let i = 1; i <= 2; i++) {
+    const d = document.getElementById('d' + i);
+    d.classList.toggle('on', i <= n);
+    d.classList.toggle('now', n < 3 && i === n);
+  }
+  const sc = document.getElementById('stepcount');
+  sc.textContent = n < 3 ? n + ' / 2' : '';
+  if (n === 3) {
+    document.getElementById('vTitle').focus({ preventScroll: true });
+  } else {
+    document.getElementById('announce').textContent = '';
+    const q = face.querySelector('.q-big');
+    if (q) q.focus({ preventScroll: true });
+  }
+}
+
+function announce(msg) {
+  // skrivs i den ALLTID synliga aria-live-regionen, ett par frames efter att resultatet togglats in
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    document.getElementById('announce').textContent = msg;
+  }));
+}
+
+function answer(btn, step, val) {
+  a[step] = val;
+  btn.classList.add('picked');
+  document.querySelectorAll('.btn-row button').forEach(b => { b.disabled = true; });
+  const next = () => {
+    pending = null;
+    if (step === 1) { goto_(2); return; }
+    const msg = renderResult();
+    goto_(3);
+    announce(msg);
+  };
+  reduced ? next() : (pending = setTimeout(next, 180));
+}
+
+function renderResult() {
+  const ok = a[1] === 'ja' && a[2] === 'ja';
+  const box = document.getElementById('verdictBox');
+  const icon = document.getElementById('vIcon');
+  const title = document.getElementById('vTitle');
+  const sub = document.getElementById('vSub');
+  const r = document.getElementById('resultReceipt');
+  const tel = document.getElementById('vTel');
+  box.classList.remove('ok', 'hm');
+  let msg;
+  if (ok) {
+    box.classList.add('ok');
+    icon.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+    title.textContent = 'Troligen ja!';
+    sub.innerHTML = 'Du uppfyller grundvillkoren. Exakt belopp beror på din skatt &mdash; det räknar vi ut i offerten.';
+    r.style.display = '';
+    tel.hidden = true;
+    msg = 'Troligen ja! Du uppfyller grundvillkoren. Exakt belopp beror på din skatt — det räknar vi ut i offerten. Ditt pris efter ROT: 70 procent av arbetet.';
+  } else {
+    box.classList.add('hm');
+    icon.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#565e82" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.15 9.2a2.9 2.9 0 0 1 5.7.7c0 1.9-2.85 2.3-2.85 4.1"/><circle cx="12" cy="18.4" r="1.25" fill="#565e82" stroke="none"/></svg>';
+    title.textContent = 'Osäkert.';
+    const reason = a[1] === 'nej'
+      ? 'ROT kräver normalt att du äger bostaden.'
+      : 'ROT dras mot din inkomstskatt.';
+    sub.innerHTML = reason + ' <strong>Hör av dig så tittar vi på ditt fall.</strong>';
+    r.style.display = 'none';
+    tel.hidden = false;
+    msg = 'Osäkert. ' + reason + ' Hör av dig så tittar vi på ditt fall. Ring 010-265 79 79.';
+  }
+  return msg;
+}
+
+function restart() { a[1] = a[2] = undefined; goto_(1); }
+</script>
+</body>
+</html>
