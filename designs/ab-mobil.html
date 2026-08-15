@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="sv-SE">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A/B mobil — vänsterställd vs centrerad vänsterspalt (ROT-blocket)</title>
+<style>
+/* =====================================================================
+   A/B-JÄMFÖRELSE (ägarorder 7a) — EGEN LEVERABEL, ingen ändring i blocken.
+   Visar ROT-blockets MOBILA vänsterspalt (H2 + stegen 1-2-3) i två varianter.
+   Panelen "Så räknas ROT" ingår INTE i testet (ägarorder 7a, explicit).
+
+   FIDELITETSMETOD (viktig): ramarna är 390px breda men sidan renderas ofta
+   vid 1440. Alla vw-beroende clamps ur d2-kvittot-forst.html är därför
+   FÖRBERÄKNADE vid 390px viewport och hårdkodade i px här, uppmätta med
+   `node ab-measure.mjs d2-kvittot-forst.html "" 390`:
+       h2   26.756px / 500 / lh 32.1072 / ls -0.26756 / #1e1e1e / mb 44
+       h3   22.457px / 500 / lh 28.0713 / ls -0.22457 / #1e1e1e
+       p    16.119px / 300 / lh 24.1785 / #333 / mt 6
+       .n   38×38 / 15px / 600 / #e0f5f2 / margin-top -3.39239
+       sgap 28 · step-gap 14 · block-padding 28/16 · textbredd 336px
+   → variant A är pixelidentisk med dagens mobilrendering (bevisad av
+   ab-measure.mjs mot båda filerna, se NOTES). Variant B ärver EXAKT samma
+   typografi och tokens; enda skillnaden är linjeringen.
+   ===================================================================== */
+
+@font-face {
+  font-display: swap;
+  font-family: "Outfit";
+  src: url("../assets/fonts/Outfit-VariableFont_wght.woff2") format("woff2-variations");
+  font-weight: 100 900;
+}
+:root {
+  --navy: #090b32;
+  --teal: #00a991;
+  --teal-soft: #e0f5f2;
+  --offwhite: #f5f9ff;
+  --heading-ink: #1e1e1e;
+  --body-ink: #333333;
+  --ink: #0f123c;
+  --muted: #565e82;
+  --faint: #8a90ac;
+  --line: rgba(15, 18, 60, 0.10);
+  --line-strong: rgba(15, 18, 60, 0.16);
+  --r-md: 14px;
+  --r-lg: 22px;
+  --r-xl: 32px;
+  --shadow-1: 0 1px 2px rgba(15,18,60,.06), 0 1px 1px rgba(15,18,60,.04);
+  --shadow-2: 0 6px 16px -4px rgba(15,18,60,.10), 0 2px 6px rgba(15,18,60,.06);
+  --shadow-3: 0 24px 50px -10px rgba(15,18,60,.18), 0 8px 16px -6px rgba(15,18,60,.10);
+  --ring: 0 0 0 3px #fff, 0 0 0 6px var(--navy);
+  --page-pad: clamp(20px, 4vw, 56px);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  font-family: "Outfit", system-ui, -apple-system, sans-serif;
+  background: #e9eef6;
+  color: var(--ink);
+  line-height: 1.5;
+  padding: 30px var(--page-pad) 72px;
+}
+:focus-visible { outline: 2px solid transparent; outline-offset: 2px; box-shadow: var(--ring); }
+
+/* ---------------- sidhuvud ---------------- */
+.wf-label {
+  display: flex; justify-content: flex-start; align-items: baseline; gap: 18px; flex-wrap: wrap;
+  margin: 0 0 24px; padding: 0 4px;
+  font-size: 12.5px; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
+}
+.wf-label a {
+  color: var(--navy); text-decoration: none; font-weight: 600; letter-spacing: 0;
+  text-transform: none; font-size: 13.5px; display: inline-block; padding: 10px 8px; border-radius: 8px;
+}
+.wf-label a:hover { text-decoration: underline; }
+
+.page-head { max-width: 62ch; margin: 0 auto 40px; text-align: center; }
+.page-head h1 {
+  font-size: clamp(26px, calc(1.04vw + 22.7px), 36px);
+  font-weight: 500; line-height: 1.2; letter-spacing: -0.01em; color: var(--heading-ink);
+  text-wrap: balance;
+}
+.page-head .lede {
+  margin-top: 14px; color: var(--body-ink); font-weight: 300;
+  font-size: clamp(16px, calc(0.21vw + 15.3px), 18px); line-height: 1.5; text-wrap: pretty;
+}
+.page-head .scope {
+  margin-top: 16px; display: inline-flex; align-items: center; gap: 8px;
+  background: #fff; border: 1px solid var(--line-strong); border-radius: 999px;
+  padding: 6px 16px; font-size: 13px; font-weight: 500; color: var(--muted);
+}
+
+/* ---------------- ramarna ---------------- */
+.rail {
+  display: flex; justify-content: center; align-items: flex-start;
+  gap: clamp(28px, 4vw, 64px); flex-wrap: wrap;
+}
+.variant { display: flex; flex-direction: column; align-items: center; width: 390px; flex: none; }
+.v-cap {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 16px; align-self: stretch;
+  font-size: 15px; font-weight: 500; color: var(--ink);
+}
+.v-cap .badge {
+  width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; flex: none;
+  font-size: 15px; font-weight: 700; color: #fff; background: var(--navy);
+}
+.variant.b .v-cap .badge { background: var(--teal); color: var(--navy); }
+.v-cap .sub { color: var(--faint); font-weight: 400; font-size: 13.5px; margin-left: auto; letter-spacing: .04em; }
+
+/* telefon-ramen: 390px = exakt mobilviewporten stegen mäts i.
+   Kanten ritas med box-shadow, ALDRIG border: en 1px border hade ätit 2px av
+   innerbredden och gjort textspalten 334 i st.f. 336px (uppmätt defekt v1). */
+.phone {
+  width: 390px; flex: none; overflow: hidden;
+  border-radius: 26px; border: 0;
+  background: var(--offwhite);
+  box-shadow: 0 0 0 1px rgba(15,18,60,.14), var(--shadow-3);
+}
+.metrics {
+  margin-top: 14px; align-self: stretch; display: flex; flex-wrap: wrap; gap: 6px 10px;
+  font-size: 12.5px; color: var(--muted); font-weight: 400; font-variant-numeric: tabular-nums;
+}
+.metrics span {
+  background: #fff; border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px;
+}
+.metrics .warn { border-color: rgba(15,18,60,.22); color: var(--ink); font-weight: 500; }
+
+/* =====================================================================
+   FRAME-INNEHÅLLET — d2:s mobilrendering, förberäknad (se not överst)
+   ===================================================================== */
+.phone .m-body { padding: 18px 10px 24px; }
+.phone .block {
+  background: #fff; border: 1px solid var(--line);
+  border-radius: var(--r-lg); box-shadow: var(--shadow-3);
+  padding: 28px 16px;
+}
+.phone h2 {
+  font-size: 26.756px; font-weight: 500; line-height: 32.1072px; letter-spacing: -0.26756px;
+  color: var(--heading-ink); max-width: none; text-wrap: balance;
+  margin-bottom: 44px;
+}
+/* nowrap SLÄPPT — speglar rag-fixen i blockfamiljens ≤900-läge (ägarorder 5). Jämförelse-
+   sidan MÅSTE följa med, annars slutar variant A vara den 1:1-replika metodnoten påstår. */
+.phone h2 .accent { color: var(--heading-ink); font-weight: 600; white-space: normal; }
+
+.phone .steps { --sgap: 28px; list-style: none; display: flex; flex-direction: column; gap: var(--sgap); }
+.phone .step {
+  --h3fs: 22.457px;
+  --nsz: 38px;
+  --nmt: -4.515235px;           /* = (h3fs*1.25 − nsz)/2 + h3fs*0.02, uppmätt ur d2 @390.
+                                   Följer P1-3: optiska sänkningen 0.07em→0.02em. */
+  display: grid; grid-template-columns: var(--nsz) 1fr; gap: 14px; position: relative;
+}
+.phone .step .n {
+  grid-row: 1 / span 2; align-self: start; margin-top: var(--nmt);
+  width: var(--nsz); height: var(--nsz); border-radius: 50%;
+  background: var(--teal-soft); color: var(--navy);
+  font-weight: 600; font-size: 15px;
+  display: grid; place-items: center; position: relative; z-index: 1;
+  font-variant-numeric: tabular-nums;
+}
+.phone .step h3 {
+  font-size: var(--h3fs); font-weight: 500; line-height: 28.0713px; letter-spacing: -0.22457px;
+  color: var(--heading-ink);
+}
+.phone .step p {
+  color: var(--body-ink); font-weight: 300; font-size: 16.119px; line-height: 24.1785px;
+  margin-top: 6px; max-width: none;
+}
+.phone .step:not(:last-child)::before {
+  content: ""; position: absolute; left: calc(var(--nsz) / 2 - 1px);
+  top: calc(var(--nmt) + var(--nsz) + 4px);
+  bottom: calc(-1 * (var(--sgap) + var(--nmt) - 4px));
+  border-left: 2px dashed rgba(15,18,60,.15);
+}
+
+/* =====================================================================
+   VARIANT B — CENTRERAD. Enda skillnaden mot A är LINJERINGEN:
+   samma familj, samma storlekar, samma vikter, samma färger, samma tokens.
+   1) H2 centrerad
+   2) siffercirkeln OVANFÖR den centrerade texten
+   3) streckade linjen mellan stegen, vertikalt centrerad (lodrätt i mitten)
+   B får en gnutta större stegluft (--sgap 28 → 36) av EN anledning: i A löper
+   linjen längs hela steget, i B bara i mellanrummet — vid 28px blir den en
+   20px-stump som läser som ett skrivfel i st.f. en koppling. Höjdkostnaden
+   redovisas i mätchipsen under ramen (det är en del av bedömningen).
+   ===================================================================== */
+.phone.v-b h2 { text-align: center; }
+.phone.v-b .steps { --sgap: 36px; }
+.phone.v-b .step {
+  display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0;
+}
+/* align-self: center MÅSTE sättas: A:s `align-self: start` styr tväraxeln, och när
+   steget blir en kolumn-flexbox är tväraxeln VÅGRÄT → cirklarna hamnade vänsterställda
+   mitt i den centrerade varianten (uppmätt defekt v1, syntes i render). */
+.phone.v-b .step .n {
+  align-self: center; margin-top: 0; margin-bottom: 14px;   /* 14 = A:s cirkel↔text-avstånd, roterat 90° */
+}
+.phone.v-b .step h3 { text-wrap: balance; }
+.phone.v-b .step p { text-wrap: balance; }
+/* linjen sitter i mellanrummet, horisontellt mittställd, 4px andrum i båda ändar
+   (samma andrumsregel som A) */
+.phone.v-b .step:not(:last-child)::before {
+  left: 50%; margin-left: -1px;
+  top: calc(100% + 4px);
+  bottom: auto; height: calc(var(--sgap) - 8px);
+}
+
+/* ---------------- bedömningen ---------------- */
+.verdict {
+  max-width: 900px; margin: 72px auto 0;
+  background: #fff; border: 1px solid var(--line); border-radius: var(--r-xl);
+  box-shadow: var(--shadow-2); padding: clamp(28px, 3.4vw, 48px) clamp(22px, 3.4vw, 48px);
+}
+.verdict .cap {
+  font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--navy);
+  padding-bottom: 16px; border-bottom: 1px solid var(--line); margin-bottom: 24px;
+}
+.verdict h2 {
+  font-size: clamp(22px, calc(0.63vw + 20px), 28px);
+  font-weight: 500; line-height: 1.25; letter-spacing: -0.01em; color: var(--heading-ink);
+  margin-bottom: 10px;
+}
+.verdict h3 {
+  font-size: clamp(17px, calc(0.2vw + 16px), 19px);
+  font-weight: 500; line-height: 1.3; letter-spacing: -0.01em; color: var(--heading-ink);
+  margin: 26px 0 6px;
+}
+.verdict p, .verdict li {
+  color: var(--body-ink); font-weight: 300;
+  font-size: clamp(16px, calc(0.21vw + 15.3px), 18px); line-height: 1.55; text-wrap: pretty;
+}
+.verdict p + p { margin-top: 10px; }
+.verdict ul { list-style: none; margin-top: 8px; display: flex; flex-direction: column; gap: 8px; }
+.verdict li { padding-left: 20px; position: relative; }
+.verdict li::before {
+  content: ""; position: absolute; left: 3px; top: .62em;
+  width: 6px; height: 6px; border-radius: 50%; background: var(--teal);
+}
+.verdict strong { font-weight: 600; color: var(--heading-ink); }
+.verdict .rec {
+  margin-top: 32px; background: rgba(0,169,145,.055); border-radius: var(--r-md);
+  padding: 24px clamp(18px, 2.2vw, 28px);
+}
+.verdict .rec .t-label {
+  font-weight: 700; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--navy);
+  display: block; margin-bottom: 8px;
+}
+.verdict .rec .head {
+  font-weight: 600; font-size: clamp(19px, 0.5vw + 17px, 22px); line-height: 1.25;
+  color: var(--heading-ink); letter-spacing: -0.01em; margin-bottom: 10px;
+}
+.verdict .gap {
+  margin-top: 24px; font-size: 13.5px; color: var(--muted); font-weight: 400; line-height: 1.5;
+  border-top: 1px solid var(--line); padding-top: 16px;
+}
+.scoretable { width: 100%; margin-top: 14px; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.scoretable th, .scoretable td {
+  text-align: left; padding: 10px 12px 10px 0; border-bottom: 1px solid var(--line);
+  font-size: 15px; font-weight: 300; color: var(--body-ink); vertical-align: top;
+}
+.scoretable th {
+  font-size: 12.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--navy);
+}
+.scoretable td:first-child { font-weight: 400; color: var(--heading-ink); padding-right: 18px; }
+.scoretable .win { font-weight: 600; color: var(--heading-ink); }
+
+/* ---------------- responsivt ---------------- */
+@media (max-width: 900px) {
+  :root { --page-pad: 16px; }
+  body { padding: 18px var(--page-pad) 56px; }
+  .wf-label { font-size: 11px; letter-spacing: .1em; margin-bottom: 14px; }
+  .page-head { margin-bottom: 28px; text-align: left; }
+  .rail { gap: 44px; margin-inline: calc(-1 * var(--page-pad)); }
+  .variant { width: 390px; max-width: 100vw; }
+  .v-cap, .metrics { padding-inline: var(--page-pad); }
+  .phone { border-radius: 0; box-shadow: 0 1px 0 rgba(15,18,60,.14), 0 -1px 0 rgba(15,18,60,.14); width: 100%; }
+  .verdict { margin-top: 44px; border-radius: var(--r-lg); }
+
+  /* Jämförelsetabellen: tre kolumner får inte plats vid 390px (uppmätt overflow 431px i v4).
+     Den staplas till ett kort per kriterium i st.f. att sidled-scrolla — en bedömningstabell
+     ska kunna läsas med tummen, inte dras i. Rubrikraden ersätts av A/B-märken per rad. */
+  .scoretable, .scoretable tbody, .scoretable tr, .scoretable td { display: block; width: 100%; }
+  .scoretable thead { display: none; }
+  .scoretable tr {
+    border-bottom: 1px solid var(--line); padding-bottom: 14px; margin-bottom: 14px;
+  }
+  .scoretable tr:last-child { border-bottom: 0; padding-bottom: 0; margin-bottom: 0; }
+  .scoretable td { border: 0; padding: 0; font-size: 15px; }
+  .scoretable td:first-child {
+    font-size: 12.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--navy); margin-bottom: 8px; padding-right: 0;
+  }
+  .scoretable td:nth-child(2), .scoretable td:nth-child(3) {
+    position: relative; padding-left: 30px; margin-top: 4px;
+  }
+  .scoretable td:nth-child(2)::before, .scoretable td:nth-child(3)::before {
+    position: absolute; left: 0; top: 1px;
+    width: 21px; height: 21px; border-radius: 50%; display: grid; place-items: center;
+    font-size: 12px; font-weight: 700; line-height: 1;
+  }
+  .scoretable td:nth-child(2)::before { content: "A"; background: var(--navy); color: #fff; }
+  .scoretable td:nth-child(3)::before { content: "B"; background: var(--teal); color: var(--navy); }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="wf-label">
+  <span>Blockfamiljen · A/B mobil · ROT-blockets vänsterspalt</span>
+  <a href="familj.html">← blockfamiljen</a>
+</div>
+
+<header class="page-head">
+  <h1>Vänsterställd eller centrerad på mobilen?</h1>
+  <p class="lede">Samma H2, samma steg, samma typsnitt, samma storlekar, samma tokens. Enda skillnaden är linjeringen. Båda ramarna är 390&nbsp;px breda, alltså exakt den viewport blocket mäts i.</p>
+  <span class="scope">Panelen ”Så räknas ROT” ingår inte i testet</span>
+</header>
+
+<div class="rail">
+
+  <!-- ============ VARIANT A — dagens, vänsterställd ============ -->
+  <div class="variant a">
+    <div class="v-cap"><span class="badge">A</span> Dagens · vänsterställd <span class="sub">390&nbsp;px</span></div>
+    <div class="phone v-a">
+      <div class="m-body">
+        <div class="block">
+          <div class="left">
+            <!-- [GAP] "draget direkt på fakturan" — ägargrind: bekräfta fakturamodellen innan ship -->
+            <h2>Byta elcentral med <span class="accent">30&nbsp;% ROT-avdrag</span>, draget direkt på fakturan</h2>
+
+            <ol class="steps">
+              <li class="step">
+                <span class="n" aria-hidden="true">1</span>
+                <h3>Du ser ditt pris efter avdrag</h3>
+                <!-- [GAP] löftet "offerten visar priset innan du bestämmer dig" — ägarbekräftelse före ship -->
+                <p>En elektriker räknar på ditt projekt. Offerten visar vad du betalar, innan du bestämmer dig.</p>
+              </li>
+              <li class="step">
+                <span class="n" aria-hidden="true">2</span>
+                <h3>En auktoriserad elektriker gör jobbet</h3>
+                <p>Elinstallationer får bara utföras av ett registrerat elinstallationsföretag. Det är lag, och ditt skydd.</p>
+              </li>
+              <li class="step">
+                <span class="n" aria-hidden="true">3</span>
+                <h3>Du slipper pappersarbetet</h3>
+                <!-- [GAP] fakturamodell + ansökningshantering: ägarbekräftelse före ship -->
+                <p>Avdraget dras direkt på fakturan. Ansökan till Skatteverket skickar vi in åt dig.</p>
+              </li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="metrics" id="mA"></div>
+  </div>
+
+  <!-- ============ VARIANT B — centrerad ============ -->
+  <div class="variant b">
+    <div class="v-cap"><span class="badge">B</span> Centrerad · cirkeln ovanför <span class="sub">390&nbsp;px</span></div>
+    <div class="phone v-b">
+      <div class="m-body">
+        <div class="block">
+          <div class="left">
+            <!-- [GAP] "draget direkt på fakturan" — ägargrind: bekräfta fakturamodellen innan ship -->
+            <h2>Byta elcentral med <span class="accent">30&nbsp;% ROT-avdrag</span>, draget direkt på fakturan</h2>
+
+            <ol class="steps">
+              <li class="step">
+                <span class="n" aria-hidden="true">1</span>
+                <h3>Du ser ditt pris efter avdrag</h3>
+                <!-- [GAP] löftet "offerten visar priset innan du bestämmer dig" — ägarbekräftelse före ship -->
+                <p>En elektriker räknar på ditt projekt. Offerten visar vad du betalar, innan du bestämmer dig.</p>
+              </li>
+              <li class="step">
+                <span class="n" aria-hidden="true">2</span>
+                <h3>En auktoriserad elektriker gör jobbet</h3>
+                <p>Elinstallationer får bara utföras av ett registrerat elinstallationsföretag. Det är lag, och ditt skydd.</p>
+              </li>
+              <li class="step">
+                <span class="n" aria-hidden="true">3</span>
+                <h3>Du slipper pappersarbetet</h3>
+                <!-- [GAP] fakturamodell + ansökningshantering: ägarbekräftelse före ship -->
+                <p>Avdraget dras direkt på fakturan. Ansökan till Skatteverket skickar vi in åt dig.</p>
+              </li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="metrics" id="mB"></div>
+  </div>
+
+</div>
+
+<!-- ================== BEDÖMNINGEN ================== -->
+<footer class="verdict">
+  <p class="cap">CRO- och designbedömning</p>
+
+  <h2>Vad ögat faktiskt gör i de två ramarna</h2>
+  <p>Bedömningen gäller enbart det som skiljer: linjeringen. Copy, storlekar, vikter och färger är identiska, så allt utfall nedan går att tillskriva linjeringen ensam.</p>
+
+  <h3>1. Skanning: den vänstra kanten är en gratis ledstång</h3>
+  <p>Vänsterställd text ger tre rubriker som startar på <strong>exakt samma x-position</strong>. Ögat behöver bara falla lodrätt, och varje ny rad hittar sin startpunkt utan att söka. I den centrerade varianten flyttar startpunkten för varje rad, eftersom radlängden varierar. Läsaren får en extra fixering per rad. På ett block som ska läsas på en telefon i en soffa, med tummen redan på väg mot CTA:n, är det ren friktion utan motprestation.</p>
+
+  <h3>2. Radlängd: B får bredare spalt, och det är B:s starkaste kort</h3>
+  <p>Det här dök upp först när ramarna renderades och mättes, och det talar <strong>för</strong> B. När siffercirkeln flyttar upp försvinner den 38&nbsp;px breda sifferkolumnen plus 14&nbsp;px mellanrum ur textens bredd. A:s brödtext får <span id="colA">[mäts]</span>, B:s får <span id="colB">[mäts]</span>, alltså <span id="gutter">[mäts]</span> mer. Effekten är mätbar: brödtexten går från <span id="plA">[mäts]</span> rader i A till <span id="plB">[mäts]</span> i B. A:s spalt landar på runt 38 tecken per rad, vilket är kort, under det spann på 45 till 75 tecken som brukar räknas som bekvämt. B ligger kring 45.</p>
+  <p>Men centreringen betalar tillbaka det med ojämna kanter på båda sidor, och den defekten skalar med radantalet. Centrering fungerar när texten är <strong>en eller två rader</strong>; här är H2:an tre rader. Variant B:s rubrik är exakt det fall centrering är sämst på: lång, tre rader, med ett inbakat nyckeltal mitt i. Kort sagt: den bredare spalten är en riktig vinst, men den är kopplad till fel lösning. Se rekommendationen nedan.</p>
+
+  <h3>3. F-mönster mot symmetri: två olika jobb</h3>
+  <p>Symmetri är ett estetiskt argument, och det är ett giltigt argument, men det tillhör hero-ytor och varumärkesmoment där uppgiften är att göra intryck. Det här blocket har en annan uppgift: det ska <strong>förklara ett avdrag i tre steg</strong> så att någon vågar begära offert. Sekventiell, informationstät text läses i F-mönster, och F-mönstret bygger på en fast vänsterkant. Centreringen gör blocket vackrare på en skärmdump och långsammare att förstå.</p>
+
+  <h3>4. Tumräckvidd och höjd: B kostar en scroll</h3>
+  <p>Cirkeln ovanför texten staplar det som i A ligger bredvid varandra. Trots att B sparar in två brödtextrader på den bredare spalten växer kolumnen ändå med <span id="dh">[mäts vid render]</span>, alltså ungefär en fjärdedel av en telefonskärm. Stapling kostar mer än vad bredden ger tillbaka. CTA:n och panelen skjuts längre ned, och det är den tydligaste mätbara CRO-konsekvensen i testet: mer avstånd mellan löftet och knappen, på varenda en av de sidor blocket ligger på.</p>
+
+  <h3>5. Den streckade linjen slutar fungera i B</h3>
+  <p>Det syns tydligast när ramarna ligger bredvid varandra. I A löper den streckade linjen <strong>oavbrutet</strong> från siffra 1 hela vägen ned till siffra 3, längs hela stegets höjd. Den binder ihop sekvensen och gör att blocket läses som en process, inte som tre lösryckta påståenden. I B har linjen bara mellanrummet att löpa i, och blir två 28&nbsp;px korta stumpar. Den slutar vara en tråd och blir en dekoration.</p>
+  <p>Det är inte en detalj. Den streckade linjen är blockets <strong>enda signaturdetalj</strong>, och att centrera kostar den dess funktion. Vill man ha kvar processkänslan i en centrerad layout måste linjen byggas om helt, till exempel som en genomgående linje bakom cirklarna, vilket är en annan design och inte längre samma block.</p>
+
+  <h3>6. Vad centreringen faktiskt vinner</h3>
+  <p>Två saker, och de ska erkännas: siffercirklarna blir mer synliga som räkneverk när de sitter ovanför i stället för i marginalen, och blocket får en lugnare symmetrisk siluett som passar bättre bredvid ett centrerat sidhuvud. Om resten av sidan är centrerad blir A:s vänsterkant ett litet visuellt hack.</p>
+
+  <table class="scoretable">
+    <thead>
+      <tr><th>Kriterium</th><th>A vänsterställd</th><th>B centrerad</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Skanningshastighet</td><td class="win">Fast startpunkt, en fixering per steg</td><td>Startpunkten flyttar sig rad för rad</td></tr>
+      <tr><td>Rag och kantkvalitet</td><td class="win">Jämn vänsterkant, ojämn högerkant</td><td>Ojämna kanter på båda sidor, tre rader H2</td></tr>
+      <tr><td>Spaltbredd och radlängd</td><td>Smal spalt, runt 38 tecken per rad</td><td class="win">Återtar sifferkolumnen, runt 45 tecken</td></tr>
+      <tr><td>Läsmönster</td><td class="win">Matchar F-mönstret för förklarande text</td><td>Symmetri, men bryter läsmönstret</td></tr>
+      <tr><td>Höjd till CTA</td><td class="win">Kortast väg till knappen</td><td>Kostar en dryg fjärdedels skärm</td></tr>
+      <tr><td>Streckade linjen som tråd</td><td class="win">Obruten genom hela sekvensen</td><td>Två korta stumpar, dekoration</td></tr>
+      <tr><td>Sifferstegen som räkneverk</td><td>Sitter i marginalen</td><td class="win">Tydligare som 1&nbsp;–&nbsp;2&nbsp;–&nbsp;3</td></tr>
+      <tr><td>Estetisk siluett</td><td>Vardaglig</td><td class="win">Lugnare, mer symmetrisk</td></tr>
+    </tbody>
+  </table>
+
+  <div class="rec">
+    <span class="t-label">Min rekommendation</span>
+    <p class="head">Behåll A. Vänsterställt.</p>
+    <p>Fem av åtta kriterier går till A, och de fem är precis de som styr om någon läser klart och trycker: skanningshastighet, rag, läsmönster, avstånd till CTA och signaturdetaljen som håller ihop sekvensen. B vinner tre, men två av dem är smakfrågor och den tredje, den bredare spalten, är den enda som är värd att ta med sig. Den kräver inte centrering för att lösas.</p>
+    <p>Så här skulle jag gå vidare, i den ordningen:</p>
+    <ul>
+      <li><strong>Behåll vänsterställningen.</strong> Ingen ändring i blockfamiljen. B är inte fel nog att vara en defekt, men den är sämre på det blocket ska göra.</li>
+      <li><strong>Ta med dig B:s enda riktiga fynd.</strong> A:s brödtextspalt är smal. Vill du bredda den utan att centrera, kan brödtexten läggas i full bredd under cirkeln medan H3:an står kvar bredvid den. Det ger samma spaltbredd som B och behåller den fasta vänsterkanten. Priset är att den streckade linjen då skulle löpa bakom brödtexten, så signaturdetaljen får byggas om eller strykas. Det är ett eget uppdrag, inte en justering, och jag rekommenderar inte att det klämmas in i den här rundan.</li>
+      <li><strong>Enklare väg till samma sak:</strong> krymp cirkeln på mobilen från 38 till 32&nbsp;px och mellanrummet från 14 till 12. Det ger tillbaka 8&nbsp;px spaltbredd, rör inget annat och behåller linjen.</li>
+      <li>Vill du att stegen ska läsas tydligare som 1&nbsp;–&nbsp;2&nbsp;–&nbsp;3, förstärk cirkeln i A i stället: mörkare siffra eller en aning kraftigare vikt. Det ger B:s pedagogiska vinst utan B:s höjd.</li>
+      <li>Vill du ha symmetri på ytan, centrera <strong>enbart</strong> H2:an och låt stegen stå kvar vänsterställda. Det är den enda hybriden värd att titta på, eftersom H2:an läses som ett block och stegen som en sekvens. Den lämnar dock kvar samma trerads-rag i rubriken, så vinsten är liten.</li>
+      <li>Ska det testas skarpt: kör det som ett riktigt A/B med begärd offert som mål, inte scrolldjup. En linjeringsändring rör sig sällan mer än någon enstaka procent, så det kräver rimlig trafikvolym för att gå att avgöra. Blocket ligger på 22 tjänstesidor, men min bedömning är att pengarna ligger i panelen och CTA:n, inte i linjeringen. Testa hellre något som kan flytta mer.</li>
+    </ul>
+  </div>
+
+  <p class="gap">Metod: variant A är d2-kvittot-forst.html:s vänsterspalt återgiven med samma beräknade värden som den får vid 390&nbsp;px viewport (uppmätt, inte uppskattad). Variant B ärver hela A:s typografi och skiljer sig endast i linjering, cirkelplacering och den streckade linjens riktning; stegluften höjs från 28 till 36&nbsp;px eftersom den streckade linjen i B bara har mellanrummet att löpa i. Panelen ”Så räknas ROT” ingår inte, enligt uppdraget. Detta är en jämförelsesida, ingen ändring har gjorts i blockfamiljen. [GAP] Ingen riktig testdata finns för det här blocket; bedömningen ovan är designbedömning, inte uppmätt konvertering.</p>
+</footer>
+
+<script>
+// Mätchipsen under varje ram: verklig höjd, radantal, uppmätt i den renderade sidan.
+(function () {
+  // Radräkning: getClientRects() ger EN rect per inline-fragment, så en H2 med
+  // <span class="accent"> gav 5 rects för 3 rader i v1. Räkna unika radtoppar i st.f.
+  function lines(el) {
+    var r = document.createRange(); r.selectNodeContents(el);
+    var tops = {}, n = 0;
+    var rects = r.getClientRects();
+    for (var i = 0; i < rects.length; i++) {
+      if (rects[i].height === 0) continue;
+      var k = Math.round(rects[i].top);
+      if (!tops[k]) { tops[k] = 1; n++; }
+    }
+    return n;
+  }
+  function build(scope, box) {
+    var left = scope.querySelector('.left');
+    var h = Math.round(left.getBoundingClientRect().height);
+    var h2l = lines(scope.querySelector('h2'));
+    var pl = 0;
+    scope.querySelectorAll('.step p').forEach(function (p) { pl += lines(p); });
+    var col = Math.round(scope.querySelector('.step p').getBoundingClientRect().width);
+    box.innerHTML =
+      '<span>Vänsterspalt <strong>' + h + '&nbsp;px</strong> hög</span>' +
+      '<span>H2 på ' + h2l + ' rader</span>' +
+      '<span>Textspalt ' + col + '&nbsp;px</span>' +
+      '<span>' + pl + ' brödtextrader</span>';
+    return { h: h, col: col, pl: pl, h2l: h2l };
+  }
+  function set(id, txt) { var e = document.getElementById(id); if (e) e.textContent = txt; }
+  function run() {
+    var a = build(document.querySelector('.v-a'), document.getElementById('mA'));
+    var b = build(document.querySelector('.v-b'), document.getElementById('mB'));
+    var d = b.h - a.h;
+    var pct = Math.round((d / a.h) * 100);
+    document.getElementById('mB').insertAdjacentHTML('beforeend',
+      '<span class="warn">' + (d >= 0 ? '+' : '') + d + '&nbsp;px mot A (' + (pct >= 0 ? '+' : '') + pct + '&nbsp;%)</span>');
+    set('dh', d + ' px (' + (pct >= 0 ? '+' : '') + pct + ' %)');
+    set('colA', a.col + ' px');
+    set('colB', b.col + ' px');
+    set('gutter', (b.col - a.col) + ' px');
+    set('plA', a.pl + '');
+    set('plB', b.pl + '');
+  }
+  if (document.fonts && document.fonts.ready) { document.fonts.ready.then(run); } else { window.addEventListener('load', run); }
+})();
+</script>
+
+</body>
+</html>
