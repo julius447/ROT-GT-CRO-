@@ -29,7 +29,7 @@ for (const [name, w, h] of [['desktop', 1440, 1000], ['mobile', 390, 844]]) {
       note: document.querySelector('.t-note').textContent.replace(/\s+/g,' ').trim(),
       fine: document.querySelector('.fine').textContent.replace(/\s+/g,' ').trim(),
       dubbelSpace: /\S {2,}\S/.test(document.querySelector('.t-note').textContent + '|' + document.querySelector('.fine').textContent),
-      hopklistrat: /[a-zåäö]\.[A-ZÅÄÖ]/.test(document.querySelector('.t-note').textContent + document.querySelector('.fine').textContent),
+      hopklistrat: /[a-zåäö]\.[A-ZÅÄÖ]/.test(document.querySelector('.t-note').textContent + '|' + document.querySelector('.fine').textContent),
       emdash: (document.body.innerText.match(/—/g) || []).length,
       overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth,
     }));

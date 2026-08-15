@@ -94,33 +94,48 @@ a { -webkit-tap-highlight-color: transparent; }
 }
 
 /* ---------- Left: H2 + processen 1-2-3 ---------- */
-/* SAJTMATCH (ground truth, theme-style): h2 = var(--aptext-2-5xl) & vikt 500.
-   28→40px via exakt samma clamp-kurva som live-sajten. */
+/* SAJTMATCH (ground truth, global-variables): blockens H2 = var(--aptext-xl)
+   = clamp(24px, calc(0.83vw + 21.3px), 32px), line-height 1.3 (.rot__main-heading).
+   Vikt: live kör 400; 600 valt efter visuellt 500/600-prov (sprint 2026-08-15) —
+   600 = samma fetstil som steg-H3 → ETT rubriksnitt, hierarki via storlek enbart;
+   500 lät steg-H3:orna konkurrera med H2 på mobilen. */
 h2 {
-  font-size: clamp(28px, calc(1.25vw + 24px), 40px);
-  font-weight: 500; line-height: 1.18; letter-spacing: normal; /* ground truth sätter bara size+weight (typo P2-5) */
+  font-size: clamp(24px, calc(0.83vw + 21.3px), 32px);
+  font-weight: 600; line-height: 1.3; letter-spacing: normal; /* ground truth sätter bara size+weight (typo P2-5) */
   max-width: 30ch; text-wrap: pretty;
-  /* H2→steg ≥1.4× steg↔steg (56 mot 40 @1440) — hierarkisk kontrast (spacing P0-1, ux P1-2) */
-  margin-bottom: clamp(44px, 4vw, 56px);
+  /* H2→steg ≥1.4× steg↔steg (64 mot 44 @1440) — hierarkisk kontrast (spacing P0-1, ux P1-2).
+     Mindre H2 (40→32) frigjorde vertikal luft — återinvesterad här + i --sgap (sprint-direktiv). */
+  margin-bottom: clamp(44px, 4.5vw, 64px);
 }
 h2 .accent { color: var(--teal-text); white-space: nowrap; }
 
-.steps { --sgap: clamp(32px, 3vw, 40px); list-style: none; display: flex; flex-direction: column; gap: var(--sgap); }
-.step { display: grid; grid-template-columns: 44px 1fr; gap: 16px; position: relative; }
+.steps { --sgap: clamp(32px, 3.1vw, 44px); list-style: none; display: flex; flex-direction: column; gap: var(--sgap); }
+/* Optisk linjering (sprint 2026-08-15): cirkelns mitt = H3:ns första radmitt, EXAKT vid
+   varje viewport — --nmt räknas ur H3:ns verkliga radhöjd i st.f. ett gissat fast avdrag
+   (gamla -8px stämde bara vid 1440; vid 1120 var felet ~2px). Linjens ändar följer med. */
+.step {
+  --h3fs: clamp(19px, 1.5vw, 22px);                             /* H3-storleken, delad anchor */
+  --nsz: 44px;                                                  /* cirkelns diameter */
+  --nmt: calc((var(--h3fs) * 1.25 - var(--nsz)) / 2);           /* radmitt − cirkelmitt */
+  display: grid; grid-template-columns: var(--nsz) 1fr; gap: 16px; position: relative;
+}
 /* ikonen: mjuk teal-fylld cirkel (lugnare än outline-ring), navy siffra — ingen ram */
 .step .n {
-  grid-row: 1 / span 2; align-self: start; margin-top: -8px;   /* optisk mitt mot h3:ans första rad */
-  width: 44px; height: 44px; border-radius: 50%;
+  grid-row: 1 / span 2; align-self: start; margin-top: var(--nmt);
+  width: var(--nsz); height: var(--nsz); border-radius: 50%;
   background: var(--teal-soft); color: var(--navy);
   font-weight: 600; font-size: 16px;
   display: grid; place-items: center; position: relative; z-index: 1;
   font-variant-numeric: tabular-nums;
 }
-.step h3 { font-size: clamp(19px, 1.5vw, 22px); font-weight: 600; line-height: 1.25; letter-spacing: normal; }
+.step h3 { font-size: var(--h3fs); font-weight: 600; line-height: 1.25; letter-spacing: normal; }
 .step p { color: var(--muted); font-weight: 300; font-size: clamp(15px, 1.2vw, 17px); line-height: 1.55; margin-top: 4px; max-width: 62ch; }
-/* den ENDA streckade idén i blocket — 4px andrum i båda ändar, når aldrig in under cirkeln */
+/* den ENDA streckade idén i blocket — exakt 4px andrum i båda ändar vid ALLA bredder,
+   når aldrig in under cirkeln (ändarna räknas ur --nmt/--nsz, inte hårdkodade) */
 .step:not(:last-child)::before {
-  content: ""; position: absolute; left: 21px; top: 40px; bottom: calc(-1 * var(--sgap) + 12px);
+  content: ""; position: absolute; left: calc(var(--nsz) / 2 - 1px);
+  top: calc(var(--nmt) + var(--nsz) + 4px);
+  bottom: calc(-1 * (var(--sgap) + var(--nmt) - 4px));
   border-left: 2px dashed rgba(15,18,60,.15);
 }
 
@@ -211,10 +226,12 @@ h2 .accent { color: var(--teal-text); white-space: nowrap; }
   box-shadow: inset 0 1px 0 rgba(255,255,255,.45), 0 2px 4px rgba(9,11,50,.06), 0 10px 26px -6px rgba(94,199,160,.45);
 }
 
-/* telefonen: ren fritext-länk (aldrig knappyta) — desktop OCH mobil */
-.tel { font-size: 15px; color: var(--muted); font-weight: 400; text-align: center; margin-top: 16px; }
+/* sekundärlänken under CTA:n: ren fritext-länk (aldrig knappyta) — desktop OCH mobil.
+   .tel = telefonnummer; .sec-link = SAMMA yta med annan rutt (hemförsäkringsblockets /offert/-länk)
+   så klassnamnet aldrig ljuger om innehållet (paritetssvep P2-5). Stilarna är identiska. */
+.tel, .sec-link { font-size: 15px; color: var(--muted); font-weight: 400; text-align: center; margin-top: 16px; }
 /* tryckyta ≥44px via min-height (osynlig — utseendet förblir ren text). spacing P0-2 / typo P1-3 / ux P0-1 */
-.tel a {
+.tel a, .sec-link a {
   color: var(--navy); font-weight: 600; white-space: nowrap;
   text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1.5px;
   display: inline-flex; align-items: center; min-height: 44px; padding: 0 8px;
@@ -280,14 +297,13 @@ h2 .accent { color: var(--teal-text); white-space: nowrap; }
   .block { border-radius: var(--r-lg); padding: 28px 16px; }
   /* steg→panel = sektionsbyte, blockets största avstånd (spacing P1-4) */
   .grid { gap: 48px; max-width: 640px; }
-  /* H2: sajt-clampen ger 28px här; vikt 500 = lugnare (ägarorder 5).
+  /* H2: sajt-clampen (--aptext-xl) ger 24px här; vikt 600 per 500/600-provet.
      H2→steg 44 mot steg↔steg 28 = ≥1.5× kontrast (ägarorder 6, spacing P0-1) */
   h2 { max-width: none; margin-bottom: 44px; }
   .steps { --sgap: 28px; }
-  .step { grid-template-columns: 38px 1fr; gap: 14px; }
-  .step .n { width: 38px; height: 38px; font-size: 15px; margin-top: -6px; }
-  /* -18px ger 4/4px andrum kring linjen vid gap 28 (spacing P2-8, omräknad mot nya gapet) */
-  .step:not(:last-child)::before { left: 18px; top: 36px; bottom: -18px; }
+  /* enbart storlekarna byts — linjering + linjeändar följer automatiskt via --nmt-kalkylen */
+  .step { --nsz: 38px; gap: 14px; }
+  .step .n { font-size: 15px; }
   .step p { max-width: none; }
   .panel { --panel-pad-x: 14px; padding: 24px var(--panel-pad-x) 20px; }  /* bredare innercontainer (ägarorder 8); topp/botten-balans (spacing P2-11) */
   .r-total { padding: 16px var(--panel-pad-x); }
@@ -298,7 +314,7 @@ h2 .accent { color: var(--teal-text); white-space: nowrap; }
 }
 @media (max-width: 480px) {
   .cta { width: 100%; padding: 11px 16px; gap: 10px; }
-  .tel { font-size: 14.5px; }
+  .tel, .sec-link { font-size: 14.5px; }
 }
 /* ≤345px: CTA-innehållet (nowrap 16px per sajtstilen) kräver ~239px — kompaktare CTA + bredare
    containrar (i linje med ägarorder 8) räddar 320-läget utan att röra sajtens 16px/500 */
@@ -323,7 +339,7 @@ h2 .accent { color: var(--teal-text); white-space: nowrap; }
 
 <div class="wf-label">
   <span>Blockfamiljen · GT Produkt</span>
-  <a href="familj.html">← familjen</a>
+  <a href="familj.html">← blockfamiljen</a>
 </div>
 
 <!-- ============================================================
@@ -342,9 +358,9 @@ h2 .accent { color: var(--teal-text); white-space: nowrap; }
        villkor-produkt  finstiltens slut       TOM · tvåägarraden ([GAP-2]) över 50 000 kr
      Casing per slot är entydig — samma slot får aldrig skrivas med två versaliseringar.
 
-     CSS-blocket (rad 7–320) är diff-identiskt med d2-kvittot-forst.html och får inte röras.
-     Följd: .offert-pill-reglerna (3 förekomster) är död kod i just denna fil, eftersom kvittots
-     rad 1 bär ett grindat belopp i stället för offert-pillen. Medvetet pris för bytespariteten.
+     CSS-blocket är diff-identiskt med d2-kvittot-forst.html och får inte röras.
+     Kvittots rad 1 bär det grindade beloppet I offert-pillen (familjegrammatik: rad 1-värdet
+     är alltid en pill — paritetssvep P2-2, radhöjdsparitet 63,8px i alla fyra).
      ============================================================ -->
 <!-- aria-label ersatt av aria-labelledby → sektionens tillgängliga namn följer den slottade H2:an
      automatiskt. En hårdkodad aria-label renderade fel namn i batterivarianten (P2-7). -->
@@ -365,17 +381,21 @@ h2 .accent { color: var(--teal-text); white-space: nowrap; }
                eller efter avdrag?") hör hemma HÄR, inte i brödtexten. Ordet "redan" är
                obligatoriskt. -->
           <h3>Priset du ser är redan efter avdraget</h3>
-          <!-- "Fr."-hedgen bärs av offert-meningen + totalplattans not (fälla F5: sajtpriserna
-               är instegskonfigurationer). -->
-          <p>Siffran på sidan gäller <span data-slot="produkt-best">boxen</span> och installationen tillsammans, efter Grön Teknik. Exakt pris får du i offerten, innan du bestämmer dig.</p>
+          <!-- "Fr."-hedgen bärs av offert-meningen (fälla F5: sajtpriserna är instegs-
+               konfigurationer). Ordekonomi (sprint 2026-08-15): 21→15 ord, ROT-budget 15. -->
+          <p>Siffran gäller <span data-slot="produkt-best">boxen</span> och installationen tillsammans, efter Grön Teknik. Exakt pris får du i offerten.</p>
         </li>
         <li class="step">
           <span class="n" aria-hidden="true">2</span>
           <h3>En auktoriserad elektriker installerar</h3>
           <!-- Paketkravet som säljargument, inte förbehåll (faktabas §1): Skatteverket kräver att
                samma företag levererar hårdvara + installation för 50 % på materialet.
-               data-slot="produkt-best": boxen / batteriet. -->
-          <p>Samma företag måste leverera både <span data-slot="produkt-best">boxen</span> och arbetet för att materialet ska ge avdrag. Det är Skatteverkets krav, och hos oss ingår installationen alltid.</p>
+               data-slot="produkt-best": boxen / batteriet.
+               CANDOUR-FIX (candoursvep 2026-08-15, BLOCK): ordtrimmen hade strukit ändamåls-
+               satsen och gjort villkoret till en ovillkorad myndighetsregel — du FÅR köpa
+               boxen själv, du förlorar bara materialavdraget. "annars gäller avdraget inte
+               materialet" återställer sanningen på 19 ord (ROT-budget 14, grind 150 % = 21). -->
+          <p>Skatteverket kräver att samma företag levererar <span data-slot="produkt-best">boxen</span> och arbetet, annars gäller avdraget inte materialet. Hos oss ingår installationen alltid.</p>
         </li>
         <li class="step">
           <span class="n" aria-hidden="true">3</span>
@@ -383,9 +403,10 @@ h2 .accent { color: var(--teal-text); white-space: nowrap; }
           <!-- [GAP] fakturamodell + ansökningshantering: ägarbekräftelse före ship (live-verifierad
                formulering: "vi sköter hela processen åt dig").
                "aldrig" var ett ohedgat utfallslöfte som datalagret inte kan backa ([GAP-7],
-               neka-policyn, är obesvarad). Live-sajtens svagare formulering används i stället:
-               "Du behöver inte ligga ute med pengarna". -->
-          <p>Avdraget dras direkt på fakturan, så du behöver inte ligga ute med pengarna. Vi skickar in ansökan till Skatteverket åt dig.</p>
+               neka-policyn, är obesvarad).
+               Ordekonomi (sprint 2026-08-15): mekaniken sägs RAKT (hedging-doseringen) —
+               "ligga ute med pengarna"-bisatsen struken, 21→13 ord = exakt ROT-paritet. -->
+          <p>Avdraget dras direkt på fakturan. Ansökan till Skatteverket skickar vi in åt dig.</p>
         </li>
       </ol>
     </div>
@@ -404,10 +425,13 @@ h2 .accent { color: var(--teal-text); white-space: nowrap; }
            etikettering i containerläget ("ORDINARIE PRIS, LADDBOX + INSTALLATION" + "Ordinarie
            pris [X] kr"). data-slot="produkt-obest" = gemen form, mitt i mening: laddbox /
            solcellsbatteri. -->
+      <!-- Familjegrammatik (paritetssvep P2-2): rad 1:s värde bär ALLTID pill-klädseln — syskonen
+           kör "Skräddarsydd offert"/"Prisbesked på telefon", här bär pillen det grindade beloppet.
+           Ger identisk radhöjd (63,8px) i hela familjen; i containerläget avklädnas pillen ändå. -->
       <div class="r-row">
         <span class="lbl">Ordinarie pris, <span data-slot="produkt-obest">laddbox</span> + installation</span>
         <span class="dots" aria-hidden="true"></span>
-        <span class="amt">[X]&nbsp;kr</span>
+        <span class="amt"><span class="offert-pill">[X]&nbsp;kr</span></span>
       </div>
 
       <!-- [FACT] GT laddbox 50 % / solcellsbatteri 50 % av arbete OCH material (ägarbekräftad kanon).
@@ -444,8 +468,13 @@ h2 .accent { color: var(--teal-text); white-space: nowrap; }
              SLOT-MEKANIK: sloten står först och det enda blanksteget ligger EFTER den.
              Tom slot → inledande blanksteg i ett blockelement tas bort av CSS:ens
              whitespace-hantering (ingen dubbelspalt); fylld slot → korrekt mellanrum.
-             Slot mellan två textkörningar ger dubbelt blanksteg och får inte användas. -->
-        <span class="t-note"><span data-slot="grind-produkt"></span> Avdraget är redan draget i priset. Hur stort det blir avgörs av Skatteverket och din skatt, och priset på sidan är ett från-pris. Exakt pris får du i offerten.</span>
+             Slot mellan två textkörningar ger dubbelt blanksteg och får inte användas.
+             HEDGING-DOSERING (ägardirektiv 2026-08-15): den gamla noten ("Hur stort det blir
+             avgörs av Skatteverket och din skatt, och priset på sidan är ett från-pris. Exakt
+             pris får du i offerten.") fälldes av ägaren som ÖVERFLÖDIG — vi garderar inte för
+             avslagsfallet (1 av 200), mekaniken sägs rakt. Offert-hedgen bärs redan av steg 1.
+             34→8 ord; ROT-notens budget = 1 rad. -->
+        <span class="t-note"><span data-slot="grind-produkt"></span> Avdraget är redan draget i priset du ser.</span>
       </div>
 
       <!-- Villkorstexten: potten + tak + privatperson + ägande + skatteutrymme (fälla F4:
@@ -458,8 +487,15 @@ h2 .accent { color: var(--teal-text); white-space: nowrap; }
            data-slot="villkor-produkt": tom på alla laddboxsidor OCH på batterisidor under
            50 000 kr. [GAP-2]: batterier med sajtpris över 50 000 kr (Sonnen/SigenStor/Pixii)
            fyller sloten med tvåägarraden — ägarbeslut innan de sidorna får blocket.
-           Blanksteget före sloten är avsiktligt (annars renderades payloaden hopklistrad). -->
-      <p class="fine">Till skillnad från ROT omfattar Grön Teknik även materialet, inte bara arbetet. Det är en egen pott på 50&nbsp;000&nbsp;kr per person och år som inte påverkar ditt ROT-utrymme, delad med annan grön teknik samma år. Är ni två ägare kan ni dela på den. Avdraget gäller privatpersoner som äger sin bostad och har skatt att räkna av för året. <span data-slot="villkor-produkt"></span></p>
+           Blanksteget före sloten är avsiktligt (annars renderades payloaden hopklistrad).
+           ORDEKONOMI + HEDGING-DOSERING (ägardirektiv 2026-08-15): villkoren EN gång, kort —
+           60→37 ord, 123 % av ROT-finstiltens 30 (sprintens P1-3 strök materialkontrast-meningen här:
+           den var redundant — samma fakta bärs redan av avdragsradens etikett "på arbete och
+           material" OCH villkorat av steg 2; ovillkorad här bröt den candour-länken).
+           Tvåägarmeningen ("Är ni två ägare kan ni dela på den") struken ur bastexten:
+           den hör hemma i villkor-produkt-slotens [GAP-2]-payload, där den är relevant
+           (batterier över 50 000 kr) — i basen var den en villkorskaskad i framträdande läge. -->
+      <p class="fine">Taket är 50&nbsp;000&nbsp;kr per person och år för all grön teknik, i en egen pott vid sidan av ditt ROT-utrymme. Avdraget gäller privatpersoner som äger sin bostad och har skatt att räkna av för året. <span data-slot="villkor-produkt"></span></p>
 
       <div class="cta-wrap">
         <!-- [GAP] CTA-mål-URL = ägarbeslut (href="#" är placeholder).

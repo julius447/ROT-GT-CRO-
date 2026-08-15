@@ -435,3 +435,17 @@ PUNCHLISTA STÄNGD — d4-ett-kort.html
 
 Fil: /Users/juliuscallahan/Desktop/Claude Code/rot-gt-cro/designs/d4-ett-kort.html
 Skärmdumpar: /Users/juliuscallahan/Desktop/Claude Code/rot-gt-cro/designs/screens/d4-ett-kort-final-{desktop,mobile}.png + d4-state-{q2,ok,nej1,nej2}-{desktop,mobile}.png
+---
+
+# FAMILJEKONTRAKT (sprint-final 2026-08-15 — uttalade regler, inte fotnoter)
+
+Gäller alla fyra: `d2-kvittot-forst.html` (bas) · `gt-produkt.html` · `gt-generisk.html` · `hemforsakring.html`.
+
+1. **CSS-basen är helig.** `<style>`-blocket ska vara diff-identiskt i alla fyra. En basändring speglas ordagrant i syskonen, alltid i samma commit.
+2. **CTA-formen (paritetssvep P2-4).** Familjeformen är "Begär offert med X inräknat". GT-blocken kör medvetet den kortare "Begär offert med Grön Teknik": fullformen mäter 274px i sajtens 16px/500 nowrap och spiller 28/46/53px @390/345/320. Hemförsäkringen kör "Ring oss på 010-265 79 79" (akut kontext, telefon primär — faktabas §2). Ny CTA-text kräver ALLTID ett 320–480-omsvep före merge.
+3. **Kvittorad 1:s värde är alltid en pill** (`.offert-pill`): "Skräddarsydd offert" / "[X] kr" (grindat belopp) / "Prisbesked på telefon". Ger identisk radhöjd (63,8px @1440) i hela familjen.
+4. **Den stora teal-klädseln på avdragsraden (`.r-row.deduct .amt`, 20px/700) är reserverad för kanonsatser** (−30 % / −50 %). Hedgad text får aldrig bära den — hemförsäkringens "kan ersätta en del" renderar i normalvikt.
+5. **Tillgängligt sektionsnamn via `aria-labelledby` mot H2:ns id** (`rot-h2`/`gt-h2`/`hf-h2`) — aldrig hårdkodad `aria-label` (den divergerar från slottade H2:or).
+6. **Sekundärlänken under CTA:n:** `.tel` för telefonnummer, `.sec-link` för annan rutt — identisk stil, ärliga klassnamn.
+7. **Preview-etiketten:** "Blockfamiljen · <blocknamn>", avdelare `·` (aldrig em-dash i renderad UI), länk "← blockfamiljen" → `familj.html`.
+8. **Ordbudget (ägardirektiv):** ROT-blocket är referensen — stegparagrafer ≈ 1–2 korta meningar (grind 150 % av basens ordtal), panelnot ≈ 1 rad, finstilt ≤150 % av basens. Hemförsäkringens riskklass trimmas i ORD, aldrig i sanning.

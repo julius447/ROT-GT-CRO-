@@ -94,33 +94,48 @@ a { -webkit-tap-highlight-color: transparent; }
 }
 
 /* ---------- Left: H2 + processen 1-2-3 ---------- */
-/* SAJTMATCH (ground truth, theme-style): h2 = var(--aptext-2-5xl) & vikt 500.
-   28→40px via exakt samma clamp-kurva som live-sajten. */
+/* SAJTMATCH (ground truth, global-variables): blockens H2 = var(--aptext-xl)
+   = clamp(24px, calc(0.83vw + 21.3px), 32px), line-height 1.3 (.rot__main-heading).
+   Vikt: live kör 400; 600 valt efter visuellt 500/600-prov (sprint 2026-08-15) —
+   600 = samma fetstil som steg-H3 → ETT rubriksnitt, hierarki via storlek enbart;
+   500 lät steg-H3:orna konkurrera med H2 på mobilen. */
 h2 {
-  font-size: clamp(28px, calc(1.25vw + 24px), 40px);
-  font-weight: 500; line-height: 1.18; letter-spacing: normal; /* ground truth sätter bara size+weight (typo P2-5) */
+  font-size: clamp(24px, calc(0.83vw + 21.3px), 32px);
+  font-weight: 600; line-height: 1.3; letter-spacing: normal; /* ground truth sätter bara size+weight (typo P2-5) */
   max-width: 30ch; text-wrap: pretty;
-  /* H2→steg ≥1.4× steg↔steg (56 mot 40 @1440) — hierarkisk kontrast (spacing P0-1, ux P1-2) */
-  margin-bottom: clamp(44px, 4vw, 56px);
+  /* H2→steg ≥1.4× steg↔steg (64 mot 44 @1440) — hierarkisk kontrast (spacing P0-1, ux P1-2).
+     Mindre H2 (40→32) frigjorde vertikal luft — återinvesterad här + i --sgap (sprint-direktiv). */
+  margin-bottom: clamp(44px, 4.5vw, 64px);
 }
 h2 .accent { color: var(--teal-text); white-space: nowrap; }
 
-.steps { --sgap: clamp(32px, 3vw, 40px); list-style: none; display: flex; flex-direction: column; gap: var(--sgap); }
-.step { display: grid; grid-template-columns: 44px 1fr; gap: 16px; position: relative; }
+.steps { --sgap: clamp(32px, 3.1vw, 44px); list-style: none; display: flex; flex-direction: column; gap: var(--sgap); }
+/* Optisk linjering (sprint 2026-08-15): cirkelns mitt = H3:ns första radmitt, EXAKT vid
+   varje viewport — --nmt räknas ur H3:ns verkliga radhöjd i st.f. ett gissat fast avdrag
+   (gamla -8px stämde bara vid 1440; vid 1120 var felet ~2px). Linjens ändar följer med. */
+.step {
+  --h3fs: clamp(19px, 1.5vw, 22px);                             /* H3-storleken, delad anchor */
+  --nsz: 44px;                                                  /* cirkelns diameter */
+  --nmt: calc((var(--h3fs) * 1.25 - var(--nsz)) / 2);           /* radmitt − cirkelmitt */
+  display: grid; grid-template-columns: var(--nsz) 1fr; gap: 16px; position: relative;
+}
 /* ikonen: mjuk teal-fylld cirkel (lugnare än outline-ring), navy siffra — ingen ram */
 .step .n {
-  grid-row: 1 / span 2; align-self: start; margin-top: -8px;   /* optisk mitt mot h3:ans första rad */
-  width: 44px; height: 44px; border-radius: 50%;
+  grid-row: 1 / span 2; align-self: start; margin-top: var(--nmt);
+  width: var(--nsz); height: var(--nsz); border-radius: 50%;
   background: var(--teal-soft); color: var(--navy);
   font-weight: 600; font-size: 16px;
   display: grid; place-items: center; position: relative; z-index: 1;
   font-variant-numeric: tabular-nums;
 }
-.step h3 { font-size: clamp(19px, 1.5vw, 22px); font-weight: 600; line-height: 1.25; letter-spacing: normal; }
+.step h3 { font-size: var(--h3fs); font-weight: 600; line-height: 1.25; letter-spacing: normal; }
 .step p { color: var(--muted); font-weight: 300; font-size: clamp(15px, 1.2vw, 17px); line-height: 1.55; margin-top: 4px; max-width: 62ch; }
-/* den ENDA streckade idén i blocket — 4px andrum i båda ändar, når aldrig in under cirkeln */
+/* den ENDA streckade idén i blocket — exakt 4px andrum i båda ändar vid ALLA bredder,
+   når aldrig in under cirkeln (ändarna räknas ur --nmt/--nsz, inte hårdkodade) */
 .step:not(:last-child)::before {
-  content: ""; position: absolute; left: 21px; top: 40px; bottom: calc(-1 * var(--sgap) + 12px);
+  content: ""; position: absolute; left: calc(var(--nsz) / 2 - 1px);
+  top: calc(var(--nmt) + var(--nsz) + 4px);
+  bottom: calc(-1 * (var(--sgap) + var(--nmt) - 4px));
   border-left: 2px dashed rgba(15,18,60,.15);
 }
 
@@ -211,10 +226,12 @@ h2 .accent { color: var(--teal-text); white-space: nowrap; }
   box-shadow: inset 0 1px 0 rgba(255,255,255,.45), 0 2px 4px rgba(9,11,50,.06), 0 10px 26px -6px rgba(94,199,160,.45);
 }
 
-/* telefonen: ren fritext-länk (aldrig knappyta) — desktop OCH mobil */
-.tel { font-size: 15px; color: var(--muted); font-weight: 400; text-align: center; margin-top: 16px; }
+/* sekundärlänken under CTA:n: ren fritext-länk (aldrig knappyta) — desktop OCH mobil.
+   .tel = telefonnummer; .sec-link = SAMMA yta med annan rutt (hemförsäkringsblockets /offert/-länk)
+   så klassnamnet aldrig ljuger om innehållet (paritetssvep P2-5). Stilarna är identiska. */
+.tel, .sec-link { font-size: 15px; color: var(--muted); font-weight: 400; text-align: center; margin-top: 16px; }
 /* tryckyta ≥44px via min-height (osynlig — utseendet förblir ren text). spacing P0-2 / typo P1-3 / ux P0-1 */
-.tel a {
+.tel a, .sec-link a {
   color: var(--navy); font-weight: 600; white-space: nowrap;
   text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1.5px;
   display: inline-flex; align-items: center; min-height: 44px; padding: 0 8px;
@@ -280,14 +297,13 @@ h2 .accent { color: var(--teal-text); white-space: nowrap; }
   .block { border-radius: var(--r-lg); padding: 28px 16px; }
   /* steg→panel = sektionsbyte, blockets största avstånd (spacing P1-4) */
   .grid { gap: 48px; max-width: 640px; }
-  /* H2: sajt-clampen ger 28px här; vikt 500 = lugnare (ägarorder 5).
+  /* H2: sajt-clampen (--aptext-xl) ger 24px här; vikt 600 per 500/600-provet.
      H2→steg 44 mot steg↔steg 28 = ≥1.5× kontrast (ägarorder 6, spacing P0-1) */
   h2 { max-width: none; margin-bottom: 44px; }
   .steps { --sgap: 28px; }
-  .step { grid-template-columns: 38px 1fr; gap: 14px; }
-  .step .n { width: 38px; height: 38px; font-size: 15px; margin-top: -6px; }
-  /* -18px ger 4/4px andrum kring linjen vid gap 28 (spacing P2-8, omräknad mot nya gapet) */
-  .step:not(:last-child)::before { left: 18px; top: 36px; bottom: -18px; }
+  /* enbart storlekarna byts — linjering + linjeändar följer automatiskt via --nmt-kalkylen */
+  .step { --nsz: 38px; gap: 14px; }
+  .step .n { font-size: 15px; }
   .step p { max-width: none; }
   .panel { --panel-pad-x: 14px; padding: 24px var(--panel-pad-x) 20px; }  /* bredare innercontainer (ägarorder 8); topp/botten-balans (spacing P2-11) */
   .r-total { padding: 16px var(--panel-pad-x); }
@@ -298,7 +314,7 @@ h2 .accent { color: var(--teal-text); white-space: nowrap; }
 }
 @media (max-width: 480px) {
   .cta { width: 100%; padding: 11px 16px; gap: 10px; }
-  .tel { font-size: 14.5px; }
+  .tel, .sec-link { font-size: 14.5px; }
 }
 /* ≤345px: CTA-innehållet (nowrap 16px per sajtstilen) kräver ~239px — kompaktare CTA + bredare
    containrar (i linje med ägarorder 8) räddar 320-läget utan att röra sajtens 16px/500 */
@@ -354,7 +370,9 @@ h2 .accent { color: var(--teal-text); white-space: nowrap; }
      [GAP-7] boendeform: löst med en uttalad mening i finstilten (§1.6) i
      stället för differentiering — hedgen täcker nu även ansvarsgränsen.
      ============================================================ -->
-<section class="block" aria-label="Vad felsökningen kan kosta dig och vad hemförsäkringen kan ersätta">
+<!-- aria-labelledby = familjens metod (paritetssvep P1-5): sektionsnamnet följer H2:an
+     automatiskt i stället för en hårdkodad aria-label som kan divergera från rubriken. -->
+<section class="block" aria-labelledby="hf-h2">
   <div class="grid">
 
     <div class="left">
@@ -364,10 +382,14 @@ h2 .accent { color: var(--teal-text); white-space: nowrap; }
            den delen omfattas av ROT. Den raden skrivs INTE ut här ([GAP-5]), men H2:n får
            heller inte påstå det platta motsatta.
            Formuleringen ligger nära §1.8 ordagrant ("ROT medges inte för ren felsökning")
-           OCH är den enda varianten som aldrig bryter "ROT-avdraget" mitt itu: uppmätt
-           320→1600, 0 delade ord (jfr "Ren felsökning ger inget ROT-avdrag", som bryter
-           efter bindestrecket på 1366/1440). -->
-      <h2>ROT-avdraget gäller inte för ren felsökning. Men vid skada kan <span class="accent">din hemförsäkring</span> ersätta en del</h2>
+           OCH är den enda varianten som aldrig bryter "ROT-avdraget" mitt itu: som FÖRSTA
+           ord hamnar det aldrig vid radslut (jfr "Ren felsökning ger inget ROT-avdrag",
+           som bröt efter bindestrecket). Ordekonomi 2026-08-15: "Men" struken — punkten
+           gör vändningen. Omsvept 320→1600 på nya H2-storleken (--aptext-xl), 0 delade ord.
+           Ordekonomi (sprint P2-1): "för" struket, 14→13 ord — H2:n bär två budskap per
+           forskad riktning (erkänn förlusten först, ge vägen sen), därför medvetet längre
+           än basens 10; att nå basens 2 rader @1440 kräver att ett budskap stryks = avvisat. -->
+      <h2 id="hf-h2">ROT-avdraget gäller inte ren felsökning. Vid skada kan <span class="accent">din hemförsäkring</span> ersätta&nbsp;en&nbsp;del</h2>
 
       <ol class="steps">
         <li class="step">
@@ -376,8 +398,12 @@ h2 .accent { color: var(--teal-text); white-space: nowrap; }
           <!-- Prislöftet står EN gång i blocket (pillen i panelen, där kunden ställer frågan).
                [FACT] behörighetsargumentet: ersättningen kan sättas ned eller utebli om skadan
                orsakats av obehörigt/icke fackmannamässigt elarbete (LF aktsamhetskrav).
-               src: faktabas-hemforsakring §1.2. Hedgat med "kan" åt båda hållen. -->
-          <p>En auktoriserad elektriker hittar felet och dokumenterar orsaken. Att jobbet görs av ett registrerat elinstallationsföretag skyddar din rätt till ersättning: efter obehörigt elarbete kan den sättas ned eller utebli.</p>
+               src: faktabas-hemforsakring §1.2. RISKKLASS-ÅTERSTÄLLNING (candoursvep P2-not 3):
+               hedging-doseringens ägardirektiv UNDANTAR försäkringsblocket — ärligheten behålls,
+               orden trimmas. Den negativa mekaniken är tillbaka i sju ord och ERSÄTTER den
+               positiva omskrivningen ("skyddar din rätt...") — 14→15 ord, exakt ROT-budget,
+               och orsakslänken elektriker→ersättning blev skarpare, inte mjukare. -->
+          <p>En auktoriserad elektriker hittar felet och dokumenterar orsaken. Efter obehörigt elarbete kan ersättningen sättas&nbsp;ned.</p>
         </li>
         <li class="step">
           <span class="n" aria-hidden="true">2</span>
@@ -385,16 +411,18 @@ h2 .accent { color: var(--teal-text); white-space: nowrap; }
           <!-- [GAP-2]/[GAP-3] SHIP-GATE (blockerande): felrapport + specificerad faktura
                (arbete/material/utryckning separat) + foton måste vara Ampys faktiska
                standardleverans vid eljour i dag. Annars brister löftet vid första kunden. -->
-          <p>Specificerad faktura, foton och en skriftlig beskrivning av felet och orsaken. Det är det underlag ditt försäkringsbolag frågar efter.</p>
+          <p>Specificerad faktura, foton och skriftlig beskrivning av fel och orsak. Det är underlaget ditt bolag frågar efter.</p>
         </li>
         <li class="step">
           <span class="n" aria-hidden="true">3</span>
-          <h3>Du anmäler till ditt försäkringsbolag</h3>
+          <h3>Du anmäler skadan själv</h3>
           <!-- Candour: Ampy anmäler INTE skadan och lovar INTE utfall (faktabas §2).
                [GAP-8]: trappan 1→2→3 skulle annars SKRIVA UT en anmälningsordning (fixa →
-               fakturera → anmäl). Många villkor kräver kontakt/godkännande FÖRE arbetet (F5).
-               Första satsen avväpnar ordningen utan att påstå mekaniken. -->
-          <p>Anmälan gör du själv, när och hur ditt bolag kräver. Försäkringen är ditt avtal, och vad som ersätts avgörs av dina villkor och installationens ålder. Vi kan inte lova utfallet.</p>
+               fakturera → anmäl). "själv" + "när och hur bestämmer ditt bolag" avväpnar
+               ordningen utan att påstå mekaniken. "inte av oss" = "vi kan inte lova
+               utfallet" i komprimerad form (sanningen behålls i sak, hedging-dosering
+               2026-08-15). Villkors-/åldersdetaljen bärs av panelens t-note + fine. -->
+          <p>När och hur bestämmer ditt bolag. Vad som ersätts avgörs av dina villkor, inte&nbsp;av&nbsp;oss.</p>
         </li>
       </ol>
     </div>
@@ -417,10 +445,14 @@ h2 .accent { color: var(--teal-text); white-space: nowrap; }
         <span class="amt"><span class="offert-pill">Prisbesked på telefon</span></span>
       </div>
 
-      <div class="r-row deduct">
-        <!-- Ingen procentsats FÅR uppfinnas (faktabas §3) — värdet är hedgad text, inte en siffra.
-             Skade-villkoret bärs av H2 + totalplattan + villkorstexten (etiketten hålls kort
-             så kvittoraden ryms på EN rad, basens rytm). -->
+      <!-- Ingen procentsats FÅR uppfinnas (faktabas §3) — värdet är hedgad text, inte en siffra.
+           Skade-villkoret bärs av H2 + totalplattan + villkorstexten (etiketten hålls kort
+           så kvittoraden ryms på EN rad, basens rytm).
+           PARITETSSVEP P1-2: deduct-klassen BORTTAGEN — familjens grammatik ger den stora
+           teal-klädseln (20px/700) åt kanonsatser (−30 %/−50 %); en hedgad mening i samma
+           klädsel lovade hårdare än orden i det block som inte får lova utfall ([GAP-6]).
+           Raden renderar nu i kvittots normalvikt (17px/600 ink) — orden oförändrade. -->
+      <div class="r-row">
         <span class="lbl">Din hemförsäkring</span>
         <span class="dots" aria-hidden="true"></span>
         <span class="amt">kan ersätta en del</span>
@@ -438,7 +470,11 @@ h2 .accent { color: var(--teal-text); white-space: nowrap; }
       <div class="r-total">
         <span class="t-label">Du betalar alltid</span>
         <span class="amt">minst självrisken</span>
-        <span class="t-note">Självrisken är ofta 1&nbsp;500–3&nbsp;000&nbsp;kr och står i ditt försäkringsbrev. På äldre installationer kan åldersavdrag göra att du betalar mer, ibland hela kostnaden.</span>
+        <!-- Ordekonomi (paritetssvep P1-1): 17→11 ord. "På äldre installationer" struket
+             (åldersavdrag bär åldern per definition) och dubbelhedgen "kan ... ibland" → "kan";
+             värsta utfallet ("till hela kostnaden") står kvar ordagrant — riskklassens sanning
+             trimmas i ord, aldrig i sak (ägardirektivets undantag). ≤74 tecken = 1 rad @1440. -->
+        <span class="t-note">Ofta 1&nbsp;500–3&nbsp;000&nbsp;kr. Åldersavdrag kan höja din del till hela kostnaden.</span>
       </div>
 
       <!-- Ärlig avgränsning, dubbelriktat hedgad (marknadsföringslagen: aldrig platt "gäller inte om",
@@ -446,7 +482,7 @@ h2 .accent { color: var(--teal-text); white-space: nowrap; }
            [GAP-7] boendeformen: hedgen "ditt villkor" täcker villkorsINNEHÅLL, inte ansvarsGRÄNSEN.
            I hyresrätt är fast el fastighetsägarens ansvar och hemförsäkringen täcker bara lösöret;
            i BRF slutar föreningens ansvar normalt vid elcentralen. src: §1.6 (Elsäkerhetsverket). -->
-      <p class="fine">Gäller vid skada som din försäkring täcker, till exempel efter blixt, överspänning eller kortslutning. Ren felsökning utan skada och förebyggande besiktning täcks normalt inte. Bor du i bostadsrätt eller hyresrätt gäller andra regler för den fasta elen. Vad som gäller står i just ditt villkor, vi gissar inte åt dig.</p>
+      <p class="fine">Gäller vid skada, till exempel blixt eller kortslutning. Ren felsökning och besiktning täcks normalt inte. I bostadsrätt och hyresrätt gäller andra regler för den fasta elen. Ditt villkor avgör, vi gissar inte&nbsp;åt&nbsp;dig.</p>
 
       <div class="cta-wrap">
         <!-- CTA: TELEFON PRIMÄR (faktabasens rekommendation §2 — akut kontext, ingen offertform).
@@ -457,7 +493,9 @@ h2 .accent { color: var(--teal-text); white-space: nowrap; }
         <!-- [GAP] sekundärlänkens mål: /offert/ = webb-playbookens rutt för icke-akut intent
              (aldrig href="#" — en död länk får inte gå live). Ägarbeslut: är /offert/ rätt
              landning för felsökning/besiktning, eller en egen förfrågningssida? -->
-        <p class="tel">Inte akut? <a href="/offert/">Skicka en förfrågan i stället</a></p>
+        <!-- .sec-link (inte .tel): samma yta/stil, men klassen ljuger inte om innehållet —
+             länken är en rutt (/offert/), inget telefonnummer (paritetssvep P2-5). -->
+        <p class="sec-link">Inte akut? <a href="/offert/">Skicka en förfrågan</a></p>
       </div>
     </section>
 
