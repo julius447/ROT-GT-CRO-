@@ -97,7 +97,7 @@ a { -webkit-tap-highlight-color: transparent; }
      tröskel håller i hela bandet (innehåll ≥401px, uppmätt). */
   grid-template-columns: minmax(0, 1fr) clamp(466px, 33vw, 530px);
   gap: clamp(48px, 5.5vw, 96px);
-  align-items: start;
+  align-items: stretch;   /* ägartest: höger spalt sträcks till vänsterspaltens höjd */
 }
 
 /* ---------- Left: H2 + processen 1-2-3 ---------- */
@@ -296,6 +296,31 @@ h2 .accent {
 .panel--dark .r-total .t-note { color: rgba(255,255,255,.78); }
 .panel--dark .fine { color: rgba(255,255,255,.70); border-top-color: rgba(255,255,255,.14); }
 
+/* ================= CTA (ÅTERINFÖRD, ägartest 2026-08-16) — sajtens .hero_2__primary-button ================= */
+/* SLACK-FLYTTEN: flex:1 0 auto + .cta{margin-top:auto} lägger panelens slack i CTA-zonen,
+   så avdelaren stänger kvittot 32px under finstilten och luften läses som CTA-luft. */
+.cta-wrap { margin-top: 0; padding-top: 32px; flex: 1 0 auto; display: flex; flex-direction: column; align-items: center; gap: 0; }
+.cta-wrap::before { content: ""; display: block; align-self: stretch; height: 1px; background: rgba(255,255,255,.16); margin-bottom: 24px; }
+.cta {
+  margin-top: auto;
+  display: inline-flex; align-items: center; justify-content: center; gap: 16px;
+  min-height: 58px; padding: 11px 32px; border-radius: 16px;   /* +8px inline = ägarorder 4, desktop */
+  font-size: 16px; font-weight: 500; line-height: 1; white-space: nowrap;
+  color: hsl(237 35% 24%); text-decoration: none;
+  background: linear-gradient(120deg, #55ff9a 0%, #5eb1bf 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.45), 0 2px 4px rgba(9,11,50,.06), 0 10px 26px -6px rgba(94,199,160,.45);
+  transition: transform .16s ease, box-shadow .16s ease, filter .16s ease;
+}
+.cta .cta-arrow { flex: none; transition: transform .16s ease; }
+.cta:hover {
+  transform: translateY(-1.5px); filter: saturate(1.06) brightness(1.02);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.45), 0 3px 6px rgba(9,11,50,.08), 0 14px 32px -6px rgba(94,199,160,.6);
+}
+.cta:hover .cta-arrow { transform: scale(1.18); }
+.cta:active { transform: translateY(0); }
+/* fokusring: vit på mörk panel (navy-outline skulle försvinna i bakgrunden) */
+.cta:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+
 @container (max-width: 400px) {
   .r-row { display: grid; gap: 6px; padding: 16px 0; }
   .r-row .dots { display: none; }
@@ -380,6 +405,7 @@ h2 .accent {
   .step { --nsz: 32px; gap: 14px; }
   .step .n { font-size: 14px; }
   .step p { max-width: none; }
+  .cta { width: 100%; padding: 11px 24px; }
   .panel { --panel-pad-x: 14px; padding: 24px var(--panel-pad-x) 20px; }  /* bredare innercontainer (ägarorder 8); topp/botten-balans (spacing P2-11) */
   /* r-total: INGA mobilöverstyrningar längre — plattan behåller systemets 20px-luft och
      clamp-storleken (20px @390 efter ägarorderns sänkning). Gamla 25px/16px var två extra skalsteg (7b). */
@@ -467,6 +493,14 @@ h2 .accent {
 
       <p class="fine">Taket är 50&nbsp;000&nbsp;kr per person och år. Avdraget förutsätter att du äger bostaden och har avdrag kvar för året.</p>
 
+      <div class="cta-wrap">
+        <!-- ÅTERINFÖRD 2026-08-16 (ägartest): CTA:n tillbaka på ROT-blocket + panelen sträcks
+             till vänsterspaltens höjd. Knappstilen = EXAKT sajtens .hero_2__primary-button.
+             [GAP] CTA-mål-URL = ägarbeslut (href="#" är placeholder). -->
+        <a class="cta" href="#">Begär offert med ROT inräknat
+          <svg class="cta-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
     </section>
 
   </div>
