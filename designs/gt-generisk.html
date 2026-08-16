@@ -95,7 +95,7 @@ a { -webkit-tap-highlight-color: transparent; }
   /* 37vw/600 → 34vw/548 (slutpanel design P1-2a, testrenderad): panelen tog 45 % av
      innehållsbredden. 490px @1440; golvet 460 orört — kvittoradernas 400px-container-
      tröskel håller i hela bandet (innehåll ≥401px, uppmätt). */
-  grid-template-columns: minmax(0, 1fr) clamp(460px, 34vw, 548px);
+  grid-template-columns: minmax(0, 1fr) clamp(466px, 33vw, 530px);
   gap: clamp(48px, 5.5vw, 96px);
   align-items: stretch;
 }
@@ -266,38 +266,15 @@ h2 .accent {
    flex:1 0 auto + .cta{margin-top:auto} flyttar slacken IN i CTA-zonen: avdelaren stänger
    kvittot 32px under finstilten, luften läses som CTA-luft. Vid slack 0 = pixelidentiskt
    (avdelare→CTA förblir 24px). */
-.cta-wrap { margin-top: 0; padding-top: 32px; flex: 1 0 auto; display: flex; flex-direction: column; align-items: center; gap: 0; }
-.cta-wrap::before { content: ""; display: block; align-self: stretch; height: 1px; background: var(--line); margin-bottom: 24px; }
-.cta { margin-top: auto; }
-.cta {
-  display: inline-flex; align-items: center; justify-content: center; gap: 16px;
-  /* padding-inline 24→32px = ägarorder 4 (CTA:n några px bredare, ENDAST desktop) —
-     ≤900-läget återställer sajtens 24px så mobil-CTA:n är orörd */
-  min-height: 58px; padding: 11px 32px; border-radius: 16px;
-  font-size: 16px; font-weight: 500; line-height: 1; white-space: nowrap;
-  color: hsl(237 35% 24%); text-decoration: none;
-  background: linear-gradient(120deg, #55ff9a 0%, #5eb1bf 100%);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.45), 0 2px 4px rgba(9,11,50,.06), 0 10px 26px -6px rgba(94,199,160,.45);
-  transition: transform .16s ease, box-shadow .16s ease, filter .16s ease;
-}
-.cta .cta-arrow { flex: none; transition: transform .16s ease; }
-.cta:hover {
-  transform: translateY(-1.5px);
-  filter: saturate(1.06) brightness(1.02);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.45), 0 3px 6px rgba(9,11,50,.08), 0 14px 32px -6px rgba(94,199,160,.6);
-}
-.cta:hover .cta-arrow { transform: scale(1.18); }
-.cta:active { transform: translateY(0); }
-.cta:focus-visible {
-  outline: 3px solid #090b32; outline-offset: 3px;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.45), 0 2px 4px rgba(9,11,50,.06), 0 10px 26px -6px rgba(94,199,160,.45);
-}
 
 /* sekundärlänken under CTA:n: ren fritext-länk (aldrig knappyta) — desktop OCH mobil.
    .tel = telefonnummer; .sec-link = SAMMA yta med annan rutt (hemförsäkringsblockets /offert/-länk)
    så klassnamnet aldrig ljuger om innehållet (paritetssvep P2-5). Stilarna är identiska. */
 .tel, .sec-link { font-size: 15px; color: var(--muted); font-weight: 400; text-align: center; margin-top: 16px; }
 /* tryckyta ≥44px via min-height (osynlig — utseendet förblir ren text). spacing P0-2 / typo P1-3 / ux P0-1 */
+.tel-primary { font-size: 16.5px; margin-top: 12px; }
+.tel-primary .tel-ico { vertical-align: -2px; margin-right: 6px; color: var(--navy); }
+.tel-primary a { color: var(--navy); font-weight: 700; }
 .tel a, .sec-link a {
   color: var(--navy); font-weight: 600; white-space: nowrap;
   text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1.5px;
@@ -398,27 +375,13 @@ h2 .accent {
   .panel { --panel-pad-x: 14px; padding: 24px var(--panel-pad-x) 20px; }  /* bredare innercontainer (ägarorder 8); topp/botten-balans (spacing P2-11) */
   /* r-total: INGA mobilöverstyrningar längre — plattan behåller systemets 20px-luft och
      clamp-storleken (20px @390 efter ägarorderns sänkning). Gamla 25px/16px var två extra skalsteg (7b). */
-  /* staplat läge 481-900: CTA:n ska inte spänna 600px+ (facit-notering @768) */
-  .cta { width: auto; max-width: 100%; padding: 11px 24px; gap: 12px; }
-  .cta-wrap { padding-top: 28px; }
-}
+  }
 @media (max-width: 480px) {
-  .cta { width: 100%; padding: 11px 16px; gap: 10px; }
   .tel, .sec-link { font-size: 14.5px; }
 }
-/* ≤345px: CTA-innehållet (nowrap 16px per sajtstilen) kräver ~239px — kompaktare CTA + bredare
-   containrar (i linje med ägarorder 8) räddar 320-läget utan att röra sajtens 16px/500 */
 @media (max-width: 345px) {
   .block { padding-inline: 14px; }
   .panel { --panel-pad-x: 12px; }
-  .cta { gap: 6px; padding: 11px 10px; }
-  .cta .cta-arrow { width: 15px; height: 15px; }
-}
-/* Säkerhetsnät ≤330px (mobil P2-2): 15px håller en rad vid normal zoom (medveten
-   avvikelse från sajtens 16px, enbart <330px); radbrytning tillåten så Androids
-   font-boost/user-zoom aldrig klipper texten ut ur knappen */
-@media (max-width: 330px) {
-  .cta { font-size: 15px; white-space: normal; line-height: 1.2; text-align: center; }
 }
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
@@ -552,20 +515,9 @@ h2 .accent {
       <p class="fine">Avdraget är <span data-slot="sats">50&nbsp;%</span> på arbete och material. Taket är 50&nbsp;000&nbsp;kr per person och&nbsp;år. Gäller privatpersoner som äger bostaden och har skatt att räkna av.</p>
 
       <div class="cta-wrap">
-        <!-- [GAP] CTA-mål-URL = ägarbeslut (href="#" är placeholder).
-             Knappstilen = EXAKT sajtens .hero_2__primary-button (ägarens referens "Kostnadsfri rådgivning").
-             CTA-TEXTEN ÄR EN PARITETSGRIND: basens ≤345/≤330-brytpunkter är kalibrerade mot basens
-             textlängd ("Begär offert med ROT inräknat"). Blir texten längre spricker knappen 331-384px
-             (iPhone SE 375 / Android 360). Ny text mäter smalare än basens på alla bredder 320-480.
-             Lägg ALDRIG till ord här utan att mäta om 320-480-svepet.
-             SLUTPANEL CRO P1-5: "med Grön Teknik" (utan avslut) var en hängande fras utan
-             familjens löfte — "efter avdrag" (181px @16px/500, uppmätt: ryms alla bredder inkl.
-             320-lägets 203px, svepet omkört) ekar plattans etikett + steg 1:s "Offerten visar
-             ditt pris efter avdrag" → stängd loop. SAMMA text i gt-produkt (synk). -->
-        <a class="cta" href="#">Begär offert efter avdrag
-          <svg class="cta-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </a>
-        <p class="tel">Hellre prata? <a href="tel:+46102657979">Ring 010-265&nbsp;79&nbsp;79</a></p>
+        <!-- Informationsblock-beslutet 2026-08-16: CTA-knappen borttagen (hero ovanför + prisblocket
+             under äger asken; blocket förklarar). Tel-raden behålls som tyst service. -->
+        <p class="tel">Frågor? <a href="tel:+46102657979">Ring 010-265&nbsp;79&nbsp;79</a></p>
       </div>
     </section>
 
