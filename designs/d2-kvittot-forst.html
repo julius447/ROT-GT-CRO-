@@ -337,6 +337,7 @@ h2 .accent {
    radläget på viewport-bredd så "ord på ord"-defekten aldrig återuppstår */
 @supports not (container-type: inline-size) {
   @media (max-width: 480px) {
+  .cta { width: 100%; padding: 11px 16px; gap: 10px; }
     .r-row { display: grid; gap: 6px; padding: 16px 0; }
     .r-row .dots { display: none; }
     .r-row .lbl {
@@ -405,7 +406,8 @@ h2 .accent {
   .step { --nsz: 32px; gap: 14px; }
   .step .n { font-size: 14px; }
   .step p { max-width: none; }
-  .cta { width: 100%; padding: 11px 24px; }
+  /* staplat läge 481-900: CTA:n ska inte spänna 600px+ (facit-notering @768) */
+  .cta { width: auto; max-width: 100%; padding: 11px 24px; }
   .panel { --panel-pad-x: 14px; padding: 24px var(--panel-pad-x) 20px; }  /* bredare innercontainer (ägarorder 8); topp/botten-balans (spacing P2-11) */
   /* r-total: INGA mobilöverstyrningar längre — plattan behåller systemets 20px-luft och
      clamp-storleken (20px @390 efter ägarorderns sänkning). Gamla 25px/16px var två extra skalsteg (7b). */
