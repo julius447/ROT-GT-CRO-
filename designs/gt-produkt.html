@@ -97,7 +97,7 @@ a { -webkit-tap-highlight-color: transparent; }
      tröskel håller i hela bandet (innehåll ≥401px, uppmätt). */
   grid-template-columns: minmax(0, 1fr) clamp(466px, 33vw, 530px);
   gap: clamp(48px, 5.5vw, 96px);
-  align-items: stretch;
+  align-items: start;
 }
 
 /* ---------- Left: H2 + processen 1-2-3 ---------- */
@@ -260,27 +260,13 @@ h2 .accent {
 /* Avsteget: padding-inline 32px i st.f. sajtens 24px, desktop ONLY (ägarorder 4). Allt
    annat (min-height 58, radie 16, 16px/500, gradienten, skuggorna) är sajtens värden. */
 /* EN spacing-källa per avstånd (spacing P1-3): fine→divider 32 (padding-top),
-   divider→CTA 24 (::before margin), CTA→tel 16 (.tel margin) — linjen fäster vid CTA-zonen */
 /* SLACK-FLYTTEN (slutpanel spacing P1-2, fixprov SPX-fix3): panelens flex-slack (upp till
    87px @1120) dumpades i EN söm mellan finstilt och avdelare och lästes som saknat innehåll.
    flex:1 0 auto + .cta{margin-top:auto} flyttar slacken IN i CTA-zonen: avdelaren stänger
    kvittot 32px under finstilten, luften läses som CTA-luft. Vid slack 0 = pixelidentiskt
    (avdelare→CTA förblir 24px). */
 
-/* sekundärlänken under CTA:n: ren fritext-länk (aldrig knappyta) — desktop OCH mobil.
-   .tel = telefonnummer; .sec-link = SAMMA yta med annan rutt (hemförsäkringsblockets /offert/-länk)
-   så klassnamnet aldrig ljuger om innehållet (paritetssvep P2-5). Stilarna är identiska. */
-.tel, .sec-link { font-size: 15px; color: var(--muted); font-weight: 400; text-align: center; margin-top: 16px; }
 /* tryckyta ≥44px via min-height (osynlig — utseendet förblir ren text). spacing P0-2 / typo P1-3 / ux P0-1 */
-.tel-primary { font-size: 16.5px; margin-top: 12px; }
-.tel-primary .tel-ico { vertical-align: -2px; margin-right: 6px; color: var(--navy); }
-.tel-primary a { color: var(--navy); font-weight: 700; }
-.tel a, .sec-link a {
-  color: var(--navy); font-weight: 600; white-space: nowrap;
-  text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1.5px;
-  display: inline-flex; align-items: center; min-height: 44px; padding: 0 8px;
-  border-radius: 8px; font-variant-numeric: tabular-nums;
-}
 /* telefonnummer bryts ALDRIG (slutpanel mobil P1-2): .nb skyddar numret var det än renderas */
 .nb { white-space: nowrap; }
 
@@ -376,9 +362,6 @@ h2 .accent {
   /* r-total: INGA mobilöverstyrningar längre — plattan behåller systemets 20px-luft och
      clamp-storleken (20px @390 efter ägarorderns sänkning). Gamla 25px/16px var två extra skalsteg (7b). */
   }
-@media (max-width: 480px) {
-  .tel, .sec-link { font-size: 14.5px; }
-}
 @media (max-width: 345px) {
   .block { padding-inline: 14px; }
   .panel { --panel-pad-x: 12px; }
@@ -607,11 +590,6 @@ h2 .accent {
            "och betalar skatt" (moraliskt villkor), "och betalar skatt under året" (årsfrågan). -->
       <p class="fine">Taket är 50&nbsp;000&nbsp;kr per person och år för all grön teknik. Avdraget gäller privatpersoner som äger sin bostad och har skatt att räkna av. <span data-slot="villkor-produkt"></span></p>
 
-      <div class="cta-wrap">
-        <!-- Informationsblock-beslutet 2026-08-16: CTA-knappen borttagen (hero ovanför + prisblocket
-             under äger asken; blocket förklarar). Tel-raden behålls som tyst service. -->
-        <p class="tel">Frågor? <a href="tel:+46102657979">Ring 010-265&nbsp;79&nbsp;79</a></p>
-      </div>
     </section>
 
   </div>

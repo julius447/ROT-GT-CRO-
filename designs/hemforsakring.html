@@ -97,7 +97,7 @@ a { -webkit-tap-highlight-color: transparent; }
      tröskel håller i hela bandet (innehåll ≥401px, uppmätt). */
   grid-template-columns: minmax(0, 1fr) clamp(466px, 33vw, 530px);
   gap: clamp(48px, 5.5vw, 96px);
-  align-items: stretch;
+  align-items: start;
 }
 
 /* ---------- Left: H2 + processen 1-2-3 ---------- */
@@ -265,7 +265,6 @@ h2 .accent {
    (ikonen VÄNSTER i vit cirkel 36px, ampyRing-puls 2.8s). Ikonens inline-SVG = sajtens
    telefon+signalvågor (viewBox 0 0 19 20), stroke via currentColor. */
 /* EN spacing-källa per avstånd (spacing P1-3): fine→divider 32 (padding-top),
-   divider→CTA 24 (::before margin), CTA→tel 16 (.tel margin) — linjen fäster vid CTA-zonen */
 /* SLACK-FLYTTEN (slutpanel spacing P1-2, fixprov SPX-fix3): panelens flex-slack (upp till
    87px @1120) dumpades i EN söm mellan finstilt och avdelare och lästes som saknat innehåll.
    flex:1 0 auto + .cta{margin-top:auto} flyttar slacken IN i CTA-zonen: avdelaren stänger
@@ -278,20 +277,7 @@ h2 .accent {
   100% { box-shadow: 0 1px 3px rgba(9,11,50,.14), 0 0 0 0 transparent; }
 }
 
-/* sekundärlänken under CTA:n: ren fritext-länk (aldrig knappyta) — desktop OCH mobil.
-   .tel = telefonnummer; .sec-link = SAMMA yta med annan rutt (hemförsäkringsblockets /offert/-länk)
-   så klassnamnet aldrig ljuger om innehållet (paritetssvep P2-5). Stilarna är identiska. */
-.tel, .sec-link { font-size: 15px; color: var(--muted); font-weight: 400; text-align: center; margin-top: 16px; }
 /* tryckyta ≥44px via min-height (osynlig — utseendet förblir ren text). spacing P0-2 / typo P1-3 / ux P0-1 */
-.tel-primary { font-size: 16.5px; margin-top: 12px; }
-.tel-primary .tel-ico { vertical-align: -2px; margin-right: 6px; color: var(--navy); }
-.tel-primary a { color: var(--navy); font-weight: 700; }
-.tel a, .sec-link a {
-  color: var(--navy); font-weight: 600; white-space: nowrap;
-  text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1.5px;
-  display: inline-flex; align-items: center; min-height: 44px; padding: 0 8px;
-  border-radius: 8px; font-variant-numeric: tabular-nums;
-}
 /* telefonnummer bryts ALDRIG (slutpanel mobil P1-2): .nb skyddar numret var det än renderas */
 .nb { white-space: nowrap; }
 
@@ -388,9 +374,6 @@ h2 .accent {
      clamp-storleken (20px @390 efter ägarorderns sänkning). Gamla 25px/16px var två extra skalsteg (7b). */
   /* ≤480: sajtens eget mobilmönster för ring-CTA:n (post-15498 @767): fullbredd,
    ikonen HÖGER (row-reverse), text/ikon i var sin ände, radbrytning tillåten */
-}
-@media (max-width: 480px) {
-  .tel, .sec-link { font-size: 14.5px; }
 }
 @media (max-width: 345px) {
   .block { padding-inline: 14px; }
@@ -589,13 +572,6 @@ h2 .accent {
            smalare finstilten. Besiktning kopplas fortsatt ALDRIG till ersättning. -->
       <p class="fine">Priset du betalar är oftast självrisken. Gäller skador din försäkring täcker, som åska eller kortslutning. Ren felsökning och elbesiktning täcks olika beroende på försäkringsbolag och är något du ansvarar för&nbsp;själv.</p>
 
-      <div class="cta-wrap">
-        <!-- Informationsblock-beslutet 2026-08-16: CTA-knappen borttagen (hero + konverteringsblocken
-             runtomkring äger asken). Telefonen behålls UPPGRADERAD på eljour-/felsökningsytan:
-             akut intent ska aldrig behöva leta efter numret. -->
-        <p class="tel tel-primary"><svg class="tel-ico" width="15" height="16" viewBox="0 0 19 20" fill="none" aria-hidden="true"><path d="M11.9146 4.16668C12.6878 4.32548 13.3984 4.72356 13.9555 5.30996C14.5126 5.89635 14.8908 6.6444 15.0416 7.45834M11.9146 0.833344C13.5211 1.02121 15.0191 1.77849 16.1628 2.98085C17.3065 4.18321 18.0278 5.75918 18.2083 7.45001M17.4166 14.1V16.6C17.4175 16.8321 17.3724 17.0618 17.284 17.2745C17.1957 17.4871 17.0662 17.678 16.9037 17.8349C16.7412 17.9918 16.5494 18.1112 16.3406 18.1856C16.1317 18.26 15.9104 18.2876 15.6908 18.2667C13.2547 17.988 10.9147 17.1118 8.85872 15.7083C6.94591 14.4289 5.32419 12.7218 4.10872 10.7083C2.77078 8.53435 1.93816 6.05917 1.6783 3.48334C1.65852 3.2529 1.68454 3.02064 1.7547 2.80136C1.82486 2.58208 1.93763 2.38058 2.08582 2.20969C2.23402 2.0388 2.4144 1.90227 2.61547 1.80878C2.81654 1.71529 3.0339 1.66689 3.25372 1.66668H5.62872C6.01292 1.6627 6.38539 1.80591 6.6767 2.06962C6.968 2.33333 7.15828 2.69955 7.21205 3.10001C7.31229 3.90007 7.4982 4.68562 7.76622 5.44168C7.87273 5.73995 7.89578 6.06411 7.83264 6.37574C7.7695 6.68738 7.62282 6.97344 7.40997 7.20001L6.40455 8.25834C7.53153 10.3446 9.17258 12.072 11.1546 13.2583L12.16 12.2C12.3752 11.976 12.647 11.8216 12.943 11.7551C13.2391 11.6886 13.547 11.7129 13.8304 11.825C14.5486 12.1071 15.2949 12.3028 16.055 12.4083C16.4395 12.4655 16.7907 12.6693 17.0418 12.9813C17.2929 13.2932 17.4263 13.6913 17.4166 14.1Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg> Ring oss på <a href="tel:+46102657979"><span class="nb">010-265&nbsp;79&nbsp;79</span></a></p>
-        <p class="sec-link">Inte akut? <a href="/offert/">Skicka en förfrågan</a></p>
-      </div>
     </section>
 
   </div>

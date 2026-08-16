@@ -97,7 +97,7 @@ a { -webkit-tap-highlight-color: transparent; }
      tröskel håller i hela bandet (innehåll ≥401px, uppmätt). */
   grid-template-columns: minmax(0, 1fr) clamp(466px, 33vw, 530px);
   gap: clamp(48px, 5.5vw, 96px);
-  align-items: stretch;
+  align-items: start;
 }
 
 /* ---------- Left: H2 + processen 1-2-3 ---------- */
@@ -260,27 +260,13 @@ h2 .accent {
 /* Avsteget: padding-inline 32px i st.f. sajtens 24px, desktop ONLY (ägarorder 4). Allt
    annat (min-height 58, radie 16, 16px/500, gradienten, skuggorna) är sajtens värden. */
 /* EN spacing-källa per avstånd (spacing P1-3): fine→divider 32 (padding-top),
-   divider→CTA 24 (::before margin), CTA→tel 16 (.tel margin) — linjen fäster vid CTA-zonen */
 /* SLACK-FLYTTEN (slutpanel spacing P1-2, fixprov SPX-fix3): panelens flex-slack (upp till
    87px @1120) dumpades i EN söm mellan finstilt och avdelare och lästes som saknat innehåll.
    flex:1 0 auto + .cta{margin-top:auto} flyttar slacken IN i CTA-zonen: avdelaren stänger
    kvittot 32px under finstilten, luften läses som CTA-luft. Vid slack 0 = pixelidentiskt
    (avdelare→CTA förblir 24px). */
 
-/* sekundärlänken under CTA:n: ren fritext-länk (aldrig knappyta) — desktop OCH mobil.
-   .tel = telefonnummer; .sec-link = SAMMA yta med annan rutt (hemförsäkringsblockets /offert/-länk)
-   så klassnamnet aldrig ljuger om innehållet (paritetssvep P2-5). Stilarna är identiska. */
-.tel, .sec-link { font-size: 15px; color: var(--muted); font-weight: 400; text-align: center; margin-top: 16px; }
 /* tryckyta ≥44px via min-height (osynlig — utseendet förblir ren text). spacing P0-2 / typo P1-3 / ux P0-1 */
-.tel-primary { font-size: 16.5px; margin-top: 12px; }
-.tel-primary .tel-ico { vertical-align: -2px; margin-right: 6px; color: var(--navy); }
-.tel-primary a { color: var(--navy); font-weight: 700; }
-.tel a, .sec-link a {
-  color: var(--navy); font-weight: 600; white-space: nowrap;
-  text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1.5px;
-  display: inline-flex; align-items: center; min-height: 44px; padding: 0 8px;
-  border-radius: 8px; font-variant-numeric: tabular-nums;
-}
 /* telefonnummer bryts ALDRIG (slutpanel mobil P1-2): .nb skyddar numret var det än renderas */
 .nb { white-space: nowrap; }
 
@@ -288,6 +274,28 @@ h2 .accent {
    Smal panel → etikett över, värde under (totalplattans struktur som förlaga) — men
    SAMMA typografiska system som desktop (7b): etiketten kliver in i caps-rollen 13/700,
    värdena behåller radrollens 17px, och pillarna FÖRBLIR pillar (ingen avklädning). ================= */
+
+/* ================= TEST (ägare 2026-08-16): mörk hero-panel — ENDAST ROT-blocket =================
+   Exakt hero-recept: bg rgb(27,29,75) (= --color-18, hsl(237 47% 20%)) + de tre organiska
+   blob-SVG:erna ur heron (#0B0D2A / #010328) i samma positioner (topp-vänster 65 % / 45 %,
+   botten-höger 50 %). Ljus text ovanpå; kvittots pillar behålls ljusa som kontrastpop. */
+.panel--dark { background: rgb(27,29,75); border-color: transparent; overflow: hidden; }
+.panel--dark > svg[class^="blob"] { position: absolute; z-index: 0; height: auto; }
+.panel--dark .blob-a { top: 0; left: 0; max-width: 65%; }
+.panel--dark .blob-b { top: 0; left: 0; max-width: 45%; z-index: 1; }
+.panel--dark .blob-c { bottom: 0; right: 0; max-width: 50%; z-index: 1; }
+.panel--dark > :not(svg) { position: relative; z-index: 2; }
+.panel--dark .p-cap { color: #fff; border-bottom-color: rgba(255,255,255,.18); }
+.panel--dark .r-row { color: rgba(255,255,255,.94); }
+.panel--dark .r-row .lbl { color: rgba(255,255,255,.94); }
+.panel--dark .r-row + .r-row { border-top-color: rgba(255,255,255,.14); }
+.panel--dark .dots { border-bottom-color: rgba(255,255,255,.30); }
+.panel--dark .r-total { background: rgba(255,255,255,.08); }
+.panel--dark .r-total .t-label { color: #fff; }
+.panel--dark .r-total .amt { color: #fff; }
+.panel--dark .r-total .t-note { color: rgba(255,255,255,.78); }
+.panel--dark .fine { color: rgba(255,255,255,.70); border-top-color: rgba(255,255,255,.14); }
+
 @container (max-width: 400px) {
   .r-row { display: grid; gap: 6px; padding: 16px 0; }
   .r-row .dots { display: none; }
@@ -376,9 +384,6 @@ h2 .accent {
   /* r-total: INGA mobilöverstyrningar längre — plattan behåller systemets 20px-luft och
      clamp-storleken (20px @390 efter ägarorderns sänkning). Gamla 25px/16px var två extra skalsteg (7b). */
   }
-@media (max-width: 480px) {
-  .tel, .sec-link { font-size: 14.5px; }
-}
 @media (max-width: 345px) {
   .block { padding-inline: 14px; }
   .panel { --panel-pad-x: 12px; }
@@ -433,7 +438,10 @@ h2 .accent {
       </ol>
     </div>
 
-    <section class="panel" aria-labelledby="pcap">
+    <section class="panel panel--dark" aria-labelledby="pcap">
+      <svg class="blob-a" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="984" height="687" viewBox="0 0 984 687" fill="none"><path d="M0.101004 20.0619C0.600584 8.84058 9.84347 1.17382e-07 21.076 2.51328e-07L961.412 1.14647e-05C974.498 1.16208e-05 985.418 10.5972 982.854 23.4296C977.67 49.3741 963.295 73.6508 941.937 90.4135C880.337 138.634 779.032 119.487 722.751 173.262C689.848 204.7 682.055 252.683 681.19 297.121C680.447 341.56 679.548 400.042 664.087 442.116C634.895 521.42 616.787 565.147 537.627 609.796C458.468 654.446 363.331 653.812 293.761 628.364C224.191 602.917 192.614 599.726 146.503 638.806C100.393 677.886 116.456 684.221 85.1146 683.693C53.7734 683.165 -2.71524 700.588 0.101498 660.353C2.91823 620.118 0.101004 20.0619 0.101004 20.0619Z" fill="#0B0D2A" fill-opacity="0.67"></path></svg>
+      <svg class="blob-b" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="665" height="431" viewBox="0 0 665 431" fill="none"><path d="M0.0683953 12.5861C0.40702 5.53937 6.21896 7.41603e-08 13.2739 1.58289e-07L643.451 7.67308e-06C656.524 7.82897e-06 667.543 10.7797 663.153 23.093C658.5 36.1404 649.782 48.0384 637.839 56.7222C596.127 86.974 527.527 74.962 489.416 108.699C467.136 128.422 461.859 158.525 461.272 186.404C460.77 214.283 460.161 250.972 449.691 277.368C429.924 327.121 417.662 354.553 364.058 382.565C310.455 410.577 246.032 410.179 198.922 394.214C151.813 378.249 130.43 376.247 99.2059 400.765C67.9818 425.282 78.859 429.256 57.636 428.925C36.413 428.594 -1.83864 439.524 0.0687298 414.283C1.9761 389.041 0.0683953 12.5861 0.0683953 12.5861Z" fill="#010328"></path></svg>
+      <svg class="blob-c" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="742" height="487" viewBox="0 0 742 487" fill="none"><path d="M741.369 472.779C740.991 480.74 734.427 487 726.457 487L21.0013 487C7.92631 487 -3.07046 476.287 0.783671 463.793C5.67881 447.924 15.7866 433.357 29.9721 422.908C76.5003 388.725 153.019 402.298 195.53 364.178C220.382 341.892 226.268 307.878 226.922 276.377C227.483 244.875 228.162 203.419 239.841 173.593C261.89 117.376 275.568 86.3793 335.359 54.7281C395.151 23.0768 467.011 23.5263 519.559 41.5655C572.107 59.6047 595.958 61.8668 630.787 34.1639C665.615 6.46096 653.483 1.97007 677.156 2.34433C700.829 2.7186 743.496 -9.63196 741.369 18.8895C739.241 47.411 741.369 472.779 741.369 472.779Z" fill="#0B0D2A" fill-opacity="0.39"></path></svg>
       <!-- Rubriken är ACF-mallbar: ROT-sidor = "Så räknas ROT", GT-sidor = "Så räknas Grön Teknik" -->
       <h3 class="p-cap" id="pcap"><span data-slot="avdrag">Så räknas ROT</span></h3>
 
@@ -459,11 +467,6 @@ h2 .accent {
 
       <p class="fine">Taket är 50&nbsp;000&nbsp;kr per person och år. Avdraget förutsätter att du äger bostaden och har avdrag kvar för året.</p>
 
-      <div class="cta-wrap">
-        <!-- Informationsblock-beslutet 2026-08-16: CTA-knappen borttagen (hero ovanför + prisblocket
-             under äger asken; blocket förklarar). Tel-raden behålls som tyst service. -->
-        <p class="tel">Frågor? <a href="tel:+46102657979">Ring 010-265&nbsp;79&nbsp;79</a></p>
-      </div>
     </section>
 
   </div>
