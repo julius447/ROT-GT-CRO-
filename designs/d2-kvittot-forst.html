@@ -335,10 +335,22 @@ h2 .accent {
    (#f2f7fe / #eef4fc mot vitt) — enbart bakgrund, bryter plattheten utan att ta fokus. */
 .block--wave { overflow: hidden; }
 .block--wave > svg[class^="wave"] { position: absolute; z-index: 0; height: auto; pointer-events: none; }
-.block--wave .wave-a { top: 0; left: 0; width: 62%; }
+.block--wave .wave-a { top: 0; left: 0; width: 62%; }   /* naturlig aspekt — ALDRIG min-height/height här:
+     SVG:ns preserveAspectRatio=meet centrerar då formen i boxen (letterboxing) och den
+     raka hörnkanten lossnar från kortkanten. Storleken styrs enbart av width. */
 .block--wave .wave-b { bottom: 0; right: 0; width: 52%; }
-.block--wave .wave-c { bottom: 0; left: 0; width: 34%; transform: scaleX(-1); }
+.block--wave .wave-c { bottom: 0; left: 0; width: 42%; transform: scaleY(-1); }
+/* Kantkontrakt: varje form har RAKA kanter på två sidor (ritade för ett hörn) och organisk
+   kurva på de andra. De raka MÅSTE ligga mot kortets kanter, annars syns brottet inne i ytan.
+   wave-a raka: topp+vänster → top-left · wave-b raka: botten+höger → bottom-right
+   wave-c raka: topp+vänster, scaleY(-1) → botten+vänster → bottom-left. */
 .block--wave > .grid { position: relative; z-index: 1; }
+@media (max-width: 900px) {
+  /* smalt + högt kort: formerna skalas upp så de raka kanterna fortfarande når kortkanten */
+  .block--wave .wave-a { width: 118%; }
+  .block--wave .wave-b { width: 96%; }
+  .block--wave .wave-c { width: 82%; }
+}
 
 @container (max-width: 400px) {
   .r-row { display: grid; gap: 6px; padding: 16px 0; }
