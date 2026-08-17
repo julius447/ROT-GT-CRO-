@@ -116,7 +116,7 @@ h2 {
   color: var(--heading-ink);
   max-width: 30ch; text-wrap: balance;
   /* H2→steg ≥1.4× steg↔steg (64 mot 44 @1440) — hierarkisk kontrast (spacing P0-1, ux P1-2). */
-  margin-bottom: clamp(44px, 4.5vw, 64px);
+  margin-bottom: clamp(30px, 3.1vw, 44px);   /* sänkt: "Steg för steg"-rubriken bär nu en del av avståndet */
 }
 /* Accenten: SVART + ett snäpp boldare än basen (550 mot 450) + UNDERSTRYKNING.
    ÄGARORDER 2026-08-16 (ersätter 08-15-beslutet mot understrykning): elegant linje i
@@ -132,6 +132,12 @@ h2 .accent {
   text-decoration-skip-ink: none;   /* obruten linje, ägarorder 2026-08-17 */
 }
 
+/* liten rubrik över stegen (ägarorder 2026-08-17) — samma caps-skala som panelens
+   .p-cap så vänster och höger spalt talar samma typografiska språk */
+.steps-cap {
+  font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 18px;
+}
 .steps { --sgap: clamp(32px, 3.1vw, 44px); list-style: none; display: flex; flex-direction: column; gap: var(--sgap); }
 /* Optisk linjering (sprint 2026-08-15): cirkelns mitt = H3:ns första radmitt, EXAKT vid
    varje viewport — --nmt räknas ur H3:ns verkliga radhöjd i st.f. ett gissat fast avdrag
@@ -330,26 +336,20 @@ h2 .accent {
 /* fokusring: vit på mörk panel (navy-outline skulle försvinna i bakgrunden) */
 .cta:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
 
-/* ================= VÅGFORMAT på master-containern (ägartest 2026-08-17) =================
-   Samma organiska former som den mörka panelen/heron, men i ljusa neutrala toner
-   (#f2f7fe / #eef4fc mot vitt) — enbart bakgrund, bryter plattheten utan att ta fokus. */
+
+/* ================= VÅGFÄLT på master-containern (ägarorder 2026-08-17) =================
+   Samma idé som den mörka panelen: HELTÄCKANDE ytor i alternerande toner, avdelade av
+   organiska vågkanter. Vit = kortets bas, #eef4fc = "mörkare vit".
+   Desktop = 4 fält (vit · mörk · vit · mörk), mobil = 3 fält (vit · mörk · vit).
+   preserveAspectRatio="none" ⇒ fälten täcker ALLTID hela kortet, oavsett bredd/höjd:
+   inga viewBox-kanter kan hamna inne i ytan (det var brottet i hörn-blobbversionen). */
 .block--wave { overflow: hidden; }
-.block--wave > svg[class^="wave"] { position: absolute; z-index: 0; height: auto; pointer-events: none; }
-.block--wave .wave-a { top: 0; left: 0; width: 62%; }   /* naturlig aspekt — ALDRIG min-height/height här:
-     SVG:ns preserveAspectRatio=meet centrerar då formen i boxen (letterboxing) och den
-     raka hörnkanten lossnar från kortkanten. Storleken styrs enbart av width. */
-.block--wave .wave-b { bottom: 0; right: 0; width: 52%; }
-.block--wave .wave-c { bottom: 0; left: 0; width: 42%; transform: scaleY(-1); }
-/* Kantkontrakt: varje form har RAKA kanter på två sidor (ritade för ett hörn) och organisk
-   kurva på de andra. De raka MÅSTE ligga mot kortets kanter, annars syns brottet inne i ytan.
-   wave-a raka: topp+vänster → top-left · wave-b raka: botten+höger → bottom-right
-   wave-c raka: topp+vänster, scaleY(-1) → botten+vänster → bottom-left. */
+.wave-field { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+.wave-field--m { display: none; }
 .block--wave > .grid { position: relative; z-index: 1; }
 @media (max-width: 900px) {
-  /* smalt + högt kort: formerna skalas upp så de raka kanterna fortfarande når kortkanten */
-  .block--wave .wave-a { width: 118%; }
-  .block--wave .wave-b { width: 96%; }
-  .block--wave .wave-c { width: 82%; }
+  .wave-field--d { display: none; }
+  .wave-field--m { display: block; }
 }
 
 @container (max-width: 400px) {
@@ -417,7 +417,8 @@ h2 .accent {
      (en skala, slutspec C2). H2→steg 44 mot steg↔steg 28 = ≥1.5× kontrast (spacing P0-1) */
   /* CENTRERAD H2 = ägarorder 2026-08-16, ENDAST ≤900 (desktop förblir vänsterställd);
      resten av innehållet förblir vänsterställt. Storleken ORÖRD (samma clamp). */
-  h2 { max-width: none; margin-bottom: 44px; text-align: center; }
+  h2 { max-width: none; margin-bottom: 30px; text-align: center; }
+  .steps-cap { margin-bottom: 16px; }
   /* RAG-FIXEN (ägarorder 5, mätt med _rag.mjs): text-wrap:balance var en NO-OP på gt-produkt
      och gt-generisk @390 — identiska radbredder med och utan. Orsaken var inte balance utan
      h2 .accent{white-space:nowrap}: accenten blev ett odelbart block som åt upp
@@ -430,7 +431,13 @@ h2 .accent {
      ("30 % ", "50 % ") så en brytning aldrig kan lägga procenttecknet ensamt på en rad.
      Desktop är ORÖRD (nowrap gäller kvar >900). */
   h2 .accent { white-space: normal; }
-  .steps { --sgap: 28px; }
+  /* liten rubrik över stegen (ägarorder 2026-08-17) — samma caps-skala som panelens
+   .p-cap så vänster och höger spalt talar samma typografiska språk */
+.steps-cap {
+  font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 18px;
+}
+.steps { --sgap: 28px; }
   /* enbart storlekarna byts — linjering + linjeändar följer automatiskt via --nmt-kalkylen.
      --nsz 38→32 (ägarorder 2026-08-16: mindre siffercirklar på mobil); siffran 15→14
      håller proportionen i den mindre cirkeln. */
@@ -464,9 +471,15 @@ h2 .accent {
 <!-- aria-labelledby = familjens metod (paritetssvep P1-5): sektionens tillgängliga namn följer
      H2:an automatiskt — ingen hårdkodad aria-label som kan divergera från rubriken. -->
 <section class="block block--wave" aria-labelledby="rot-h2">
-    <svg class="wave-a" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="984" height="687" viewBox="0 0 984 687" fill="none"><path d="M0.101004 20.0619C0.600584 8.84058 9.84347 1.17382e-07 21.076 2.51328e-07L961.412 1.14647e-05C974.498 1.16208e-05 985.418 10.5972 982.854 23.4296C977.67 49.3741 963.295 73.6508 941.937 90.4135C880.337 138.634 779.032 119.487 722.751 173.262C689.848 204.7 682.055 252.683 681.19 297.121C680.447 341.56 679.548 400.042 664.087 442.116C634.895 521.42 616.787 565.147 537.627 609.796C458.468 654.446 363.331 653.812 293.761 628.364C224.191 602.917 192.614 599.726 146.503 638.806C100.393 677.886 116.456 684.221 85.1146 683.693C53.7734 683.165 -2.71524 700.588 0.101498 660.353C2.91823 620.118 0.101004 20.0619 0.101004 20.0619Z" fill="#eff5fd" fill-opacity="0.67"></path></svg>
-    <svg class="wave-c" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="665" height="431" viewBox="0 0 665 431" fill="none"><path d="M0.0683953 12.5861C0.40702 5.53937 6.21896 7.41603e-08 13.2739 1.58289e-07L643.451 7.67308e-06C656.524 7.82897e-06 667.543 10.7797 663.153 23.093C658.5 36.1404 649.782 48.0384 637.839 56.7222C596.127 86.974 527.527 74.962 489.416 108.699C467.136 128.422 461.859 158.525 461.272 186.404C460.77 214.283 460.161 250.972 449.691 277.368C429.924 327.121 417.662 354.553 364.058 382.565C310.455 410.577 246.032 410.179 198.922 394.214C151.813 378.249 130.43 376.247 99.2059 400.765C67.9818 425.282 78.859 429.256 57.636 428.925C36.413 428.594 -1.83864 439.524 0.0687298 414.283C1.9761 389.041 0.0683953 12.5861 0.0683953 12.5861Z" fill="#f1f6fd"></path></svg>
-    <svg class="wave-b" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="742" height="487" viewBox="0 0 742 487" fill="none"><path d="M741.369 472.779C740.991 480.74 734.427 487 726.457 487L21.0013 487C7.92631 487 -3.07046 476.287 0.783671 463.793C5.67881 447.924 15.7866 433.357 29.9721 422.908C76.5003 388.725 153.019 402.298 195.53 364.178C220.382 341.892 226.268 307.878 226.922 276.377C227.483 244.875 228.162 203.419 239.841 173.593C261.89 117.376 275.568 86.3793 335.359 54.7281C395.151 23.0768 467.011 23.5263 519.559 41.5655C572.107 59.6047 595.958 61.8668 630.787 34.1639C665.615 6.46096 653.483 1.97007 677.156 2.34433C700.829 2.7186 743.496 -9.63196 741.369 18.8895C739.241 47.411 741.369 472.779 741.369 472.779Z" fill="#ebf2fb" fill-opacity="0.39"></path></svg>
+    <svg class="wave-field wave-field--d" viewBox="0 0 1384 694" preserveAspectRatio="none" aria-hidden="true" fill="none">
+      <path d="M232 0C292 118 172 242 254 360C336 478 196 578 276 694L1384 694L1384 0Z" fill="#eef4fc"/>
+      <path d="M508 0C570 130 446 252 530 380C614 508 476 600 560 694L1384 694L1384 0Z" fill="#ffffff"/>
+      <path d="M792 0C854 120 730 250 814 380C898 510 760 600 844 694L1384 694L1384 0Z" fill="#eef4fc"/>
+    </svg>
+    <svg class="wave-field wave-field--m" viewBox="0 0 390 1100" preserveAspectRatio="none" aria-hidden="true" fill="none">
+      <path d="M0 330C96 384 208 268 390 318L390 1100L0 1100Z" fill="#eef4fc"/>
+      <path d="M0 720C104 782 224 656 390 706L390 1100L0 1100Z" fill="#ffffff"/>
+    </svg>
   <div class="grid">
 
     <div class="left">
@@ -476,6 +489,7 @@ h2 .accent {
            steg 3 + kvittot, där grinden står kvar. -->
       <h2 id="rot-h2">Byta elcentral med <span class="accent">30&nbsp;% ROT-avdrag</span></h2>
 
+      <p class="steps-cap">Steg för steg</p>
       <ol class="steps">
         <li class="step">
           <span class="n" aria-hidden="true"><svg class="mark" viewBox="0 0 48 48" fill="none" aria-hidden="true"><circle class="trk" cx="24" cy="24" r="22" stroke-width="2"/><circle class="arc" cx="24" cy="24" r="22" stroke-width="2" stroke-linecap="round" stroke-dasharray="46.08 92.15" transform="rotate(-90 24 24)"/></svg><span class="d">1</span></span>
