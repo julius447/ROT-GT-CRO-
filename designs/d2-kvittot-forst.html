@@ -337,19 +337,20 @@ h2 .accent {
 .cta:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
 
 
-/* ================= VÅGFÄLT på master-containern (ägarorder 2026-08-17) =================
-   Samma idé som den mörka panelen: HELTÄCKANDE ytor i alternerande toner, avdelade av
-   organiska vågkanter. Vit = kortets bas, #eef4fc = "mörkare vit".
-   Desktop = 4 fält (vit · mörk · vit · mörk), mobil = 3 fält (vit · mörk · vit).
-   preserveAspectRatio="none" ⇒ fälten täcker ALLTID hela kortet, oavsett bredd/höjd:
-   inga viewBox-kanter kan hamna inne i ytan (det var brottet i hörn-blobbversionen). */
+/* ================= VÅGFÄLT — panelens EXAKTA mönster i ljusa toner =================
+   Samma tre banor som .panel--dark använder (hero-formerna), men utsträckta över hela
+   kortet med preserveAspectRatio="none". Det ger identiskt kurvspråk (horisontellt
+   flödande fält med organiska bulor) OCH garanterad heltäckning — ingen viewBox-kant kan
+   hamna inne i ytan. Lagerordning = alternerande toner:
+   bas vit → mörkare → vit → mörkare = FYRA horisontella fält på desktop.
+   Mobil (eget lager, kortet är högt och smalt): vit · mörkare · vit = TRE fält. */
 .block--wave { overflow: hidden; }
-.wave-field { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
-.wave-field--m { display: none; }
+.wf { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
 .block--wave > .grid { position: relative; z-index: 1; }
+.wf-m { display: none; }
 @media (max-width: 900px) {
-  .wave-field--d { display: none; }
-  .wave-field--m { display: block; }
+  .wf-d { display: none; }
+  .wf-m { display: block; }
 }
 
 @container (max-width: 400px) {
@@ -471,14 +472,14 @@ h2 .accent {
 <!-- aria-labelledby = familjens metod (paritetssvep P1-5): sektionens tillgängliga namn följer
      H2:an automatiskt — ingen hårdkodad aria-label som kan divergera från rubriken. -->
 <section class="block block--wave" aria-labelledby="rot-h2">
-    <svg class="wave-field wave-field--d" viewBox="0 0 1384 694" preserveAspectRatio="none" aria-hidden="true" fill="none">
-      <path d="M232 0C292 118 172 242 254 360C336 478 196 578 276 694L1384 694L1384 0Z" fill="#eef4fc"/>
-      <path d="M508 0C570 130 446 252 530 380C614 508 476 600 560 694L1384 694L1384 0Z" fill="#ffffff"/>
-      <path d="M792 0C854 120 730 250 814 380C898 510 760 600 844 694L1384 694L1384 0Z" fill="#eef4fc"/>
+    <svg class="wf wf-d" viewBox="0 0 1384 694" preserveAspectRatio="none" aria-hidden="true" fill="none">
+      <path d="M0 148C210 92 372 214 596 170C820 126 1010 66 1384 152L1384 694L0 694Z" fill="#e9f0fa"/>
+      <path d="M0 336C246 408 430 268 706 352C982 436 1140 446 1384 338L1384 694L0 694Z" fill="#ffffff"/>
+      <path d="M0 548C268 470 470 606 768 522C1066 438 1180 452 1384 534L1384 694L0 694Z" fill="#e9f0fa"/>
     </svg>
-    <svg class="wave-field wave-field--m" viewBox="0 0 390 1100" preserveAspectRatio="none" aria-hidden="true" fill="none">
-      <path d="M0 330C96 384 208 268 390 318L390 1100L0 1100Z" fill="#eef4fc"/>
-      <path d="M0 720C104 782 224 656 390 706L390 1100L0 1100Z" fill="#ffffff"/>
+    <svg class="wf wf-m" viewBox="0 0 390 1100" preserveAspectRatio="none" aria-hidden="true" fill="none">
+      <path d="M0 372C88 316 196 438 288 384C330 359 360 356 390 366L390 1100L0 1100Z" fill="#e9f0fa"/>
+      <path d="M0 762C96 700 214 826 306 758C342 731 366 728 390 740L390 1100L0 1100Z" fill="#ffffff"/>
     </svg>
   <div class="grid">
 
