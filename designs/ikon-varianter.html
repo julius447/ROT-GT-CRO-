@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="sv-SE">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stegikonen 1-2-3 — sex varianter</title>
+<style>
+/* ================= Ampy tokens — kopierade VERBATIM ur d2-kvittot-forst.html ================= */
+@font-face {
+  font-display: swap;
+  font-family: "Outfit";
+  src: url("../assets/fonts/Outfit-VariableFont_wght.woff2") format("woff2-variations");
+  font-weight: 100 900;
+}
+:root {
+  --navy: #090b32;
+  --teal: #00a991;
+  --heading-ink: #1e1e1e;
+  --body-ink: #333333;
+  --teal-bright: #1cc4af;
+  --teal-soft: #e0f5f2;
+  --offwhite: #f5f9ff;
+  --ink: #0f123c;
+  --muted: #565e82;
+  --faint: #8a90ac;
+  --line: rgba(15, 18, 60, 0.10);
+  --line-strong: rgba(15, 18, 60, 0.16);
+  --r-md: 14px;
+  --r-lg: 22px;
+  --r-xl: 32px;
+  --shadow-1: 0 1px 2px rgba(15,18,60,.06), 0 1px 1px rgba(15,18,60,.04);
+  --shadow-2: 0 6px 16px -4px rgba(15,18,60,.10), 0 2px 6px rgba(15,18,60,.06);
+  --shadow-3: 0 24px 50px -10px rgba(15,18,60,.18), 0 8px 16px -6px rgba(15,18,60,.10);
+  --ring: 0 0 0 3px #fff, 0 0 0 6px var(--navy);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --edge: 28px;
+  /* panelens exakta botten — variant D:s familjekoppling */
+  --panel-dark: rgb(27,29,75);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  font-family: "Outfit", system-ui, -apple-system, sans-serif;
+  background: var(--offwhite);
+  color: var(--ink);
+  line-height: 1.5;
+  padding: 30px var(--edge) 90px;
+}
+:focus-visible { outline: 2px solid transparent; outline-offset: 2px; box-shadow: var(--ring); }
+
+/* ================= Sidans krom (bara preview — ingår aldrig i blocket) ================= */
+.sheet { max-width: 1100px; margin-inline: auto; }
+.kicker {
+  font-size: 12.5px; font-weight: 500; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 14px;
+}
+.kicker a { color: var(--navy); font-weight: 600; letter-spacing: 0; text-transform: none; font-size: 13.5px; }
+h1 {
+  font-size: clamp(26px, calc(1.04vw + 22.7px), 36px);
+  font-weight: 450; line-height: 1.2; letter-spacing: -0.01em; color: var(--heading-ink);
+  max-width: 26ch; margin-bottom: 12px;
+}
+.lede { color: var(--body-ink); font-weight: 300; font-size: 17px; max-width: 74ch; }
+
+.card {
+  background: #fff; border: 1px solid var(--line);
+  border-radius: var(--r-xl); box-shadow: var(--shadow-2);
+  padding: clamp(28px, 3.4vw, 48px);
+}
+.rule { height: 1px; background: var(--line); margin: 56px 0 0; }
+h2.sec {
+  font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--navy); margin: 48px 0 18px;
+}
+.secnote { color: var(--muted); font-weight: 300; font-size: 15px; max-width: 78ch; margin: -10px 0 20px; }
+
+/* forskningsnoterna */
+.res { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 22px 34px; }
+.res h3 { font-size: 15px; font-weight: 600; color: var(--heading-ink); margin-bottom: 6px; letter-spacing: -0.01em; }
+.res p { font-size: 14.5px; font-weight: 300; color: var(--body-ink); line-height: 1.55; }
+.res b { font-weight: 600; color: var(--heading-ink); }
+
+/* ================= Blockets riktiga vänsterspalt — VERBATIM ur d2 ================= */
+h2.blockh2 {
+  font-size: clamp(26px, calc(1.04vw + 22.7px), 36px);
+  font-weight: 450; line-height: 1.2; letter-spacing: -0.01em;
+  color: var(--heading-ink);
+  max-width: 30ch; text-wrap: balance;
+  margin-bottom: clamp(44px, 4.5vw, 64px);
+}
+h2.blockh2 .accent {
+  color: var(--heading-ink); font-weight: 550; white-space: nowrap;
+  text-decoration: underline; text-decoration-color: currentColor;
+  text-decoration-thickness: 2px; text-underline-offset: 5px;
+}
+.steps { --sgap: clamp(32px, 3.1vw, 44px); list-style: none; display: flex; flex-direction: column; gap: var(--sgap); }
+.step {
+  --h3fs: clamp(19px, calc(0.52vw + 17px), 23px);
+  /* ENDA avsteget mot d2: --nsz läses ur --mark-size så samma CSS kan tjäna både
+     stegkolumnen och jämförelseremsan. Kalkylen under är ORÖRD. */
+  --nsz: var(--mark-size, 44px);
+  --nopt: calc(var(--h3fs) * 0.02);
+  --nmt: calc((var(--h3fs) * 1.25 - var(--nsz)) / 2 + var(--nopt));   /* radmitt − cirkelmitt + optisk sänkning */
+  display: grid; grid-template-columns: var(--nsz) 1fr; gap: 16px; position: relative;
+}
+/* utseendet ligger på .n (inte .step .n) så remsan ärver det; linjeringen ligger kvar på .step .n */
+.n {
+  width: var(--nsz); height: var(--nsz); border-radius: 50%;
+  background: #cdeee8; color: var(--navy);
+  font-weight: 600; font-size: 16px;
+  display: grid; place-items: center; position: relative; z-index: 1;
+  font-variant-numeric: tabular-nums; line-height: 1;
+}
+.step .n { grid-row: 1 / span 2; align-self: start; margin-top: var(--nmt); }
+.n .mark { position: absolute; inset: 0; width: 100%; height: 100%; }
+.n .d { position: relative; z-index: 1; }
+.step h3 { font-size: var(--h3fs); font-weight: 450; line-height: 1.25; letter-spacing: -0.01em; color: var(--heading-ink); }
+.step p { color: var(--body-ink); font-weight: 300; font-size: clamp(16px, calc(0.21vw + 15.3px), 18px); line-height: 1.5; margin-top: 6px; max-width: 65ch; }
+.step:not(:last-child)::before {
+  content: ""; position: absolute; left: calc(var(--nsz) / 2 - 1px);
+  top: calc(var(--nmt) + var(--nsz) + 4px);
+  bottom: calc(-1 * (var(--sgap) + var(--nmt) - 4px));
+  border-left: 2px dashed rgba(15,18,60,.15);
+}
+
+/* ================= Varianterna ================= */
+/* A — dagens */
+.v-a { --mark-size: 44px; }
+
+/* B — handritad ring: marken behöver luft för att fibrerna ska läsa */
+.v-b { --mark-size: 58px; }
+.v-b .n { background: none; border-radius: 0; }
+.v-b .n .d { font-weight: 300; font-size: 23px; color: var(--navy); letter-spacing: .005em; }
+/* ringen är optiskt tyngst nedtill → siffran lyfts ett hår så den sitter i ringens optiska mitt */
+.v-b .n .d { transform: translateY(-0.5px); }
+
+/* C — outline, transparent mitt */
+.v-c { --mark-size: 46px; }
+.v-c .n { background: none; box-shadow: inset 0 0 0 1.5px var(--teal); }
+.v-c .n .d { font-weight: 500; font-size: 17px; color: var(--navy); }
+/* en ring vill ha en hårlinje, inte ett streck */
+.v-c .step:not(:last-child)::before { border-left: 1px solid rgba(15,18,60,.14); left: calc(var(--nsz) / 2 - 0.5px); }
+
+/* D — mörk plint: panelens exakta botten + CTA:ns inre ljuskant */
+.v-d { --mark-size: 44px; }
+.v-d .n {
+  background: var(--panel-dark); color: #fff; font-weight: 500; font-size: 16.5px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.14), 0 2px 6px rgba(9,11,50,.14);
+}
+.v-d .step:not(:last-child)::before { border-left-color: rgba(15,18,60,.20); }
+
+/* E — ingen cirkel: siffran ensam, linjen passerar bakom */
+.v-e { --mark-size: 40px; }
+/* INGEN letter-spacing: på EN glyf lägger spärren bara ett släpmellanrum som knuffar
+   siffran höger om linjen (syns vid 6× på mobil). Tabular-nums håller de tre lika breda. */
+.v-e .n {
+  background: #fff; border-radius: 0;
+  font-weight: 250; font-size: 40px; color: var(--navy);
+}
+.v-e .step:not(:last-child)::before {
+  border-left: 1px solid rgba(15,18,60,.16);
+  top: calc(var(--nmt) + var(--nsz) / 2);
+  bottom: calc(-1 * (var(--sgap) + var(--nmt) + var(--nsz) / 2));
+  left: calc(var(--nsz) / 2 - 0.5px);
+}
+
+/* F — förloppsringen: bågen fyller samma spår som connectorn.
+   Spåret är TUNT och blekt (1,5px), bågen TJOCK och full teal (3px) — annars läser
+   1/3 och 3/3 som samma ring (verifierat i render 1, där F och C blev omöjliga att skilja). */
+.v-f { --mark-size: 46px; }
+.v-f .n { background: none; }
+.v-f .n .trk { stroke: rgba(0,169,145,.20); stroke-width: 1.5; }
+.v-f .n .arc { stroke: var(--teal); stroke-width: 3; }
+.v-f .n .d { font-weight: 500; font-size: 17px; color: var(--navy); }
+.v-f .step:not(:last-child)::before { border-left: 2px solid rgba(0,169,145,.20); }
+
+/* ================= Jämförelseremsan ================= */
+.strip {
+  display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px;
+  background: #fff; border: 1px solid var(--line); border-radius: var(--r-lg);
+  padding: 34px 12px 20px; box-shadow: var(--shadow-1);
+}
+/* remsan saknar .step, så --nsz måste sättas här också — annars kollapsar märkena (render 1).
+   Fast märkesrad (110px) så etiketterna A-F ligger på EN linje trots olika märkeshöjd. */
+.chip { --nsz: var(--mark-size, 44px); display: grid; grid-template-rows: 110px auto; place-items: center; }
+.chip .n { transform: scale(1.55); transform-origin: center; }
+.chip .cap { font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+
+/* ================= Variantsektionerna ================= */
+.vari { margin-top: 40px; }
+.vhead { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 6px; }
+.vkey {
+  width: 26px; height: 26px; border-radius: 8px; background: var(--navy); color: #fff;
+  display: inline-grid; place-items: center; font-size: 13px; font-weight: 600;
+  align-self: center; flex: none;
+}
+.vhead h3 { font-size: 19px; font-weight: 500; letter-spacing: -0.01em; color: var(--heading-ink); }
+.vhead .sub { font-size: 15px; font-weight: 300; color: var(--muted); }
+.vnote { font-size: 14.5px; font-weight: 300; color: var(--body-ink); line-height: 1.55; max-width: 82ch; margin-bottom: 20px; }
+.vcard {
+  background: #fff; border: 1px solid var(--line); border-radius: var(--r-lg);
+  box-shadow: var(--shadow-1); padding: clamp(24px, 2.6vw, 40px);
+}
+/* stegkolumnen renderas i sin RIKTIGA bredd (~670px @1440) så radbrytningarna stämmer */
+.vcard .steps { max-width: 670px; }
+
+/* ================= Bedömningen ================= */
+.verdict { margin-top: 56px; }
+.verdict .card { padding: clamp(28px, 3vw, 44px); }
+.verdict h3 { font-size: 15.5px; font-weight: 600; color: var(--heading-ink); margin: 22px 0 6px; letter-spacing: -0.01em; }
+.verdict h3:first-of-type { margin-top: 0; }
+.verdict p { font-size: 15.5px; font-weight: 300; color: var(--body-ink); line-height: 1.6; max-width: 82ch; }
+.verdict b { font-weight: 600; color: var(--heading-ink); }
+.verdict .win { display: inline-block; background: var(--teal-soft); color: var(--navy); font-weight: 700; font-size: 12.5px; letter-spacing: .1em; text-transform: uppercase; border-radius: 999px; padding: 4px 13px; margin-bottom: 14px; }
+
+/* ================= Mobil — samma nedskalning som blocket ================= */
+@media (max-width: 900px) {
+  :root { --edge: 10px; }
+  body { padding: 18px var(--edge) 60px; }
+  .steps { --sgap: 28px; }
+  .step { gap: 14px; }
+  .step p { max-width: none; }
+  .v-a, .v-d { --mark-size: 32px; }
+  .v-a .n, .v-d .n { font-size: 14px; }
+  .v-b { --mark-size: 46px; }
+  .v-b .n .d { font-size: 19px; }
+  .v-c { --mark-size: 36px; }
+  .v-c .n .d { font-size: 14.5px; }
+  .v-e { --mark-size: 32px; }
+  .v-e .n { font-size: 32px; }
+  .v-f { --mark-size: 36px; }
+  .v-f .n .d { font-size: 14.5px; }
+  .strip { grid-template-columns: repeat(3, 1fr); gap: 8px 4px; row-gap: 22px; padding: 24px 8px 18px; }
+  .chip { grid-template-rows: 92px auto; }
+  .chip .n { transform: scale(1.35); }
+  h2.blockh2 { max-width: none; margin-bottom: 44px; text-align: center; }
+  h2.blockh2 .accent { white-space: normal; }
+  .vcard { padding: 22px 16px; }
+  .card { padding: 24px 18px; }
+}
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+
+<div class="sheet">
+<div class="kicker">
+  <span>Blockfamiljen · ROT elcentral · ikonstudie</span>
+  <a href="d2-kvittot-forst.html">← tillbaka till blocket</a>
+</div>
+<h1>Stegikonen 1&#8209;2&#8209;3</h1>
+<p class="lede">Sex strukturellt olika märken i EXAKT samma stegkontext: samma H3&#8209;clamp, samma
+brödtext, samma 16px&#8209;gap, samma <code>--nmt</code>&#8209;linjering (cirkelmitt = H3:ns första
+radmitt) och samma connector&#8209;geometri. Bara marken byts. Renderad på 1440 och 390.</p>
+<h2 class="sec">Vad researchen gav</h2>
+<div class="card res">
+<div>
+  <h3>Ampys egen föregångare — live&#8209;blocket</h3>
+  <p>Live&#8209;<code>rot.html</code> bär tre <b>handritade bläckringar</b> (95px SVG, penseldrag med
+  fransiga fibrer, tunnande ansats och tjockare botten) i en gradient <b>#5EB1BF → #1A6875</b>, med en
+  <b>tunn</b> navy siffra (#1B1D4A) på ~36px inuti. Det är blockets mest särpräglade drag — och exakt
+  det som dagens variant A bytte bort mot en generisk pastellchip.</p>
+</div>
+<div>
+  <h3>Designsystemets A7 &quot;Process steps&quot;</h3>
+  <p>Kanon säger: <b>siffra i <code>--apmidnight-blue</code>, <code>--aptext-2xl</code></b>
+  (26→36px), connector i <code>--apgray-white</code>, steggap <code>--apspace-l</code>. Ingen fylld
+  cirkel nämns, och storleken är <b>rubriknivå</b>. Variant E ligger närmast den skrivna kanonen;
+  dagens 16px&#8209;siffra i chip ligger längst ifrån.</p>
+</div>
+<div>
+  <h3>Mini&#8209;menyns ikonspråk</h3>
+  <p><code>fill:none</code>, <code>stroke:currentColor</code>, <code>stroke-width 2.2</code>,
+  ~17px. Ampys glyfspråk är alltså <b>streckat och tunt</b>, aldrig fyllt. Det talar för outline
+  (C) och båge (F) framför fyllda plintar — och mot att stoppa in en fylld ikonglyf i marken.</p>
+</div>
+<div>
+  <h3>Principen: mellanläget är defekten</h3>
+  <p>Premium&#8209;numrerade steg gör ett av två val: marken blir <b>nästan tyst</b> (hårfin ring
+  eller versalt &quot;01&quot;) eller <b>tydligt närvarande</b> (stor display&#8209;siffra). Mellanläget
+  — mellanstor halvfet siffra i pastellchip — är precis vad varje ramverksmall producerar, och det är
+  där A står. Vikt bär premium bättre än storlek: <b>tunt och stort</b> läser redaktionellt,
+  <b>fett och litet</b> läser gränssnitt.</p>
+</div>
+<div>
+  <h3>Principen: linjen är ryggraden</h3>
+  <p>Streckad linje in i en fylld chip läser <b>flödesschema</b>. Hårfin solid linje som löper
+  <b>bakom</b> eller <b>fram till</b> marken läser ryggrad. Ju lättare marken är, desto mer måste
+  linjen tunnas — 2px streckat mot en 1,5px kontur är dubbel signal.</p>
+</div>
+<div>
+  <h3>Principen: siffra ensam eller siffra + glyf</h3>
+  <p>Blockets ärende är <b>ordningen</b>, inte tre kategorier. En glyf lägger på en andra semantik
+  som konkurrerar med H3:n (som redan säger offert / elektriker / papper). Därför bär ingen variant
+  glyf — F fördubblar i stället <b>samma</b> signal: siffran och hur långt bågen gått.</p>
+</div>
+</div>
+<h2 class="sec">Kontexten märket sitter i</h2>
+<p class="secnote">Blockets riktiga vänsterspalt (H2 + stegen), här med dagens märke. Panelen till höger är mörk — det är familjen varje variant ska svara mot.</p>
+<div class="card v-a">
+  <h2 class="blockh2">Byta elcentral med <span class="accent">30&nbsp;% ROT-avdrag</span></h2>
+  <ol class="steps">
+        <li class="step">
+          <span class="n" aria-hidden="true">1</span>
+          <h3>Få offert inklusive ROT-avdrag</h3>
+          <p>En elektriker räknar på ditt projekt. Offerten visar vad du betalar och vad som ingår, innan du bestämmer dig.</p>
+        </li>
+        <li class="step">
+          <span class="n" aria-hidden="true">2</span>
+          <h3>En auktoriserad elektriker gör jobbet</h3>
+          <p>En av våra elektriker kommer hem till dig och utför installationen metodiskt, med högsta kvalitet.</p>
+        </li>
+        <li class="step">
+          <span class="n" aria-hidden="true">3</span>
+          <h3>Du slipper pappersarbetet</h3>
+          <p>Avdraget dras direkt på fakturan. Ansökan till Skatteverket skickar vi in åt dig.</p>
+        </li>
+        </ol>
+</div>
+<h2 class="sec">Märkena sida vid sida</h2>
+<p class="secnote">Samma sex märken, förstorade 1,55× och lyfta ur texten. Här syns skillnaden i täthet, vikt och geometri — steg&nbsp;2 i varje.</p>
+<div class="strip">
+  <div class="chip v-a"><span class="n" aria-hidden="true">2</span><span class="cap">A</span></div>
+  <div class="chip v-b"><span class="n" aria-hidden="true"><img class="mark" src="../assets/ink-ring-teal.svg" alt=""><span class="d">2</span></span><span class="cap">B</span></div>
+  <div class="chip v-c"><span class="n" aria-hidden="true"><span class="d">2</span></span><span class="cap">C</span></div>
+  <div class="chip v-d"><span class="n" aria-hidden="true">2</span><span class="cap">D</span></div>
+  <div class="chip v-e"><span class="n" aria-hidden="true">2</span><span class="cap">E</span></div>
+  <div class="chip v-f"><span class="n" aria-hidden="true"><svg class="mark" viewBox="0 0 48 48" fill="none" aria-hidden="true"><circle class="trk" cx="24" cy="24" r="22" stroke-width="2"/><circle class="arc" cx="24" cy="24" r="22" stroke-width="2" stroke-linecap="round" stroke-dasharray="92.15 46.08" transform="rotate(-90 24 24)"/></svg><span class="d">2</span></span><span class="cap">F</span></div>
+</div>
+<h2 class="sec">Varianterna i full stegkontext</h2>
+
+<section class="vari v-a">
+  <div class="vhead"><span class="vkey">A</span><h3>Dagens</h3><span class="sub">teal-soft cirkel</span></div>
+  <p class="vnote">Referensen. 44px fylld cirkel #cdeee8, navy siffra 600/16px, streckad connector. Marken har varken tystnad eller närvaro — den ligger i mellanläget.</p>
+  <div class="vcard">
+        <ol class="steps">
+        <li class="step">
+          <span class="n" aria-hidden="true">1</span>
+          <h3>Få offert inklusive ROT-avdrag</h3>
+          <p>En elektriker räknar på ditt projekt. Offerten visar vad du betalar och vad som ingår, innan du bestämmer dig.</p>
+        </li>
+        <li class="step">
+          <span class="n" aria-hidden="true">2</span>
+          <h3>En auktoriserad elektriker gör jobbet</h3>
+          <p>En av våra elektriker kommer hem till dig och utför installationen metodiskt, med högsta kvalitet.</p>
+        </li>
+        <li class="step">
+          <span class="n" aria-hidden="true">3</span>
+          <h3>Du slipper pappersarbetet</h3>
+          <p>Avdraget dras direkt på fakturan. Ansökan till Skatteverket skickar vi in åt dig.</p>
+        </li>
+        </ol>
+  </div>
+</section>
+
+<section class="vari v-b">
+  <div class="vhead"><span class="vkey">B</span><h3>Handritad ring</h3><span class="sub">penseldraget ur live-blocket</span></div>
+  <p class="vnote">Ringbanan är hämtad VERBATIM ur live-blockets frame-28928228.svg och omfärgad till våra tokens (#1cc4af → #00a991). Siffran är Outfit 300 som text — inte den inbakade glyfen. Blockets enda handgjorda gest.</p>
+  <div class="vcard">
+        <ol class="steps">
+        <li class="step">
+          <span class="n" aria-hidden="true"><img class="mark" src="../assets/ink-ring-teal.svg" alt=""><span class="d">1</span></span>
+          <h3>Få offert inklusive ROT-avdrag</h3>
+          <p>En elektriker räknar på ditt projekt. Offerten visar vad du betalar och vad som ingår, innan du bestämmer dig.</p>
+        </li>
+        <li class="step">
+          <span class="n" aria-hidden="true"><img class="mark" src="../assets/ink-ring-teal.svg" alt=""><span class="d">2</span></span>
+          <h3>En auktoriserad elektriker gör jobbet</h3>
+          <p>En av våra elektriker kommer hem till dig och utför installationen metodiskt, med högsta kvalitet.</p>
+        </li>
+        <li class="step">
+          <span class="n" aria-hidden="true"><img class="mark" src="../assets/ink-ring-teal.svg" alt=""><span class="d">3</span></span>
+          <h3>Du slipper pappersarbetet</h3>
+          <p>Avdraget dras direkt på fakturan. Ansökan till Skatteverket skickar vi in åt dig.</p>
+        </li>
+        </ol>
+  </div>
+</section>
+
+<section class="vari v-c">
+  <div class="vhead"><span class="vkey">C</span><h3>Outline-ring</h3><span class="sub">teal kontur, transparent mitt</span></div>
+  <p class="vnote">1,5px teal kontur, ingen fyllning — vitrummet går rakt igenom marken. Connectorn blir hårfin och solid: en ring vill ha en linje, inte ett streck.</p>
+  <div class="vcard">
+        <ol class="steps">
+        <li class="step">
+          <span class="n" aria-hidden="true"><span class="d">1</span></span>
+          <h3>Få offert inklusive ROT-avdrag</h3>
+          <p>En elektriker räknar på ditt projekt. Offerten visar vad du betalar och vad som ingår, innan du bestämmer dig.</p>
+        </li>
+        <li class="step">
+          <span class="n" aria-hidden="true"><span class="d">2</span></span>
+          <h3>En auktoriserad elektriker gör jobbet</h3>
+          <p>En av våra elektriker kommer hem till dig och utför installationen metodiskt, med högsta kvalitet.</p>
+        </li>
+        <li class="step">
+          <span class="n" aria-hidden="true"><span class="d">3</span></span>
+          <h3>Du slipper pappersarbetet</h3>
+          <p>Avdraget dras direkt på fakturan. Ansökan till Skatteverket skickar vi in åt dig.</p>
+        </li>
+        </ol>
+  </div>
+</section>
+
+<section class="vari v-d">
+  <div class="vhead"><span class="vkey">D</span><h3>Mörk plint</h3><span class="sub">navy cirkel, vit siffra</span></div>
+  <p class="vnote">Exakt panelens botten rgb(27,29,75) plus CTA:ns inre ljuskant. Familjekopplingen blir bokstavlig: tre mörka punkter i vänsterspalten svarar mot den mörka panelen.</p>
+  <div class="vcard">
+        <ol class="steps">
+        <li class="step">
+          <span class="n" aria-hidden="true">1</span>
+          <h3>Få offert inklusive ROT-avdrag</h3>
+          <p>En elektriker räknar på ditt projekt. Offerten visar vad du betalar och vad som ingår, innan du bestämmer dig.</p>
+        </li>
+        <li class="step">
+          <span class="n" aria-hidden="true">2</span>
+          <h3>En auktoriserad elektriker gör jobbet</h3>
+          <p>En av våra elektriker kommer hem till dig och utför installationen metodiskt, med högsta kvalitet.</p>
+        </li>
+        <li class="step">
+          <span class="n" aria-hidden="true">3</span>
+          <h3>Du slipper pappersarbetet</h3>
+          <p>Avdraget dras direkt på fakturan. Ansökan till Skatteverket skickar vi in åt dig.</p>
+        </li>
+        </ol>
+  </div>
+</section>
+
+<section class="vari v-e">
+  <div class="vhead"><span class="vkey">E</span><h3>Ingen cirkel</h3><span class="sub">stor tunn siffra, linjen passerar</span></div>
+  <p class="vnote">Marken är bara siffran — 40px Outfit 250 i navy — och hårlinjen löper obruten bakom den. Ligger närmast designsystemets A7-kanon (siffra i --apmidnight-blue, --aptext-2xl).</p>
+  <div class="vcard">
+        <ol class="steps">
+        <li class="step">
+          <span class="n" aria-hidden="true">1</span>
+          <h3>Få offert inklusive ROT-avdrag</h3>
+          <p>En elektriker räknar på ditt projekt. Offerten visar vad du betalar och vad som ingår, innan du bestämmer dig.</p>
+        </li>
+        <li class="step">
+          <span class="n" aria-hidden="true">2</span>
+          <h3>En auktoriserad elektriker gör jobbet</h3>
+          <p>En av våra elektriker kommer hem till dig och utför installationen metodiskt, med högsta kvalitet.</p>
+        </li>
+        <li class="step">
+          <span class="n" aria-hidden="true">3</span>
+          <h3>Du slipper pappersarbetet</h3>
+          <p>Avdraget dras direkt på fakturan. Ansökan till Skatteverket skickar vi in åt dig.</p>
+        </li>
+        </ol>
+  </div>
+</section>
+
+<section class="vari v-f">
+  <div class="vhead"><span class="vkey">F</span><h3>Förloppsringen</h3><span class="sub">1/3 · 2/3 · 3/3 teal båge</span></div>
+  <p class="vnote">Min rekommendation. Tunn teal båge på teal-soft spår: 1/3, 2/3, helt sluten. Marken bär ordningen TVÅ gånger (siffran + hur långt bågen gått) och connectorn blir samma spår som bågen fyller.</p>
+  <div class="vcard">
+        <ol class="steps">
+        <li class="step">
+          <span class="n" aria-hidden="true"><svg class="mark" viewBox="0 0 48 48" fill="none" aria-hidden="true"><circle class="trk" cx="24" cy="24" r="22" stroke-width="2"/><circle class="arc" cx="24" cy="24" r="22" stroke-width="2" stroke-linecap="round" stroke-dasharray="46.08 92.15" transform="rotate(-90 24 24)"/></svg><span class="d">1</span></span>
+          <h3>Få offert inklusive ROT-avdrag</h3>
+          <p>En elektriker räknar på ditt projekt. Offerten visar vad du betalar och vad som ingår, innan du bestämmer dig.</p>
+        </li>
+        <li class="step">
+          <span class="n" aria-hidden="true"><svg class="mark" viewBox="0 0 48 48" fill="none" aria-hidden="true"><circle class="trk" cx="24" cy="24" r="22" stroke-width="2"/><circle class="arc" cx="24" cy="24" r="22" stroke-width="2" stroke-linecap="round" stroke-dasharray="92.15 46.08" transform="rotate(-90 24 24)"/></svg><span class="d">2</span></span>
+          <h3>En auktoriserad elektriker gör jobbet</h3>
+          <p>En av våra elektriker kommer hem till dig och utför installationen metodiskt, med högsta kvalitet.</p>
+        </li>
+        <li class="step">
+          <span class="n" aria-hidden="true"><svg class="mark" viewBox="0 0 48 48" fill="none" aria-hidden="true"><circle class="trk" cx="24" cy="24" r="22" stroke-width="2"/><circle class="arc" cx="24" cy="24" r="22" stroke-width="2" stroke-linecap="round" stroke-dasharray="138.23 0.00" transform="rotate(-90 24 24)"/></svg><span class="d">3</span></span>
+          <h3>Du slipper pappersarbetet</h3>
+          <p>Avdraget dras direkt på fakturan. Ansökan till Skatteverket skickar vi in åt dig.</p>
+        </li>
+        </ol>
+  </div>
+</section>
+
+<div class="verdict">
+<h2 class="sec">Designbedömning</h2>
+<div class="card">
+  <span class="win">Vinnare · F förloppsringen</span>
+  <h3>Vilken vinner</h3>
+  <p><b>F.</b> Den är den enda varianten som gör ett <b>jobb</b> utöver att märka ut en ordning: bågen
+  visar hur långt in i processen steget ligger, och den stänger vid steg 3 — vilket är hela blockets
+  löfte (&quot;du slipper pappersarbetet&quot;, det tar slut). Den är byggd av tokens vi redan äger
+  (teal + teal&#8209;soft), den håller Ampys tunna, streckade glyfspråk från mini&#8209;menyn, och den
+  löser connectorn i stället för att brottas med den: streckningen ersätts av samma teal&#8209;soft
+  spår som bågen fyller, så linje och märke äntligen är samma idé. Den är också den enda som skalar
+  ner till 38px på mobil utan att tappa något — bågen läser även när siffran blir liten.</p>
+
+  <h3>Vilken passar familjen bäst mot den mörka panelen</h3>
+  <p><b>D.</b> Den bär panelens EXAKTA botten (rgb 27,29,75) och CTA:ns inre ljuskant, så blocket får
+  en läsbar diagonal: mörka punkter till vänster, mörk platta till höger. Men den kostar — tre navy
+  fyllningar är blockets tyngsta bläck, och de konkurrerar med en H2 som medvetet sänktes till vikt
+  450. Välj D bara om ägaren vill att vänsterspalten ska väga lika mycket som panelen. Om målet i
+  stället är att panelen ska förbli blockets enda dominant, ska marken vara <b>lätt</b> — och då är F
+  eller C rätt.</p>
+
+  <h3>Hedersomnämnande</h3>
+  <p><b>B</b> är den vackraste marken på sidan och den enda som är <b>Ampys</b> — penseldraget finns
+  ingen annanstans i branschen. Jag trodde först att den skulle falla på mobil: i 2×&#8209;renderingen
+  ser den övre vänstra bågen ut att lösas upp vid 46px. Vid 6× visar det sig vara nedskalning, inte
+  ritningen — på retina håller fibrerna hela vägen ner. Den kvarvarande invändningen är alltså inte
+  läsbarhet utan <b>beroendet</b>: 58px är golvet på desktop, och märket kräver en 80&nbsp;kB SVG där
+  resten av blocket är ren CSS (rekommenderas den, ska ringen optimeras ner först). Kör B om ägaren
+  vill ha kontinuitet med det som ligger live idag — då är den ett självklart val.</p>
+  <p><b>E</b> ligger närmast den skrivna designsystemskanonen (A7: siffra i midnight&#8209;blue,
+  <code>--aptext-2xl</code>) och är den mest redaktionella. Den fungerar — men den flyttar tyngdpunkt
+  från H3:erna till siffrorna, och i ett block vars H2 redan sänkts till vikt 450 blir tre 40px&#8209;tal
+  en andra rubriknivå som ingen bad om.</p>
+
+  <h3>Vad jag avråder från</h3>
+  <p><b>A och C.</b> A är mellanläget: mellanstor halvfet siffra i pastellchip är vad varje ramverksmall
+  producerar, den säger ingenting om Ampy, och den slänger bort det enda handgjorda draget blocket
+  hade. <b>C</b> ser ren ut ensam men blir svag i sammanhanget — 1,5px teal kontur mot vitt är blockets
+  ljusaste element samtidigt som det ska vara dess vägvisare, och den upprepar utan mervärde exakt den
+  ringform som B och F gör mer med. C är F utan idén.</p>
+</div>
+</div>
+</div>
+</body>
+</html>
