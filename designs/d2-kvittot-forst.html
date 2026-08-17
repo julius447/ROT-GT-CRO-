@@ -47,7 +47,7 @@
   --edge: 28px;                       /* liten kantpadding — blocket går nära skärmkant */
   /* clamp-ändpunkter kvantiserade till 8-bas (spacing P2-12) */
   --pad-x: clamp(24px, 4.4vw, 80px);  /* kortets inre luft */
-  --pad-y: clamp(36px, 4.4vw, 80px); /* = pad-x-kurvan (slutpanel spacing P1-3): ramen var blockets
+  --pad-y: clamp(44px, 5.4vw, 100px); /* ägarorder 2026-08-17: högre huvudcontainer = mer luft inuti blocket */ /* = pad-x-kurvan (slutpanel spacing P1-3): ramen var blockets
                                          tunnaste luft (51,8 mot 63,4px @1440) — pad-y följer pad-x;
                                          mobil orörd (≤900 sätter 28px explicit) */
 }
@@ -97,7 +97,7 @@ a { -webkit-tap-highlight-color: transparent; }
      tröskel håller i hela bandet (innehåll ≥401px, uppmätt). */
   grid-template-columns: minmax(0, 1fr) clamp(466px, 33vw, 530px);
   gap: clamp(48px, 5.5vw, 96px);
-  align-items: stretch;   /* ägartest: höger spalt sträcks till vänsterspaltens höjd */
+  align-items: center;   /* ägarorder 2026-08-17: panelen vertikalt centrerad mot vänsterspalten */
 }
 
 /* ---------- Left: H2 + processen 1-2-3 ---------- */
@@ -135,7 +135,7 @@ h2 .accent {
    varje viewport — --nmt räknas ur H3:ns verkliga radhöjd i st.f. ett gissat fast avdrag
    (gamla -8px stämde bara vid 1440; vid 1120 var felet ~2px). Linjens ändar följer med. */
 .step {
-  --h3fs: clamp(19px, calc(0.7vw + 17px), 26px);                /* H3 (ägarorder 2026-08-16: lite mindre; extra på mobil mot "blurrigt") — 19.6px @375 · 26px @1280; ersätter --aptext-lm 22.4→28 */
+  --h3fs: clamp(19px, calc(0.52vw + 17px), 23px);                /* H3 (ägarorder 2026-08-16: lite mindre; extra på mobil mot "blurrigt") — 19.6px @375 · 26px @1280; ersätter --aptext-lm 22.4→28 */
   --nsz: 44px;                                                  /* cirkelns diameter */
   /* OPTISK justering (ägarorder 3). RUNDA 2, uppmätt i st.f. gissat: referensen är H3:ns
      VERSALBANDSMITT (baslinje − versalhöjd/2, mätt strängoberoende via canvas-metrics,
@@ -185,7 +185,8 @@ h2 .accent {
   container-type: inline-size;
   background: #fff; border: 1px solid var(--line-strong); border-radius: var(--r-lg);
   box-shadow: var(--shadow-2);
-  padding: clamp(24px, 2.2vw, 32px) var(--panel-pad-x);
+  /* ägarorder 2026-08-17: "en gnutta högre" — vertikal padding upp, horisontell orörd */
+  padding: clamp(30px, 2.9vw, 44px) var(--panel-pad-x);
   display: flex; flex-direction: column;
 }
 
