@@ -138,7 +138,7 @@ h2 .accent {
    (gamla -8px stämde bara vid 1440; vid 1120 var felet ~2px). Linjens ändar följer med. */
 .step {
   --h3fs: clamp(19px, calc(0.52vw + 17px), 23px);                /* H3 (ägarorder 2026-08-16: lite mindre; extra på mobil mot "blurrigt") — 19.6px @375 · 26px @1280; ersätter --aptext-lm 22.4→28 */
-  --nsz: 44px;                                                  /* cirkelns diameter */
+  --nsz: 46px;                                                  /* cirkelns diameter */
   /* OPTISK justering (ägarorder 3). RUNDA 2, uppmätt i st.f. gissat: referensen är H3:ns
      VERSALBANDSMITT (baslinje − versalhöjd/2, mätt strängoberoende via canvas-metrics,
      _optic2.mjs), inte radboxens mitt. Radmittscentreringen låg bara 0,70px (@1440) /
@@ -156,14 +156,18 @@ h2 .accent {
 .step .n {
   grid-row: 1 / span 2; align-self: start; margin-top: var(--nmt);
   width: var(--nsz); height: var(--nsz); border-radius: 50%;
-  /* teal-soft ett snäpp djupare, ENBART cirklarna (slutpanel design P1-2b): pixelanalysen
-     visade 100 % av blockets mättade pixlar i högerpanelen — cirklarna ger 1-2-3 ett
-     kroma-ankare utan att röra accent-ordern (svart) eller chip-tokenen. */
-  background: #cdeee8; color: var(--navy);
-  font-weight: 600; font-size: 16px;
+  /* VARIANT F (ägarval 2026-08-17) — förloppsringen: bågen fylls 1/3 → 2/3 → sluten,
+     och ligger i SAMMA spår som connectorn, så märke och linje blir en idé. Ingen fylld
+     platta längre; siffran står ensam i navy 500. */
+  background: none; color: var(--navy);
+  font-weight: 500; font-size: 17px; line-height: 1;
   display: grid; place-items: center; position: relative; z-index: 1;
   font-variant-numeric: tabular-nums;
 }
+.step .n .mark { position: absolute; inset: 0; width: 100%; height: 100%; }
+.step .n .mark .trk { stroke: rgba(0,169,145,.20); stroke-width: 1.5; }
+.step .n .mark .arc { stroke: var(--teal); stroke-width: 3; }
+.step .n .d { position: relative; z-index: 1; }
 /* H3 (ägarorder 2026-08-16): sänkt från --aptext-lm — "lite mindre + mindre bold".
    VIKT 450 = samma snäpp ner som H2 (450/450 speglar gamla 500/500 — storleken bär
    hierarkin, vikten är aldrig inverterad; 400-provet försvann mot 300-brödtexten).
@@ -178,7 +182,7 @@ h2 .accent {
   content: ""; position: absolute; left: calc(var(--nsz) / 2 - 1px);
   top: calc(var(--nmt) + var(--nsz) + 4px);
   bottom: calc(-1 * (var(--sgap) + var(--nmt) - 4px));
-  border-left: 2px dashed rgba(15,18,60,.15);
+  border-left: 2px solid rgba(0,169,145,.20);   /* F: connectorn = bågens eget spår */
 }
 
 /* ---------- Right: panelen (samma kortstil ägaren gillar, blixten borttagen per ägarorder) ---------- */
@@ -326,6 +330,15 @@ h2 .accent {
 /* fokusring: vit på mörk panel (navy-outline skulle försvinna i bakgrunden) */
 .cta:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
 
+/* ================= VÅGFORMAT på master-containern (ägartest 2026-08-17) =================
+   Samma organiska former som den mörka panelen/heron, men i ljusa neutrala toner
+   (#f2f7fe / #eef4fc mot vitt) — enbart bakgrund, bryter plattheten utan att ta fokus. */
+.block--wave { overflow: hidden; }
+.block--wave > svg[class^="wave"] { position: absolute; z-index: 0; height: auto; pointer-events: none; }
+.block--wave .wave-a { top: 0; left: 0; width: 62%; }
+.block--wave .wave-b { bottom: 0; right: 0; width: 52%; }
+.block--wave > .grid { position: relative; z-index: 1; }
+
 @container (max-width: 400px) {
   .r-row { display: grid; gap: 6px; padding: 16px 0; }
   .r-row .dots { display: none; }
@@ -408,8 +421,8 @@ h2 .accent {
   /* enbart storlekarna byts — linjering + linjeändar följer automatiskt via --nmt-kalkylen.
      --nsz 38→32 (ägarorder 2026-08-16: mindre siffercirklar på mobil); siffran 15→14
      håller proportionen i den mindre cirkeln. */
-  .step { --nsz: 32px; column-gap: 16px; row-gap: 6px; }
-  .step .n { font-size: 14px; }
+  .step { --nsz: 36px; column-gap: 16px; row-gap: 6px; }
+  .step .n { font-size: 14.5px; }
   .step p { max-width: none; }
   /* staplat läge 481-900: CTA:n ska inte spänna 600px+ (facit-notering @768) */
   .cta { width: auto; max-width: 100%; padding: 11px 24px; }
@@ -437,7 +450,9 @@ h2 .accent {
 
 <!-- aria-labelledby = familjens metod (paritetssvep P1-5): sektionens tillgängliga namn följer
      H2:an automatiskt — ingen hårdkodad aria-label som kan divergera från rubriken. -->
-<section class="block" aria-labelledby="rot-h2">
+<section class="block block--wave" aria-labelledby="rot-h2">
+    <svg class="wave-a" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="984" height="687" viewBox="0 0 984 687" fill="none"><path d="M0.101004 20.0619C0.600584 8.84058 9.84347 1.17382e-07 21.076 2.51328e-07L961.412 1.14647e-05C974.498 1.16208e-05 985.418 10.5972 982.854 23.4296C977.67 49.3741 963.295 73.6508 941.937 90.4135C880.337 138.634 779.032 119.487 722.751 173.262C689.848 204.7 682.055 252.683 681.19 297.121C680.447 341.56 679.548 400.042 664.087 442.116C634.895 521.42 616.787 565.147 537.627 609.796C458.468 654.446 363.331 653.812 293.761 628.364C224.191 602.917 192.614 599.726 146.503 638.806C100.393 677.886 116.456 684.221 85.1146 683.693C53.7734 683.165 -2.71524 700.588 0.101498 660.353C2.91823 620.118 0.101004 20.0619 0.101004 20.0619Z" fill="#f6f9fe" fill-opacity="0.67"></path></svg>
+    <svg class="wave-b" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="742" height="487" viewBox="0 0 742 487" fill="none"><path d="M741.369 472.779C740.991 480.74 734.427 487 726.457 487L21.0013 487C7.92631 487 -3.07046 476.287 0.783671 463.793C5.67881 447.924 15.7866 433.357 29.9721 422.908C76.5003 388.725 153.019 402.298 195.53 364.178C220.382 341.892 226.268 307.878 226.922 276.377C227.483 244.875 228.162 203.419 239.841 173.593C261.89 117.376 275.568 86.3793 335.359 54.7281C395.151 23.0768 467.011 23.5263 519.559 41.5655C572.107 59.6047 595.958 61.8668 630.787 34.1639C665.615 6.46096 653.483 1.97007 677.156 2.34433C700.829 2.7186 743.496 -9.63196 741.369 18.8895C739.241 47.411 741.369 472.779 741.369 472.779Z" fill="#f2f6fd" fill-opacity="0.39"></path></svg>
   <div class="grid">
 
     <div class="left">
@@ -449,21 +464,21 @@ h2 .accent {
 
       <ol class="steps">
         <li class="step">
-          <span class="n" aria-hidden="true">1</span>
+          <span class="n" aria-hidden="true"><svg class="mark" viewBox="0 0 48 48" fill="none" aria-hidden="true"><circle class="trk" cx="24" cy="24" r="22" stroke-width="2"/><circle class="arc" cx="24" cy="24" r="22" stroke-width="2" stroke-linecap="round" stroke-dasharray="46.08 92.15" transform="rotate(-90 24 24)"/></svg><span class="d">1</span></span>
           <h3>Få offert inklusive ROT-avdrag</h3>
           <!-- [GAP] löftet "offerten visar priset innan du bestämmer dig" — ägarbekräftelse före ship -->
           <!-- "samt" → "och" (slutpanel CRO P2-8): skriftspråksstelt i ett talspråkigt block. -->
           <p>En elektriker räknar på ditt projekt. Offerten visar vad du betalar och vad som ingår, innan du bestämmer dig.</p>
         </li>
         <li class="step">
-          <span class="n" aria-hidden="true">2</span>
+          <span class="n" aria-hidden="true"><svg class="mark" viewBox="0 0 48 48" fill="none" aria-hidden="true"><circle class="trk" cx="24" cy="24" r="22" stroke-width="2"/><circle class="arc" cx="24" cy="24" r="22" stroke-width="2" stroke-linecap="round" stroke-dasharray="92.15 46.08" transform="rotate(-90 24 24)"/></svg><span class="d">2</span></span>
           <h3>En auktoriserad elektriker gör jobbet</h3>
           <!-- Ägarriktning 2026-08-16, finslipad i ampy-rost: kärnan (kommer hem till dig + kvalitet)
                behållen; "metodiskt, strukturerat" kokades till "metodiskt" (samma sak, renare rytm). -->
           <p>En av våra elektriker kommer hem till dig och utför installationen metodiskt, med högsta kvalitet.</p>
         </li>
         <li class="step">
-          <span class="n" aria-hidden="true">3</span>
+          <span class="n" aria-hidden="true"><svg class="mark" viewBox="0 0 48 48" fill="none" aria-hidden="true"><circle class="trk" cx="24" cy="24" r="22" stroke-width="2"/><circle class="arc" cx="24" cy="24" r="22" stroke-width="2" stroke-linecap="round" stroke-dasharray="138.23 0.00" transform="rotate(-90 24 24)"/></svg><span class="d">3</span></span>
           <h3>Du slipper pappersarbetet</h3>
           <!-- [GAP] fakturamodell + ansökningshantering: ägarbekräftelse före ship -->
           <p>Avdraget dras direkt på fakturan. Ansökan till Skatteverket skickar vi in åt dig.</p>
