@@ -408,16 +408,6 @@ h2 .accent {
 
 
 
-/* sekundärlänken under ring-CTA:n — ren fritext, ALDRIG knappyta. Ljus på den mörka
-   panelen (den ärvda navy-stilen var osynlig mot rgb(27,29,75)). */
-.sec-link { font-size: 15px; color: rgba(255,255,255,.72); font-weight: 400; text-align: center; margin-top: 18px; }
-.sec-link a {
-  color: #fff; font-weight: 600; text-decoration: underline;
-  text-underline-offset: 3px; text-decoration-thickness: 1.5px;
-  display: inline-flex; align-items: center; min-height: 44px; padding: 0 8px; border-radius: 8px;
-}
-.sec-link a:hover { text-decoration-thickness: 2px; }
-@media (max-width: 480px) { .sec-link { font-size: 14.5px; } }
 
 @container (max-width: 400px) {
   .r-row { display: grid; gap: 6px; padding: 16px 0; }
@@ -740,9 +730,6 @@ h2 .accent {
         <!-- [GAP] sekundärlänkens mål: /offert/ = webb-playbookens rutt för icke-akut intent
              (aldrig href="#" — en död länk får inte gå live). Ägarbeslut: är /offert/ rätt
              landning för felsökning/besiktning, eller en egen förfrågningssida? -->
-        <!-- .sec-link (inte .tel): samma yta/stil, men klassen ljuger inte om innehållet —
-             länken är en rutt (/offert/), inget telefonnummer (paritetssvep P2-5). -->
-        <p class="sec-link">Inte akut? <a href="/offert/">Skicka en förfrågan</a></p>
       </div>
     </section>
 
