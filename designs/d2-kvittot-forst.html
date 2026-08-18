@@ -136,7 +136,7 @@ h2 .accent {
    .p-cap så vänster och höger spalt talar samma typografiska språk */
 .steps-cap {
   font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
-  color: var(--muted); margin-bottom: 18px;
+  color: var(--muted); margin-bottom: 26px;
 }
 .steps { --sgap: clamp(32px, 3.1vw, 44px); list-style: none; display: flex; flex-direction: column; gap: var(--sgap); }
 /* Optisk linjering (sprint 2026-08-15): cirkelns mitt = H3:ns första radmitt, EXAKT vid
@@ -337,21 +337,17 @@ h2 .accent {
 .cta:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
 
 
-/* ================= VÅGFÄLT — panelens EXAKTA mönster i ljusa toner =================
-   Samma tre banor som .panel--dark använder (hero-formerna), men utsträckta över hela
-   kortet med preserveAspectRatio="none". Det ger identiskt kurvspråk (horisontellt
-   flödande fält med organiska bulor) OCH garanterad heltäckning — ingen viewBox-kant kan
-   hamna inne i ytan. Lagerordning = alternerande toner:
-   bas vit → mörkare → vit → mörkare = FYRA horisontella fält på desktop.
-   Mobil (eget lager, kortet är högt och smalt): vit · mörkare · vit = TRE fält. */
+/* ================= VÅGOR = hero_2:s bakgrund, IDENTISKT (ägarorder 2026-08-17) ==========
+   Exakt samma tre former, positioner och procent som .hero_2__container använder på den
+   blå bakgrunden (uppmätt i live-CSS: .brxe-kgrvqy top/left 65% · .brxe-tzjghm top/left 45%
+   · .brxe-axrfcd bottom/right 50%). Endast tonerna är översatta till ljust, med samma
+   inbördes ordning som heron: bas ljusast → #eef4fc → #e6eff9 (mörkast) → #eef4fc. */
 .block--wave { overflow: hidden; }
-.wf { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
-.block--wave > .grid { position: relative; z-index: 1; }
-.wf-m { display: none; }
-@media (max-width: 900px) {
-  .wf-d { display: none; }
-  .wf-m { display: block; }
-}
+.block--wave > svg[class^="hero-w"] { position: absolute; height: auto; pointer-events: none; }
+.block--wave .hero-w1 { top: 0; left: 0; max-width: 65%; z-index: 0; }
+.block--wave .hero-w2 { top: 0; left: 0; max-width: 45%; z-index: 1; }
+.block--wave .hero-w3 { bottom: 0; right: 0; max-width: 50%; z-index: 1; }
+.block--wave > .grid { position: relative; z-index: 2; }
 
 @container (max-width: 400px) {
   .r-row { display: grid; gap: 6px; padding: 16px 0; }
@@ -419,7 +415,7 @@ h2 .accent {
   /* CENTRERAD H2 = ägarorder 2026-08-16, ENDAST ≤900 (desktop förblir vänsterställd);
      resten av innehållet förblir vänsterställt. Storleken ORÖRD (samma clamp). */
   h2 { max-width: none; margin-bottom: 30px; text-align: center; }
-  .steps-cap { margin-bottom: 16px; }
+  .steps-cap { margin-bottom: 22px; }
   /* RAG-FIXEN (ägarorder 5, mätt med _rag.mjs): text-wrap:balance var en NO-OP på gt-produkt
      och gt-generisk @390 — identiska radbredder med och utan. Orsaken var inte balance utan
      h2 .accent{white-space:nowrap}: accenten blev ett odelbart block som åt upp
@@ -436,7 +432,7 @@ h2 .accent {
    .p-cap så vänster och höger spalt talar samma typografiska språk */
 .steps-cap {
   font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
-  color: var(--muted); margin-bottom: 18px;
+  color: var(--muted); margin-bottom: 26px;
 }
 .steps { --sgap: 28px; }
   /* enbart storlekarna byts — linjering + linjeändar följer automatiskt via --nmt-kalkylen.
@@ -472,15 +468,9 @@ h2 .accent {
 <!-- aria-labelledby = familjens metod (paritetssvep P1-5): sektionens tillgängliga namn följer
      H2:an automatiskt — ingen hårdkodad aria-label som kan divergera från rubriken. -->
 <section class="block block--wave" aria-labelledby="rot-h2">
-    <svg class="wf wf-d" viewBox="0 0 1384 694" preserveAspectRatio="none" aria-hidden="true" fill="none">
-      <path d="M0 148C210 92 372 214 596 170C820 126 1010 66 1384 152L1384 694L0 694Z" fill="#e9f0fa"/>
-      <path d="M0 336C246 408 430 268 706 352C982 436 1140 446 1384 338L1384 694L0 694Z" fill="#ffffff"/>
-      <path d="M0 548C268 470 470 606 768 522C1066 438 1180 452 1384 534L1384 694L0 694Z" fill="#e9f0fa"/>
-    </svg>
-    <svg class="wf wf-m" viewBox="0 0 390 1100" preserveAspectRatio="none" aria-hidden="true" fill="none">
-      <path d="M0 372C88 316 196 438 288 384C330 359 360 356 390 366L390 1100L0 1100Z" fill="#e9f0fa"/>
-      <path d="M0 762C96 700 214 826 306 758C342 731 366 728 390 740L390 1100L0 1100Z" fill="#ffffff"/>
-    </svg>
+    <svg class="hero-w1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="984" height="687" viewBox="0 0 984 687" fill="none"><path d="M0.101004 20.0619C0.600584 8.84058 9.84347 1.17382e-07 21.076 2.51328e-07L961.412 1.14647e-05C974.498 1.16208e-05 985.418 10.5972 982.854 23.4296C977.67 49.3741 963.295 73.6508 941.937 90.4135C880.337 138.634 779.032 119.487 722.751 173.262C689.848 204.7 682.055 252.683 681.19 297.121C680.447 341.56 679.548 400.042 664.087 442.116C634.895 521.42 616.787 565.147 537.627 609.796C458.468 654.446 363.331 653.812 293.761 628.364C224.191 602.917 192.614 599.726 146.503 638.806C100.393 677.886 116.456 684.221 85.1146 683.693C53.7734 683.165 -2.71524 700.588 0.101498 660.353C2.91823 620.118 0.101004 20.0619 0.101004 20.0619Z" fill="#eef4fc" fill-opacity="0.67"></path></svg>
+    <svg class="hero-w2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="665" height="431" viewBox="0 0 665 431" fill="none"><path d="M0.0683953 12.5861C0.40702 5.53937 6.21896 7.41603e-08 13.2739 1.58289e-07L643.451 7.67308e-06C656.524 7.82897e-06 667.543 10.7797 663.153 23.093C658.5 36.1404 649.782 48.0384 637.839 56.7222C596.127 86.974 527.527 74.962 489.416 108.699C467.136 128.422 461.859 158.525 461.272 186.404C460.77 214.283 460.161 250.972 449.691 277.368C429.924 327.121 417.662 354.553 364.058 382.565C310.455 410.577 246.032 410.179 198.922 394.214C151.813 378.249 130.43 376.247 99.2059 400.765C67.9818 425.282 78.859 429.256 57.636 428.925C36.413 428.594 -1.83864 439.524 0.0687298 414.283C1.9761 389.041 0.0683953 12.5861 0.0683953 12.5861Z" fill="#e6eff9"></path></svg>
+    <svg class="hero-w3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="742" height="487" viewBox="0 0 742 487" fill="none"><path d="M741.369 472.779C740.991 480.74 734.427 487 726.457 487L21.0013 487C7.92631 487 -3.07046 476.287 0.783671 463.793C5.67881 447.924 15.7866 433.357 29.9721 422.908C76.5003 388.725 153.019 402.298 195.53 364.178C220.382 341.892 226.268 307.878 226.922 276.377C227.483 244.875 228.162 203.419 239.841 173.593C261.89 117.376 275.568 86.3793 335.359 54.7281C395.151 23.0768 467.011 23.5263 519.559 41.5655C572.107 59.6047 595.958 61.8668 630.787 34.1639C665.615 6.46096 653.483 1.97007 677.156 2.34433C700.829 2.7186 743.496 -9.63196 741.369 18.8895C739.241 47.411 741.369 472.779 741.369 472.779Z" fill="#eef4fc" fill-opacity="0.39"></path></svg>
   <div class="grid">
 
     <div class="left">

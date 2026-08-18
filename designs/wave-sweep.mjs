@@ -4,7 +4,7 @@ import { chromium } from 'playwright';
 import { resolve } from 'path';
 import { pathToFileURL } from 'url';
 
-const FLAT = { 'wave-a': ['top', 'left'], 'wave-b': ['bottom', 'right'], 'wave-c': ['bottom', 'left'] };
+const FLAT = { 'hero-w1': ['top', 'left'], 'hero-w2': ['top', 'left'], 'hero-w3': ['bottom', 'right'] };
 const b = await chromium.launch();
 let bad = 0;
 for (const w of [320, 360, 390, 430, 600, 768, 900, 1024, 1120, 1280, 1440, 1600, 1920]) {
@@ -13,7 +13,7 @@ for (const w of [320, 360, 390, 430, 600, 768, 900, 1024, 1120, 1280, 1440, 1600
   await p.waitForTimeout(250);
   const rows = await p.evaluate(() => {
     const blk = document.querySelector('.block').getBoundingClientRect();
-    return [...document.querySelectorAll('[class^="wave"]')].map(s => {
+    return [...document.querySelectorAll('[class^="hero-w"]')].map(s => {
       const r = s.getBoundingClientRect();
       return { cls: s.getAttribute('class'),
         top: +(r.top - blk.top).toFixed(1), left: +(r.left - blk.left).toFixed(1),
