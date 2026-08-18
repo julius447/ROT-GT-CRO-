@@ -114,7 +114,9 @@ h2 {
   font-size: clamp(26px, calc(1.04vw + 22.7px), 36px);
   font-weight: 450; line-height: 1.2; letter-spacing: -0.01em;
   color: var(--heading-ink);
-  max-width: 30ch; text-wrap: balance;
+  /* ägarorder 2026-08-18: rubriken bröt konstigt trots ledigt utrymme till höger — måttet
+     vidgas (30→38ch) så den får bryta där meningen vill, inte där spalten tar slut. */
+  max-width: 38ch; text-wrap: balance;
   /* H2→steg ≥1.4× steg↔steg (64 mot 44 @1440) — hierarkisk kontrast (spacing P0-1, ux P1-2). */
   margin-bottom: clamp(30px, 3.1vw, 44px);
 }
@@ -435,7 +437,7 @@ h2 .accent {
      (en skala, slutspec C2). H2→steg 44 mot steg↔steg 28 = ≥1.5× kontrast (spacing P0-1) */
   /* CENTRERAD H2 = ägarorder 2026-08-16, ENDAST ≤900 (desktop förblir vänsterställd);
      resten av innehållet förblir vänsterställt. Storleken ORÖRD (samma clamp). */
-  h2 { max-width: none; margin-bottom: 30px; text-align: center; }
+  h2 { max-width: none; margin-bottom: 40px; text-align: center; }   /* ägarorder 2026-08-18: mer luft H2→"Steg för steg" på mobil */
   .steps-cap { margin-bottom: 22px; }
   /* RAG-FIXEN (ägarorder 5, mätt med _rag.mjs): text-wrap:balance var en NO-OP på gt-produkt
      och gt-generisk @390 — identiska radbredder med och utan. Orsaken var inte balance utan
