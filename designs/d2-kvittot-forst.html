@@ -136,7 +136,7 @@ h2 .accent {
    .p-cap så vänster och höger spalt talar samma typografiska språk */
 .steps-cap {
   font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
-  color: var(--muted); margin-bottom: 26px;
+  color: var(--muted); margin-bottom: 36px;   /* ägarorder: stegen en gnutta längre ner (desktop) */
 }
 .steps { --sgap: clamp(32px, 3.1vw, 44px); list-style: none; display: flex; flex-direction: column; gap: var(--sgap); }
 /* Optisk linjering (sprint 2026-08-15): cirkelns mitt = H3:ns första radmitt, EXAKT vid
@@ -344,6 +344,13 @@ h2 .accent {
    inbördes ordning som heron: bas ljusast → #eef4fc → #e6eff9 (mörkast) → #eef4fc. */
 .block--wave { overflow: hidden; }
 .block--wave > svg[class^="hero-w"] { position: absolute; height: auto; pointer-events: none; }
+/* w1/w2 är topp-ankrade: deras UNDERkant slutar inne i kortet (w1 66px ovanför botten
+   @1440) och blir en hård linje. Masken tonar ut formens nedre fjärdedel så avslutet
+   upplöses i stället för att kapas — hero:ns 65/45 % behålls exakt. */
+.block--wave .hero-w1, .block--wave .hero-w2 {
+  -webkit-mask-image: linear-gradient(to bottom, #000 58%, rgba(0,0,0,.55) 82%, transparent 100%);
+          mask-image: linear-gradient(to bottom, #000 58%, rgba(0,0,0,.55) 82%, transparent 100%);
+}
 .block--wave .hero-w1 { top: 0; left: 0; max-width: 65%; z-index: 0; }
 .block--wave .hero-w2 { top: 0; left: 0; max-width: 45%; z-index: 1; }
 .block--wave .hero-w3 { bottom: 0; right: 0; max-width: 50%; z-index: 1; }
@@ -432,7 +439,7 @@ h2 .accent {
    .p-cap så vänster och höger spalt talar samma typografiska språk */
 .steps-cap {
   font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
-  color: var(--muted); margin-bottom: 26px;
+  color: var(--muted); margin-bottom: 36px;   /* ägarorder: stegen en gnutta längre ner (desktop) */
 }
 .steps { --sgap: 28px; }
   /* enbart storlekarna byts — linjering + linjeändar följer automatiskt via --nmt-kalkylen.
