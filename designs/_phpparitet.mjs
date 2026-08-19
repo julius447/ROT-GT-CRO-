@@ -3,8 +3,32 @@ import { chromium } from 'playwright';
 import { pathToFileURL } from 'url';
 import { resolve } from 'path';
 
-const DESIGN = resolve('.');
-const LEV = '/Users/juliuscallahan/Desktop/Ampy Avdragsblock — Leverans Chris/04-preview/fran-php';
+import { existsSync } from 'fs';
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
+
+/* Sökvägar löses relativt SKRIPTETS plats, inte arbetskatalogen. Grindarna finns
+   i två exemplar — i arbetsrepot (designs/) och i leveransen (05-underlag/grindar/)
+   — och varje kopia ska hitta sin egen designkälla och sin egen leverans. */
+const HAR = dirname(fileURLToPath(import.meta.url));
+/* `marker` måste finnas INUTI katalogen. Att bara kolla att katalogen existerar
+   räcker inte: i arbetsrepot pekar "två nivåer upp" på en helt annan mapp som
+   också finns, och grinden mätte då mot fel filer. */
+const forst = (marker, ...k) => {
+  const traff = k.find((d) => existsSync(join(d, marker)));
+  if (!traff) throw new Error(
+    `hittar ingen katalog som innehåller ${marker}. Sätt AVDRAG_DESIGN/AVDRAG_LEVERANS.\n  provade: ${k.join(', ')}`);
+  return traff;
+};
+const DESIGN = process.env.AVDRAG_DESIGN ?? forst('d2-kvittot-forst.html',
+  HAR,                                                                    // arbetsrepot
+  join(HAR, '..', '..', '07-design-kallor'),                              // leveransen
+);
+const LEVROT = process.env.AVDRAG_LEVERANS ?? forst('02-fluentsnippets',
+  join(HAR, '..', '..'),                                                  // leveransen
+  join(process.env.HOME, 'Desktop', 'Ampy Avdragsblock — Leverans Chris'),// arbetsrepot
+);
+const LEV = join(LEVROT, '04-preview', 'fran-php');
 const PAR = [['d2-kvittot-forst','rot'],['gt-produkt','gt-produkt'],['gt-generisk','gt-generisk'],['hemforsakring','hemforsakring']];
 const BREDDER = [320,360,375,390,430,480,600,744,768,834,1024,1180,1280,1440,1600,1920,2560];
 

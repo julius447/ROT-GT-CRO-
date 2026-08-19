@@ -8,12 +8,45 @@ handkopierad markup. Sidkromet (av-preview-krom) hämtas verbatim ur designfilen
 att förhandsvisningen och designen har identisk yttre miljö — annars mäter
 paritetsgrindarna kromets skillnader i stället för blockets.
 
-Kör:  php /tmp/wp-stub.php  (skriver /tmp/php-out-<typ>.html)  först.
+Kör:  php verifiera-php.php  (skriver /tmp/php-out-<typ>.html)  först.
 """
-import os, re
+import re
 
-DES = "/Users/juliuscallahan/Desktop/Claude Code/rot-gt-cro/designs"
-OUT = "/Users/juliuscallahan/Desktop/Ampy Avdragsblock — Leverans Chris/04-preview/fran-php"
+import os
+
+def _hitta(marker, *kandidater):
+    """Löser en sökväg relativt SKRIPTETS plats, inte arbetskatalogen.
+
+    Skripten finns i två exemplar: i arbetsrepot (handover/ bredvid designs/) och
+    i leveransen (05-underlag/byggskript/ bredvid 07-design-kallor/). Med absoluta
+    sökvägar läste leveranskopian tyst arbetsrepots designfiler — en ändring i
+    07-design-kallor/ försvann utan felmeddelande.
+
+    `marker` är en fil eller mapp som MÅSTE finnas inuti rätt katalog. Att bara
+    kolla att katalogen existerar räcker inte: i arbetsrepot pekar "två nivåer upp"
+    på en helt annan mapp som också finns, och skripten skrev då sin leverans dit.
+    """
+    for k in kandidater:
+        if os.path.exists(os.path.join(k, marker)):
+            return os.path.abspath(k)
+    raise SystemExit(
+        "hittar ingen katalog som innehåller %r. Sätt AVDRAG_DESIGN/AVDRAG_LEVERANS.\n  provade: %s"
+        % (marker, ", ".join(os.path.abspath(k) for k in kandidater))
+    )
+
+_HAR = os.path.dirname(os.path.abspath(__file__))
+SRC = os.environ.get("AVDRAG_DESIGN") or _hitta(
+    "d2-kvittot-forst.html",
+    os.path.join(_HAR, "..", "designs"),                 # arbetsrepot
+    os.path.join(_HAR, "..", "..", "07-design-kallor"),  # leveransen
+)
+_LEVROT = os.environ.get("AVDRAG_LEVERANS") or _hitta(
+    "02-fluentsnippets",
+    os.path.join(_HAR, "..", ".."),                                       # leveransen
+    os.path.expanduser("~/Desktop/Ampy Avdragsblock — Leverans Chris"),   # arbetsrepot
+)
+DES = SRC
+OUT = os.path.join(_LEVROT, "04-preview", "fran-php")
 
 DESIGNFIL = {
     "rot":           "d2-kvittot-forst.html",

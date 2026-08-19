@@ -8,10 +8,42 @@ blockmappningen (blockmappning.csv) pekar ut:
     h2_bas · h2_accent · kvitto_rad1 · sats · produkt · ort · belopp
 Allt annat är identiskt inom varianten och får inte redigeras per sida.
 """
-import json, os, re, html as htmlmod
+import json, re, html as htmlmod
 
-SRC = "/Users/juliuscallahan/Desktop/Claude Code/rot-gt-cro/designs"
-OUT = "/Users/juliuscallahan/Desktop/Ampy Avdragsblock — Leverans Chris/02-fluentsnippets"
+import os
+
+def _hitta(marker, *kandidater):
+    """Löser en sökväg relativt SKRIPTETS plats, inte arbetskatalogen.
+
+    Skripten finns i två exemplar: i arbetsrepot (handover/ bredvid designs/) och
+    i leveransen (05-underlag/byggskript/ bredvid 07-design-kallor/). Med absoluta
+    sökvägar läste leveranskopian tyst arbetsrepots designfiler — en ändring i
+    07-design-kallor/ försvann utan felmeddelande.
+
+    `marker` är en fil eller mapp som MÅSTE finnas inuti rätt katalog. Att bara
+    kolla att katalogen existerar räcker inte: i arbetsrepot pekar "två nivåer upp"
+    på en helt annan mapp som också finns, och skripten skrev då sin leverans dit.
+    """
+    for k in kandidater:
+        if os.path.exists(os.path.join(k, marker)):
+            return os.path.abspath(k)
+    raise SystemExit(
+        "hittar ingen katalog som innehåller %r. Sätt AVDRAG_DESIGN/AVDRAG_LEVERANS.\n  provade: %s"
+        % (marker, ", ".join(os.path.abspath(k) for k in kandidater))
+    )
+
+_HAR = os.path.dirname(os.path.abspath(__file__))
+SRC = os.environ.get("AVDRAG_DESIGN") or _hitta(
+    "d2-kvittot-forst.html",
+    os.path.join(_HAR, "..", "designs"),                 # arbetsrepot
+    os.path.join(_HAR, "..", "..", "07-design-kallor"),  # leveransen
+)
+_LEVROT = os.environ.get("AVDRAG_LEVERANS") or _hitta(
+    "02-fluentsnippets",
+    os.path.join(_HAR, "..", ".."),                                       # leveransen
+    os.path.expanduser("~/Desktop/Ampy Avdragsblock — Leverans Chris"),   # arbetsrepot
+)
+OUT = os.path.join(_LEVROT, "02-fluentsnippets")
 markup = json.load(open(os.path.join(SRC, "_markup.json"), encoding="utf-8"))
 
 def byt_innehall(h, oppen_regex, nytt, antal=1):
@@ -92,7 +124,9 @@ DOC = '''<?php
  *                rad1="Elcentral + installation"]
  *
  *   [ampy_avdrag typ="gt-produkt" h2="Zaptec Pro med" accent="50 % Grön Teknik-avdrag"
- *                rad1="Zaptec Pro + installation" pris_fore="10 000:-" pris_efter="5 000:-"]
+ *                rad1="Zaptec~Pro + installation" pris_fore="ORDINARIE" pris_efter="SAJTPRIS"]
+ *     pris_fore och pris_efter är OBLIGATORISKA för gt-produkt: utan dem renderas
+ *     inget alls. Skriv aldrig [X] — ']' bryter WordPress shortcode-parser.
  *
  *   [ampy_avdrag typ="gt-generisk" h2="Laddbox i Täby med" accent="50 % Grön Teknik-avdrag"
  *                rad1="Laddbox + installation"]
@@ -156,6 +190,13 @@ add_shortcode( 'ampy_avdrag', function ( $atts ) {
     if ( $a['h2'] === '' || $a['accent'] === '' || $a['rad1'] === '' ) {
         return '';                                  // ofullständig konfiguration = rendera inget
     }
+    // Produktvarianten visar ETT PRIS. Saknas priserna får blocket inte falla
+    // tillbaka på något — ett påhittat belopp på en publik sida är värre än en
+    // tom yta. Skriv aldrig [X] som platshållare i attributet: WordPress
+    // shortcode-parser bryter på ']' och skickar då in ett halvt värde.
+    if ( $a['typ'] === 'gt-produkt' && ( $a['pris_fore'] === '' || $a['pris_efter'] === '' ) ) {
+        return '';
+    }
 
     wp_enqueue_style( 'ampy-avdrag' );
 
@@ -198,8 +239,8 @@ for klass in ["rot", "gt-produkt", "gt-generisk", "hemforsakring"]:
     h = re.sub(r'href="#"', 'href="<?php echo $cta_url; ?>"', h)
     h = h.replace('tel:+46102657979', 'tel:<?php echo $tel; ?>')
     if klass == "gt-produkt":
-        h = h.replace("10&nbsp;000:-", "<?php echo $pris_fore ?: '10&nbsp;000:-'; ?>")
-        h = h.replace("5&nbsp;000:-", "<?php echo $pris_efter ?: '5&nbsp;000:-'; ?>")
+        h = h.replace("10&nbsp;000:-", "<?php echo $pris_fore; ?>")
+        h = h.replace("5&nbsp;000:-", "<?php echo $pris_efter; ?>")
     h = "\n".join("            " + rad for rad in h.splitlines())
     cases.append(case_mall % (klass, h))
 

@@ -137,6 +137,13 @@ levererade filerna — de skrivs över vid nästa bygge.
 | 4 | `python3 handover/bygg-php-forhandsvisning.py` | `04-preview/fran-php/*.html` ur den riktiga utdatan |
 | 5 | `python3 handover/bygg-kontrollsida.py` | `04-preview/alla-fyra.html` (alla fyra på samma sida) |
 | 6 | `python3 handover/generera-mappning.py` | `blockmappning.csv` — redigera **aldrig** CSV:n för hand |
+| 7 | `python3 handover/kontrollera-radhanvisningar.py` | kontrollerar att varje `php rad N: \`facit\`` i dokumentationen pekar på rätt rad |
+
+Skripten löser sina sökvägar relativt sin **egen** plats och kräver ett kännetecken i
+katalogen (`d2-kvittot-forst.html` respektive `02-fluentsnippets`). Repokopian läser
+`designs/`, leveranskopian läser `07-design-kallor/`. `AVDRAG_DESIGN` och `AVDRAG_LEVERANS`
+övertrumfar. Att bara kolla att en katalog *finns* räckte inte — "två nivåer upp" träffar i
+repot en helt annan mapp som också existerar, och skripten skrev sin leverans dit.
 
 ### De tre grindarna (körs från `designs/`, alla måste vara gröna)
 
