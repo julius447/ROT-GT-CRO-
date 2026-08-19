@@ -120,3 +120,35 @@ Allt som inte finns i CSV:n ska sakna avdragsblock. Konkret gäller det dessa si
 3. Fyll i `h2_bas`, `h2_accent` och `kvitto_rad1` från raden. Övrigt innehåll är mall-fast.
 4. För GT_PRODUKT: fyll även pris före avdrag och sajtpris när grind 3–4 är stängda.
 5. Läs `kommentar` innan du publicerar sidan — där står allt som är sidspecifikt.
+
+---
+
+## 7. Byggkedjan (så återskapas leveransen)
+
+Leveransen i `~/Desktop/Ampy Avdragsblock — Leverans Chris/` är **genererad**, aldrig
+handskriven. Ändringar börjar alltid i designfilerna under `designs/`, aldrig i de
+levererade filerna — de skrivs över vid nästa bygge.
+
+| Steg | Kommando | Ger |
+|---|---|---|
+| 1 | `python3 handover/bygg-leverans.py` | `02-fluentsnippets/ampy-avdrag.css` (varje regel prefixad med sin variantklass) |
+| 2 | `python3 handover/bygg-php.py` | `02-fluentsnippets/ampy-avdrag.php` (shortcoden, kommentarsstrippad) |
+| 3 | `php handover/verifiera-php.php` | `/tmp/php-out-<typ>.html` + kontroll av wrapper, id, fält, felfall, kommentarsläckage |
+| 4 | `python3 handover/bygg-php-forhandsvisning.py` | `04-preview/fran-php/*.html` ur den riktiga utdatan |
+| 5 | `python3 handover/bygg-kontrollsida.py` | `04-preview/alla-fyra.html` (alla fyra på samma sida) |
+| 6 | `python3 handover/generera-mappning.py` | `blockmappning.csv` — redigera **aldrig** CSV:n för hand |
+
+### De tre grindarna (körs från `designs/`, alla måste vara gröna)
+
+```bash
+node _domparitet.mjs && node _phpparitet.mjs && node _leveransparitet.mjs
+```
+
+| Grind | Jämför | Förväntat |
+|---|---|---|
+| `_domparitet.mjs` | DOM-trädet nod för nod mot designfilen | 340 noder · 0 avvikelser |
+| `_phpparitet.mjs` | PHP-utdatans mått mot designen, 21 mått × 17 bredder × 4 varianter | 1 428 mätningar · 0 avvikelser |
+| `_leveransparitet.mjs` | levererad CSS mot designens egen, samma mått | 1 428 mätningar · 0 avvikelser |
+
+Mätgrindarna säger **att** något skiljer; DOM-grinden säger **vad**. Kör alla tre — de fångar
+olika saker. `_idunik.mjs` kontrollerar dessutom att fyra block på samma sida inte krockar.
