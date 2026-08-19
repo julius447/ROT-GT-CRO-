@@ -482,7 +482,10 @@ h2 .accent {
    inte ett belopp — frasformen i beloppsstorleken (26–32px/700) skrek som ett icke-tal.
    Den kliver ner till radrollens 17px/700 (= avdrags-chipets exakta roll) — INGEN ny
    storlek i panelsystemet (7b), plattan bär dominansen via ytan + caps-etiketten. */
-.r-total .amt.t-amt-fras { font-size: 17px; font-weight: 700; }
+/* ÄGARORDER 2026-08-19: värdet är inte längre en fras ("Priset på sidan") utan ett riktigt
+   BELOPP (5 000:-) — och beloppet ÄR blockets payoff. Frasnedstegen (17px) är därför
+   struken och talet får beloppsrollen ett snäpp större än familjens bas (20-24px). */
+.r-total .amt.t-amt-num { font-size: clamp(26px, 2.1vw, 32px); font-weight: 700; }
 /* Tom grind-slot (laddbox-defaultläget) lämnade en 0-höjdsrad + grid-gap = 6px död luft
    under värderaden — plattan blev bottentung (slutpanel typo P2-1). Batterivarianten
    (fylld slot) opåverkad; motorer utan :has får ofarlig fallback = dagens 6px. */
@@ -635,7 +638,7 @@ h2 .accent {
              överstyrningen sist i CSS:en) — frasen är inget belopp och ska inte skrika i
              beloppsstorleken. -->
         <span class="t-label">Ditt pris efter avdrag</span>
-        <span class="amt t-amt-fras">5&nbsp;000:-</span>
+        <span class="amt t-amt-num">5&nbsp;000:-</span>
         <!-- "redan" även här — det är HÄR misstaget görs (tror siffran är före avdrag).
              Noten är blockets grind: den bär "kan"-hedgen på själva avdragsutfallet (F4,
              skattereduktion inte bidrag) OCH absorberar 50/48,5-frågan (F1) genom att offerten,
