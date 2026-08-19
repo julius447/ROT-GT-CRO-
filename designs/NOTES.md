@@ -449,3 +449,14 @@ Gäller alla fyra: `d2-kvittot-forst.html` (bas) · `gt-produkt.html` · `gt-gen
 6. **Sekundärlänken under CTA:n:** `.tel` för telefonnummer, `.sec-link` för annan rutt — identisk stil, ärliga klassnamn.
 7. **Preview-etiketten:** "Blockfamiljen · <blocknamn>", avdelare `·` (aldrig em-dash i renderad UI), länk "← blockfamiljen" → `familj.html`.
 8. **Ordbudget (ägardirektiv):** ROT-blocket är referensen — stegparagrafer ≈ 1–2 korta meningar (grind 150 % av basens ordtal), panelnot ≈ 1 rad, finstilt ≤150 % av basens. Hemförsäkringens riskklass trimmas i ORD, aldrig i sanning.
+
+## Paritetsgrindarna (de tre som måste vara gröna före leverans)
+
+| Skript | Jämför | Fångar |
+|---|---|---|
+| `_leveransparitet.mjs` | levererad CSS mot designens egen, 21 mått × 17 bredder × 4 filer | att bygget av CSS:en ändrat rendering |
+| `_phpparitet.mjs` | PHP-utdata mot godkänd design, samma mått | att shortcoden renderar annorlunda än designen |
+| `_domparitet.mjs` | DOM-trädet nod för nod: taggar, klasser, attribut, textnoder | *vilken nod* som skiljer — skrevs efter av-lbl-buggen, som mätgrinden bara kunde säga "+31,5 px" om |
+
+Övriga `_*.mjs` är engångssonder från djupauditen. De är kvar som bevisspår för
+`handover/AUDIT-punchlista.md` — varje fynd där går att mäta om.

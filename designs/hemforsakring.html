@@ -4,99 +4,118 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Blockfamiljen · Hemförsäkring (eljour/felsökning/besiktning)</title>
-<style>
+<!-- BLOCKETS CSS — detta, och bara detta, går till WordPress -->
+<style id="ampy-avdrag-css">
+/* ============================================================================
+   NAMNRYMDEN .ampy-avdrag  (AUDIT steg 2: P0-2 · P0-3 · P0-4 · P0-6 · P1-15 · P2-6)
+   ----------------------------------------------------------------------------
+   INGA globala selektorer. Ingen html{}, ingen body{}, inget bart *, inget :root,
+   inget bart h2/a/:focus-visible. Allt hänger under wrappern .ampy-avdrag, och
+   varje klass bär av-prefix — blocket kan därför inte röra värdsidan, och
+   värdsidans klasser kan inte röra blocket.
+   Wrappern bär tokens (--av-*), width:100%, font-size:16px och font-weight:400,
+   så blocket renderar likadant oavsett vilken font-size/vikt temat sätter på body
+   (P1-15) och oavsett om CSS:en levereras i <body> (Bricks Code) eller i wp_head
+   (FluentSnippets) — klasselektorerna vinner på specificitet, inte på källordning.
+   ============================================================================ */
 /* ================= Ampy tokens (real) ================= */
 @font-face {
+  /* EGEN familj mot den URL som faktiskt svarar 200 (AUDIT P0-4). Den gamla
+     relativa sökvägen 404:ade på varje sida utom rot-nivån, och sajtens Outfit
+     finns bara som nio DISKRETA vikter -> 450/550 renderades som 500/600.
+     Egen familj (inte en omdefinition av "Outfit") = sajtens typografi orörd.
+     Filen är redan <link rel=preload>:ad site-wide: noll extra request. */
   font-display: swap;
-  font-family: "Outfit";
-  src: url("../assets/fonts/Outfit-VariableFont_wght.woff2") format("woff2-variations");
+  font-family: "AvdragOutfit";
+  src: url("https://ampy.se/wp-content/uploads/fonts/Outfit-VariableFont_wght.woff2") format("woff2");
   font-weight: 100 900;
+  font-style: normal;
 }
-:root {
-  --navy: #090b32;
-  --teal: #00a991;
+.ampy-avdrag {
+  --av-navy: #090b32;
+  --av-teal: #00a991;
   /* WCAG-historik: --teal-text (#009b85) bars tidigare av H2-accenten + avdragsraden.
      Ägarorder 2026-08-15 punkt 6: accenten är nu SVART (rubrikbläcket) — och avdragsraden
      bär tealen som YTA (teal-soft-chip med navy text) i st.f. textfärg. Tokenen hade då
      noll användare → pensionerad. #00a991 behålls för ytor + CTA-gradient. */
-  --heading-ink: #1e1e1e;  /* --apdarkest-black — rubrikkanon på ljus botten (slutspec 2026-08-15) */
-  --body-ink: #333333;     /* --apcharcoal-gray — brödtextens bläck (content-blockets bas) */
-  --teal-bright: #1cc4af;
-  --teal-soft: #e0f5f2;
-  --offwhite: #f5f9ff;
-  --ink: #0f123c;
-  --muted: #565e82;
-  --faint: #8a90ac;
-  --line: rgba(15, 18, 60, 0.10);
-  --line-strong: rgba(15, 18, 60, 0.16);
-  --subtle: #eaeff3;
-  --r-md: 14px;
-  --r-lg: 22px;
-  --r-xl: 32px;                       /* kanon: 3.2rem */
-  --shadow-1: 0 1px 2px rgba(15,18,60,.06), 0 1px 1px rgba(15,18,60,.04);
-  --shadow-2: 0 6px 16px -4px rgba(15,18,60,.10), 0 2px 6px rgba(15,18,60,.06);
-  --shadow-3: 0 24px 50px -10px rgba(15,18,60,.18), 0 8px 16px -6px rgba(15,18,60,.10);
+  --av-heading-ink: #1e1e1e;  /* --apdarkest-black — rubrikkanon på ljus botten (slutspec 2026-08-15) */
+  --av-body-ink: #333333;     /* --apcharcoal-gray — brödtextens bläck (content-blockets bas) */
+  --av-teal-soft: #e0f5f2;
+  --av-offwhite: #f5f9ff;
+  --av-ink: #0f123c;
+  --av-muted: #565e82;
+  --av-line: rgba(15, 18, 60, 0.10);
+  --av-line-strong: rgba(15, 18, 60, 0.16);
+  --av-r-md: 14px;
+  --av-r-lg: 22px;
+  --av-r-xl: 32px;                       /* kanon: 3.2rem */
+  --av-shadow-2: 0 6px 16px -4px rgba(15,18,60,.10), 0 2px 6px rgba(15,18,60,.06);
+  --av-shadow-3: 0 24px 50px -10px rgba(15,18,60,.18), 0 8px 16px -6px rgba(15,18,60,.10);
   /* fokusring: vit inre + navy yttre = synlig på BÅDE vitt och teal (≥3:1) */
-  --ring: 0 0 0 3px #fff, 0 0 0 6px var(--navy);
-  --fast: 140ms;
-  --normal: 280ms;
-  --ease: cubic-bezier(0.2, 0.6, 0.2, 1);
-  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --av-ring: 0 0 0 3px #fff, 0 0 0 6px var(--av-navy);
+  --av-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 
   /* fullbredds-rytm (ägardirektiv 2026-08-14: vitmarginalregeln pensionerad) */
-  --edge: 28px;                       /* liten kantpadding — blocket går nära skärmkant */
   /* clamp-ändpunkter kvantiserade till 8-bas (spacing P2-12) */
-  --pad-x: clamp(24px, 4.4vw, 80px);  /* kortets inre luft */
-  --pad-y: clamp(44px, 5.4vw, 100px); /* = pad-x-kurvan (slutpanel spacing P1-3): ramen var blockets
+  --av-pad-x: clamp(24px, 4.4cqi, 80px);  /* kortets inre luft */
+  --av-pad-y: clamp(44px, 5.4cqi, 100px); /* = pad-x-kurvan (slutpanel spacing P1-3): ramen var blockets
                                          tunnaste luft (51,8 mot 63,4px @1440) — pad-y följer pad-x;
                                          mobil orörd (≤900 sätter 28px explicit) */
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
-html { -webkit-text-size-adjust: 100%; }
-body {
-  font-family: "Outfit", system-ui, -apple-system, sans-serif;
-  background: var(--offwhite);
-  color: var(--ink);
+.ampy-avdrag, .ampy-avdrag *, .ampy-avdrag *::before, .ampy-avdrag *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* Typografibasen + wrappern. Låg förr på body{} och skrev då om HELA värdsidan
+   (AUDIT P0-2: 1 035 av 1 277 element). font-size/font-weight explicit = P1-15:
+   sajtens body säger 14,119px/300 @390, previewn 16px/400 — utan de här två raderna
+   renderar blocket inte det som pixelgodkändes. */
+.ampy-avdrag {
+  font-family: "AvdragOutfit", "Outfit", system-ui, -apple-system, sans-serif;
+  color: var(--av-ink);
   line-height: 1.5;
-  padding: 30px var(--edge) 80px;
+  font-size: 16px;
+  font-weight: 400;
+  width: 100%;
+  /* AUDIT P0-5: wrappern ar query-container for BLOCKETS EGEN padding. Blocket kan
+     inte vara sin egen container (uppmatt: cqi pa containern sjalv faller tyst
+     tillbaka pa viewporten), och det var precis den viewport-bindningen som gjorde
+     att vansterspalten KROMP nar skarmen vaxte: blocket cappas pa 1280px i Bricks
+     medan 4.4vw-paddingen fortsatte vaxa och at innehallet inifran. */
+  container-type: inline-size;
+  container-name: avdrag;
 }
-a { -webkit-tap-highlight-color: transparent; }
+.ampy-avdrag a { -webkit-tap-highlight-color: transparent; }
 /* transparent outline = indikatorn överlever forced-colors / Windows HCM */
-:focus-visible { outline: 2px solid transparent; outline-offset: 2px; box-shadow: var(--ring); }
-
-/* ================= Design label row ================= */
-.wf-label {
-  display: flex; justify-content: flex-start; align-items: baseline; gap: 18px; flex-wrap: wrap;
-  margin: 0 0 16px; padding: 0 4px;
-  font-size: 12.5px; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
-}
-/* liten text = aldrig teal (teal klarar bara stor/fet text på vitt) */
-.wf-label a {
-  color: var(--navy); text-decoration: none; font-weight: 600; letter-spacing: 0;
-  text-transform: none; font-size: 13.5px; display: inline-block; padding: 10px 8px; border-radius: 8px;
-}
-.wf-label a:hover { text-decoration: underline; }
+.ampy-avdrag :focus-visible { outline: 2px solid transparent; outline-offset: 2px; box-shadow: var(--av-ring); }
 
 /* ================= The block (full-bleed card) ================= */
-.block {
+.av-block {
   width: 100%; position: relative;
-  background: #fff; border: 1px solid var(--line);
-  border-radius: var(--r-xl); box-shadow: var(--shadow-3);
-  padding: var(--pad-y) var(--pad-x);
-  animation: fade 400ms var(--ease-out) both;
+  /* AUDIT P0-5: BLOCKET ar query-container for sin egen innerlayout. Rutnat, panel
+     och stapelbrytpunkt mats nu mot kortets bredd, aldrig mot viewportens -- det var
+     container-blindheten som gav vansterspalten 363px mot panelens 456px @1024. */
+  container-type: inline-size; container-name: rotblk;
+  background: #fff; border: 1px solid var(--av-line);
+  border-radius: var(--av-r-xl); box-shadow: var(--av-shadow-3);
+  padding: var(--av-pad-y) var(--av-pad-x);
+  animation: av-fade 400ms var(--av-ease-out) both;
 }
 /* enter: opacity only — en 1384px-platta ska aldrig glida in */
-@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
-.left  { animation: fade 400ms var(--ease-out)  60ms both; }
-.panel { animation: fade 400ms var(--ease-out) 120ms both; }
+@keyframes av-fade { from { opacity: 0; } to { opacity: 1; } }
+.av-left  { animation: av-fade 400ms var(--av-ease-out)  60ms both; }
+.av-panel { animation: av-fade 400ms var(--av-ease-out) 120ms both; }
 
-.grid {
+.av-grid {
   display: grid;
-  /* 37vw/600 → 34vw/548 (slutpanel design P1-2a, testrenderad): panelen tog 45 % av
-     innehållsbredden. 490px @1440; golvet 460 orört — kvittoradernas 400px-container-
-     tröskel håller i hela bandet (innehåll ≥401px, uppmätt). */
-  grid-template-columns: minmax(0, 1fr) clamp(466px, 33vw, 530px);
-  gap: clamp(48px, 5.5vw, 96px);
+  /* AUDIT P0-5 + P1-2 — cqi mot BLOCKET (rotblk), inte vw mot viewporten.
+     FORE (vw): panelen vaxte med skarmen medan kortet stod stilla pa 1280px i Bricks
+     -> vansterspalten 363px mot panelens 456px @1024 och 492 mot 530 @1920, dvs den
+     KROMP nar skarmen vaxte. EFTER (cqi): bada spalterna foljer kortets bredd.
+     Golvet 466 -> 480px: panelens innerbredd bottnade pa 401,83px @1413, bara 1,87px
+     fran container-query-troskeln 400px som faller kvittot till mobilrader mitt i
+     tvaspaltslaget (AUDIT P1-2). 480 ger >=414px i hela bandet.
+     37cqi/6.3cqi ar kalibrerade sa previewns bredaste godkanda lage (@1920: panel 530,
+     gap 96, vansterspalt 934) star pixelidentiskt kvar. */
+  grid-template-columns: minmax(0, 1fr) clamp(480px, 37cqi, 530px);
+  gap: clamp(48px, 6.3cqi, 96px);
   align-items: center;
 }
 
@@ -110,12 +129,15 @@ a { -webkit-tap-highlight-color: transparent; }
    inverterad). lh 1.2 MÅSTE sättas — Bricks-lagret vinner annars med 1.4.
    ls -0.01em = familjekonventionen (2 av 3 referenser).
    balance ersätter pretty → jämnare mobilbrytning (ägarorder 5). */
-h2 {
+.ampy-avdrag .av-h2 {
   font-size: clamp(26px, calc(1.04vw + 22.7px), 36px);
   font-weight: 450; line-height: 1.2; letter-spacing: -0.01em;
-  color: var(--heading-ink);
+  color: var(--av-heading-ink);
   max-width: 30ch; text-wrap: balance;
-  /* H2→steg ≥1.4× steg↔steg (64 mot 44 @1440) — hierarkisk kontrast (spacing P0-1, ux P1-2). */
+  /* H2→steg mot steg↔steg, UPPMÄTT 2026-08-19: 44 mot 44 @1440 = 1,0× · 40 mot 28 @390 = 1,43×.
+     Desktop har alltså INGEN hierarkisk kontrast här. Kommentaren påstod tidigare "≥1.4×
+     (64 mot 44)" — de 64 px har aldrig renderats. Avståndet självt är en öppen ägarfråga
+     (AUDIT P2-9): rättar man talet i koden flyttar man pixlar. */
   margin-bottom: clamp(30px, 3.1vw, 44px);
 }
 /* Accenten: SVART + ett snäpp boldare än basen (550 mot 450) + UNDERSTRYKNING.
@@ -125,173 +147,169 @@ h2 {
    linjen är OBRUTEN under underhängen (ägarorder 2026-08-17: skip-ink av — brytet
    vid g/j/y i "avdrag"/"självrisken" störde). */
 /* nowrap = DESKTOP only. ≤900 släpps den (se rag-fixen i mobilblocket, ägarorder 5). */
-h2 .accent {
-  color: var(--heading-ink); font-weight: 550; white-space: nowrap;
+.ampy-avdrag .av-h2 .av-accent {
+  color: var(--av-heading-ink); font-weight: 550; white-space: nowrap;
   text-decoration: underline; text-decoration-color: currentColor;
   text-decoration-thickness: 2px; text-underline-offset: 5px;
   text-decoration-skip-ink: none;   /* obruten linje, ägarorder 2026-08-17 */
 }
 
 /* liten rubrik över stegen (ägarorder 2026-08-17) — samma caps-skala som panelens
-   .p-cap så vänster och höger spalt talar samma typografiska språk */
-.steps-cap {
+   .av-p-cap så vänster och höger spalt talar samma typografiska språk */
+.av-steps-cap {
   font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
-  color: var(--muted); margin-bottom: 36px;   /* ägarorder: stegen en gnutta längre ner (desktop) */
+  color: var(--av-muted); margin-bottom: 36px;   /* ägarorder: stegen en gnutta längre ner (desktop) */
 }
-.steps { --sgap: clamp(32px, 3.1vw, 44px); list-style: none; display: flex; flex-direction: column; gap: var(--sgap); }
+.av-steps { --av-sgap: clamp(32px, 3.1vw, 44px); list-style: none; display: flex; flex-direction: column; gap: var(--av-sgap); }
 /* Optisk linjering (sprint 2026-08-15): cirkelns mitt = H3:ns första radmitt, EXAKT vid
-   varje viewport — --nmt räknas ur H3:ns verkliga radhöjd i st.f. ett gissat fast avdrag
+   varje viewport — --av-nmt räknas ur H3:ns verkliga radhöjd i st.f. ett gissat fast avdrag
    (gamla -8px stämde bara vid 1440; vid 1120 var felet ~2px). Linjens ändar följer med. */
-.step {
-  --h3fs: clamp(19px, calc(0.52vw + 17px), 23px);                /* H3 (ägarorder 2026-08-16: lite mindre; extra på mobil mot "blurrigt") — 19.6px @375 · 26px @1280; ersätter --aptext-lm 22.4→28 */
-  --nsz: 46px;                                                  /* cirkelns diameter */
+.av-step {
+  --av-h3fs: clamp(19px, calc(0.52vw + 17px), 23px);                /* H3 (ägarorder 2026-08-16: lite mindre; extra på mobil mot "blurrigt") — UPPMÄTT 19px @375 · 23px @1280 (clampen ligger på sina ändpunkter i båda hörnen); ersätter --aptext-lm 22.4→28 */
+  --av-nsz: 46px;                                                  /* cirkelns diameter */
   /* OPTISK justering (ägarorder 3). RUNDA 2, uppmätt i st.f. gissat: referensen är H3:ns
      VERSALBANDSMITT (baslinje − versalhöjd/2, mätt strängoberoende via canvas-metrics,
      _optic2.mjs), inte radboxens mitt. Radmittscentreringen låg bara 0,70px (@1440) /
      0,18px (@390) fel — riktningen var rätt, men 0.07em sänkte cirkeln 1,96px och
      ÖVERKOMPENSERADE: den hamnade 1,27/1,43px UNDER versalmitten, vilket är exakt det
      ägaren fortsatte se. 0.02em landar inom ±0,35px vid båda viewporterna.
-     Linjeändarna följer med automatiskt (räknas ur --nmt). */
-  --nopt: calc(var(--h3fs) * 0.02);
-  --nmt: calc((var(--h3fs) * 1.25 - var(--nsz)) / 2 + var(--nopt)); /* radmitt − cirkelmitt + optisk sänkning */
-  display: grid; grid-template-columns: var(--nsz) 1fr; column-gap: 20px; row-gap: 6px; position: relative;
+     Linjeändarna följer med automatiskt (räknas ur --av-nmt). */
+  --av-nopt: calc(var(--av-h3fs) * 0.02);
+  --av-nmt: calc((var(--av-h3fs) * 1.25 - var(--av-nsz)) / 2 + var(--av-nopt)); /* radmitt − cirkelmitt + optisk sänkning */
+  display: grid; grid-template-columns: var(--av-nsz) 1fr; column-gap: 20px; row-gap: 6px; position: relative;
 }
-/* ikonen: mjuk teal-fylld cirkel (lugnare än outline-ring), navy siffra — ingen ram */
-.step .n {
-  grid-row: 1 / span 2; align-self: start; margin-top: var(--nmt);
-  width: var(--nsz); height: var(--nsz); border-radius: 50%;
+/* ikonen: INGEN fylld platta (uppmätt background-color rgba(0,0,0,0) + background-image none
+   i alla fyra, alla bredder) — navy siffra + förloppsringen .av-mark ÄR hela grafiken, ingen ram.
+   Se VARIANT F-noten nedan, som beskriver det korrekt. */
+.av-step .av-n {
+  grid-row: 1 / span 2; align-self: start; margin-top: var(--av-nmt);
+  width: var(--av-nsz); height: var(--av-nsz); border-radius: 50%;
   /* VARIANT F (ägarval 2026-08-17) — förloppsringen: bågen fylls 1/3 → 2/3 → sluten,
      och ligger i SAMMA spår som connectorn, så märke och linje blir en idé. Ingen fylld
      platta längre; siffran står ensam i navy 500. */
-  background: none; color: var(--navy);
+  background: none; color: var(--av-navy);
   font-weight: 500; font-size: 17px; line-height: 1;
   display: grid; place-items: center; position: relative; z-index: 1;
   font-variant-numeric: tabular-nums;
 }
-.step .n .mark { position: absolute; inset: 0; width: 100%; height: 100%; }
-.step .n .mark .trk { stroke: rgba(0,169,145,.20); stroke-width: 1.5; }
-.step .n .mark .arc { stroke: var(--teal); stroke-width: 3; }
-.step .n .d { position: relative; z-index: 1; }
+.av-step .av-n .av-mark { position: absolute; inset: 0; width: 100%; height: 100%; }
+.av-step .av-n .av-mark .av-trk { stroke: rgba(0,169,145,.20); stroke-width: 1.5; }
+.av-step .av-n .av-mark .av-arc { stroke: var(--av-teal); stroke-width: 3; }
+.av-step .av-n .av-d { position: relative; z-index: 1; }
 /* H3 (ägarorder 2026-08-16): sänkt från --aptext-lm — "lite mindre + mindre bold".
    VIKT 450 = samma snäpp ner som H2 (450/450 speglar gamla 500/500 — storleken bär
    hierarkin, vikten är aldrig inverterad; 400-provet försvann mot 300-brödtexten).
    lh 1.25 [HÄRLEDD] mellan H2:ns 1.2 och brödtextens 1.5; explicit, annars vinner Bricks 1.4. */
-.step h3 { font-size: var(--h3fs); font-weight: 450; line-height: 1.25; letter-spacing: -0.01em; color: var(--heading-ink); }
+.av-step h3 { font-size: var(--av-h3fs); font-weight: 450; line-height: 1.25; letter-spacing: -0.01em; color: var(--av-heading-ink); }
 /* Paragrafstandard (slutspec): --aptext-m = clamp(16px, 0.21vw+15.3px, 18px), 300, lh 1.5,
    #333 — ersätter content-blockets 4-stegstrappa med ETT steg; = testimonials .att-sub exakt. */
-.step p { color: var(--body-ink); font-weight: 300; font-size: clamp(16px, calc(0.21vw + 15.3px), 18px); line-height: 1.5; margin-top: 4px; max-width: 65ch; }
+.av-step p { color: var(--av-body-ink); font-weight: 300; font-size: clamp(16px, calc(0.21vw + 15.3px), 18px); line-height: 1.5; margin-top: 4px; max-width: 58ch; }  /* AUDIT P1-17: 65ch resolvade till 768,69px = ~96 tecken/rad; 58ch = 685,9px */
 /* den ENDA streckade idén i blocket — exakt 4px andrum i båda ändar vid ALLA bredder,
-   når aldrig in under cirkeln (ändarna räknas ur --nmt/--nsz, inte hårdkodade) */
-.step:not(:last-child)::before {
-  content: ""; position: absolute; left: calc(var(--nsz) / 2 - 1px);
-  top: calc(var(--nmt) + var(--nsz) + 4px);
-  bottom: calc(-1 * (var(--sgap) + var(--nmt) - 4px));
+   når aldrig in under cirkeln (ändarna räknas ur --av-nmt/--av-nsz, inte hårdkodade) */
+.av-step:not(:last-child)::before {
+  content: ""; position: absolute; left: calc(var(--av-nsz) / 2 - 1px);
+  top: calc(var(--av-nmt) + var(--av-nsz) + 4px);
+  bottom: calc(-1 * (var(--av-sgap) + var(--av-nmt) - 4px));
   border-left: 2px solid rgba(0,169,145,.20);
 }
 
 /* ---------- Right: panelen (samma kortstil ägaren gillar, blixten borttagen per ägarorder) ---------- */
-.panel {
+.av-panel {
   /* symmetrisk vertikal padding, 8-bas-ändpunkter (spacing P2-7 + P2-12) */
-  --panel-pad-x: clamp(24px, 2.2vw, 32px);
+  --av-panel-pad-x: clamp(24px, 2.2vw, 32px);
   position: relative;
   container-type: inline-size;
-  background: #fff; border: 1px solid var(--line-strong); border-radius: var(--r-lg);
-  box-shadow: var(--shadow-2);
-  padding: clamp(30px, 2.9vw, 44px) var(--panel-pad-x);
+  background: #fff; border: 1px solid var(--av-line-strong); border-radius: var(--av-r-lg);
+  box-shadow: var(--av-shadow-2);
+  padding: clamp(30px, 2.9vw, 44px) var(--av-panel-pad-x);
   display: flex; flex-direction: column;
 }
 
 /* ===== Panelens typografiska SYSTEM (ägarorder 7b) — EN skala, desktop OCH mobil =====
-   caps   13px/700 versal  → .p-cap, .r-total .t-label (+ mobilradernas etiketter)
-   rad    17px             → .lbl 400 · .amt 600 · avdrags-chipen 700
+   caps   13px/700 versal  → .av-p-cap, .av-r-total .av-t-label (+ mobilradernas etiketter)
+   rad    17px             → .av-lbl 400 · .av-amt 600 · avdrags-chipen 700
    pill   14.5px/600       → offert-pillen — pill i BÅDA lägena, aldrig avklädd
-   not    13.5px/400/1.5   → .t-note och .fine (samma stil, EN notroll)
+   not    13.5px/400/1.5   → .av-t-note och .av-fine (samma stil, EN notroll)
    total  clamp(20,1.6vw,24)/700 → plattan är panelens ENDA dominant — störst i systemet,
                                     men under H2:ns 36px (dominerar inom, inte utanför;
                                     sänkt från 26-32 per ägarorder 2026-08-16: "för stort") */
 /* rubriken är ACF-mallbar: "Så räknas ROT" / "Så räknas Grön Teknik" */
-.p-cap {
-  font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--navy);
-  padding-bottom: 16px; border-bottom: 1px solid var(--line);
+.av-p-cap {
+  font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--av-navy);
+  padding-bottom: 16px; border-bottom: 1px solid var(--av-line);
 }
 
 /* kvittots vertikala rytm på 4/8-bas (spacing P1-5) */
-.r-row {
+.av-r-row {
   display: flex; align-items: center; gap: 12px; flex-wrap: wrap; row-gap: 6px;
   padding: 16px 0; font-size: 17px;
 }
-.r-row + .r-row { border-top: 1px solid var(--line); }
-.r-row .lbl { font-weight: 400; color: var(--ink); flex: 0 1 auto; min-width: 0; }
-.r-row .dots { flex: 1 1 28px; align-self: center; border-bottom: 2px dotted rgba(15,18,60,.16); min-width: 28px; }
-.r-row .amt { font-weight: 600; white-space: nowrap; flex: none; margin-left: auto; font-variant-numeric: tabular-nums; }
-.offert-pill {
-  display: inline-block; background: var(--offwhite);
-  border: 1px solid var(--line-strong); border-radius: 999px;
-  padding: 4px 15px; font-weight: 600; font-size: 14.5px; color: var(--navy); letter-spacing: .01em;
+.av-r-row + .av-r-row { border-top: 1px solid var(--av-line); }
+.av-r-row .av-lbl { font-weight: 400; color: var(--av-ink); flex: 0 1 auto; min-width: 0; }
+.av-r-row .av-dots { flex: 1 1 28px; align-self: center; border-bottom: 2px dotted rgba(15,18,60,.16); min-width: 28px; }
+.av-r-row .av-amt { font-weight: 600; white-space: nowrap; flex: none; margin-left: auto; font-variant-numeric: tabular-nums; }
+/* HARDNING (AUDIT, den nedgraderade A11Y-posten): .av-lbl:s slot-spann och .av-amt
+   hade ingen EGEN farg utan arvde radens. Arv forlorar mot VARJE deklaration pa
+   elementet — en temaregel av typen .brxe-container span{color:#333} (0,1,1) hade
+   darfor kapat blacket. `inherit` ar en riktig deklaration pa 0,2,0 / 0,3,0 och ger
+   EXAKT dagens vardet i bada panellagena (grinden: 0 avvikelser, skarmdumpar
+   bit-identiska). Offert-pillen undantas — den bar en egen farg som inte far
+   skrivas over, och avdrags-chipets 0,3,0-regel star kvar oberord. */
+.av-r-row .av-lbl span { color: inherit; }
+.av-r-row .av-amt { color: inherit; }
+.av-r-row .av-amt span:not(.av-offert-pill) { color: inherit; }
+.av-offert-pill {
+  display: inline-block; background: var(--av-offwhite);
+  border: 1px solid var(--av-line-strong); border-radius: 999px;
+  padding: 4px 15px; font-weight: 600; font-size: 14.5px; color: var(--av-navy); letter-spacing: .01em;
 }
 /* avdragsraden: tealen som YTA i st.f. textfärg (chip-mönstret) — navy 700 på teal-soft
    klarar kontrast i alla storlekar, och raden håller radrollens 17px i st.f. gamla 20px
    teal (panelens fjärde storlek — "AI-design"-fyndet, ägarorder 7b). Chipen speglar
    offert-pillens form → rad 1 och rad 2 talar samma pill-språk. */
-.r-row.deduct .amt {
-  color: var(--navy); font-size: 17px; font-weight: 700;
-  background: var(--teal-soft); border-radius: 999px; padding: 4px 15px;
+/* FAMILJEARV · 0 träffar i HF (uppmätt querySelectorAll 2026-08-19) — behålls, se AUDIT P2-3:
+   regeln är familjebas (live i d2/gtp/gtg) och går in i den delade CSS:en i steg 5. */
+.av-r-row.av-deduct .av-amt {
+  color: var(--av-navy); font-size: 17px; font-weight: 700;
+  background: var(--av-teal-soft); border-radius: 999px; padding: 4px 15px;
   width: fit-content;
 }
 
 /* totalen — kvittots terminala beat: en egen platta, inte ännu en regel */
-.r-total {
-  margin: 16px calc(-1 * var(--panel-pad-x)) 0;
-  padding: 20px var(--panel-pad-x);  /* EN plattluft i båda lägena (7b) — gamla 24/16 desktop/mobil var två system */
-  background: rgba(0,169,145,.055); border-radius: var(--r-md);
+.av-r-total {
+  margin: 16px calc(-1 * var(--av-panel-pad-x)) 0;
+  padding: 20px var(--av-panel-pad-x);  /* EN plattluft i båda lägena (7b) — gamla 24/16 desktop/mobil var två system */
+  background: rgba(0,169,145,.055); border-radius: var(--av-r-md);
   display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 6px 14px;
 }
-/* caps-stilen = exakt .p-cap (ETT caps-system i panelen); vikt max 700 — 800 är off-canon (typo P1-2) */
-.r-total .t-label { font-weight: 700; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--navy); }
+/* caps-stilen = exakt .av-p-cap (ETT caps-system i panelen); vikt max 700 — 800 är off-canon (typo P1-2) */
+.av-r-total .av-t-label { font-weight: 700; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--av-navy); }
 /* ägarorder 2026-08-16: totalbeloppet MINDRE (32px max var för stort) — clamp 20→24px.
    Fortfarande panelens dominant (radrollen är 17px + vikt 700 håller hierarkin). */
-.r-total .amt {
+.av-r-total .av-amt {
   font-weight: 700; font-size: clamp(20px, 1.6vw, 24px); letter-spacing: -0.012em; line-height: 1.1;
-  color: var(--navy); white-space: nowrap; font-variant-numeric: tabular-nums;
+  color: var(--av-navy); white-space: nowrap; font-variant-numeric: tabular-nums;
 }
 /* undantaget står DÄR misstaget görs — inte tre rader ned i finstilten */
-.r-total .t-note {
+/* FAMILJEARV · 0 träffar i HF (uppmätt querySelectorAll 2026-08-19) — behålls, se AUDIT P2-3:
+   regeln är familjebas (live i d2/gtp/gtg) och går in i den delade CSS:en i steg 5. */
+.av-r-total .av-t-note {
   grid-column: 1 / -1;
-  font-size: 13.5px; font-weight: 400; color: var(--muted); line-height: 1.5; text-wrap: pretty;  /* = .fine — EN notroll (7b) */
+  font-size: 13.5px; font-weight: 400; color: var(--av-muted); line-height: 1.5; text-wrap: pretty;
+  max-width: 62ch;   /* AUDIT P1-17: samma tak som .av-fine — EN notroll, EN radlangd */  /* = .av-fine — EN notroll (7b) */
 }
 
 /* villkorstexten: UNDER raderna, FÖRE CTA:n (ägarorder d) */
-.fine {
-  font-size: 13.5px; color: var(--muted); font-weight: 400; line-height: 1.5;
+.av-fine {
+  font-size: 13.5px; color: var(--av-muted); font-weight: 400; line-height: 1.5;
   /* 12→20 (slutpanel design P2-4): t-note + fine är SAMMA notroll i två grannytor —
      mer separation platta→fine ger dem varsin andning utan ny typroll */
   margin-top: 20px; text-wrap: pretty; font-variant-numeric: tabular-nums;
+  max-width: 62ch;   /* AUDIT P1-17: saknade tak helt — spande 650px (~112 tecken/rad) i staplat lage */
 }
 
-/* ================= CTA — sajtens .hero_2__secondary-button, ring-CTA:n (ground truth) ================= */
-/* ÄGARORDER 2026-08-16: HF-blocket bär sajtens LJUSBLÅ ring-CTA med telefonikon (tel-intent) —
-   INTE familjens gröna offert-gradient (fel variant). Medveten basavvikelse, ägargodkänd.
-   Alla värden extraherade ur live-fångsten (css/post-15498.css, .brxe-cbdhet = knappen
-   "Ring 010-265 79 79" i elcentral-heron): gradient 120deg #b6f2ff→#5eb1bf, 16px/500,
-   min-height 58 (= samma storlek som förra CTA:n), radie 16, gap 14, padding 11px 30px 11px 12px
-   (ikonen VÄNSTER i vit cirkel 36px, ampyRing-puls 2.8s). Ikonens inline-SVG = sajtens
-   telefon+signalvågor (viewBox 0 0 19 20), stroke via currentColor. */
-/* EN spacing-källa per avstånd (spacing P1-3): fine→divider 32 (padding-top),
-/* SLACK-FLYTTEN (slutpanel spacing P1-2, fixprov SPX-fix3): panelens flex-slack (upp till
-   87px @1120) dumpades i EN söm mellan finstilt och avdelare och lästes som saknat innehåll.
-   flex:1 0 auto + .cta{margin-top:auto} flyttar slacken IN i CTA-zonen: avdelaren stänger
-   kvittot 32px under finstilten, luften läses som CTA-luft. Vid slack 0 = pixelidentiskt
-   (avdelare→CTA förblir 24px). */
-/* telefonikonen i vit cirkel — sajtens exakta mått (36px, asymmetrisk padding = optisk centrering) */
-@keyframes ampyRing {
-  0%   { box-shadow: 0 1px 3px rgba(9,11,50,.14), 0 0 0 0 rgba(255,255,255,.65); }
-  55%  { box-shadow: 0 1px 3px rgba(9,11,50,.14), 0 0 0 9px transparent; }
-  100% { box-shadow: 0 1px 3px rgba(9,11,50,.14), 0 0 0 0 transparent; }
-}
-
-/* tryckyta ≥44px via min-height (osynlig — utseendet förblir ren text). spacing P0-2 / typo P1-3 / ux P0-1 */
-/* telefonnummer bryts ALDRIG (slutpanel mobil P1-2): .nb skyddar numret var det än renderas */
-.nb { white-space: nowrap; }
+/* telefonnummer bryts ALDRIG (slutpanel mobil P1-2): .av-nb skyddar numret var det än renderas */
+.av-nb { white-space: nowrap; }
 
 /* ================= Kvittoraderna byter struktur på PANELENS bredd, aldrig viewportens.
    Smal panel → etikett över, värde under (totalplattans struktur som förlaga) — men
@@ -302,59 +320,40 @@ h2 .accent {
    blå bakgrunden (uppmätt i live-CSS: .brxe-kgrvqy top/left 65% · .brxe-tzjghm top/left 45%
    · .brxe-axrfcd bottom/right 50%). Endast tonerna är översatta till ljust, med samma
    inbördes ordning som heron: bas ljusast → #eef4fc → #e6eff9 (mörkast) → #eef4fc. */
-.block--wave { overflow: hidden; }
-.block--wave > svg[class^="hero-w"] { position: absolute; height: auto; pointer-events: none; }
+.av-block--wave { overflow: hidden; }
+.av-block--wave > svg.av-wave { position: absolute; height: auto; pointer-events: none; }
 /* w1/w2 är topp-ankrade: deras UNDERkant slutar inne i kortet (w1 66px ovanför botten
    @1440) och blir en hård linje. Masken tonar ut formens nedre fjärdedel så avslutet
    upplöses i stället för att kapas — hero:ns 65/45 % behålls exakt. */
-.block--wave .hero-w1, .block--wave .hero-w2 {
+.av-block--wave .av-hero-w1, .av-block--wave .av-hero-w2 {
   -webkit-mask-image: linear-gradient(to bottom, #000 58%, rgba(0,0,0,.55) 82%, transparent 100%);
           mask-image: linear-gradient(to bottom, #000 58%, rgba(0,0,0,.55) 82%, transparent 100%);
 }
-.block--wave .hero-w1 { top: 0; left: 0; max-width: 65%; z-index: 0; }
-.block--wave .hero-w2 { top: 0; left: 0; max-width: 45%; z-index: 1; }
-.block--wave .hero-w3 { bottom: 0; right: 0; max-width: 50%; z-index: 1; }
-.block--wave > .grid { position: relative; z-index: 2; }
+.av-block--wave .av-hero-w1 { top: 0; left: 0; max-width: 65%; z-index: 0; }
+.av-block--wave .av-hero-w2 { top: 0; left: 0; max-width: 45%; z-index: 1; }
+.av-block--wave .av-hero-w3 { bottom: 0; right: 0; max-width: 50%; z-index: 1; }
+.av-block--wave > .av-grid { position: relative; z-index: 2; }
 
 /* ================= TEST (ägare 2026-08-16): mörk hero-panel — ENDAST ROT-blocket =================
    Exakt hero-recept: bg rgb(27,29,75) (= --color-18, hsl(237 47% 20%)) + de tre organiska
    blob-SVG:erna ur heron (#0B0D2A / #010328) i samma positioner (topp-vänster 65 % / 45 %,
    botten-höger 50 %). Ljus text ovanpå; kvittots pillar behålls ljusa som kontrastpop. */
-.panel--dark { background: rgb(27,29,75); border-color: transparent; overflow: hidden; }
-.panel--dark > svg[class^="blob"] { position: absolute; z-index: 0; height: auto; }
-.panel--dark .blob-a { top: 0; left: 0; max-width: 65%; }
-.panel--dark .blob-b { top: 0; left: 0; max-width: 45%; z-index: 1; }
-.panel--dark .blob-c { bottom: 0; right: 0; max-width: 50%; z-index: 1; }
-.panel--dark > :not(svg) { position: relative; z-index: 2; }
-.panel--dark .p-cap { color: #fff; border-bottom-color: rgba(255,255,255,.18); }
-.panel--dark .r-row { color: rgba(255,255,255,.94); }
-.panel--dark .r-row .lbl { color: rgba(255,255,255,.94); }
-.panel--dark .r-row + .r-row { border-top-color: rgba(255,255,255,.14); }
-.panel--dark .dots { border-bottom-color: rgba(255,255,255,.30); }
-.panel--dark .r-total { background: rgba(255,255,255,.08); }
-.panel--dark .r-total .t-label { color: #fff; }
-.panel--dark .r-total .amt { color: #fff; }
-.panel--dark .r-total .t-note { color: rgba(255,255,255,.78); }
-.panel--dark .fine { color: rgba(255,255,255,.70); border-top-color: rgba(255,255,255,.14); }
-
-/* ================= VÅGOR = hero_2:s bakgrund, IDENTISKT (ägarorder 2026-08-17) ==========
-   Exakt samma tre former, positioner och procent som .hero_2__container använder på den
-   blå bakgrunden (uppmätt i live-CSS: .brxe-kgrvqy top/left 65% · .brxe-tzjghm top/left 45%
-   · .brxe-axrfcd bottom/right 50%). Endast tonerna är översatta till ljust, med samma
-   inbördes ordning som heron: bas ljusast → #eef4fc → #e6eff9 (mörkast) → #eef4fc. */
-.block--wave { overflow: hidden; }
-.block--wave > svg[class^="hero-w"] { position: absolute; height: auto; pointer-events: none; }
-/* w1/w2 är topp-ankrade: deras UNDERkant slutar inne i kortet (w1 66px ovanför botten
-   @1440) och blir en hård linje. Masken tonar ut formens nedre fjärdedel så avslutet
-   upplöses i stället för att kapas — hero:ns 65/45 % behålls exakt. */
-.block--wave .hero-w1, .block--wave .hero-w2 {
-  -webkit-mask-image: linear-gradient(to bottom, #000 58%, rgba(0,0,0,.55) 82%, transparent 100%);
-          mask-image: linear-gradient(to bottom, #000 58%, rgba(0,0,0,.55) 82%, transparent 100%);
-}
-.block--wave .hero-w1 { top: 0; left: 0; max-width: 65%; z-index: 0; }
-.block--wave .hero-w2 { top: 0; left: 0; max-width: 45%; z-index: 1; }
-.block--wave .hero-w3 { bottom: 0; right: 0; max-width: 50%; z-index: 1; }
-.block--wave > .grid { position: relative; z-index: 2; }
+.av-panel--dark { background: rgb(27,29,75); border-color: transparent; overflow: hidden; }
+.av-panel--dark > svg.av-blob { position: absolute; z-index: 0; height: auto; }
+.av-panel--dark .av-blob-a { top: 0; left: 0; max-width: 65%; }
+.av-panel--dark .av-blob-b { top: 0; left: 0; max-width: 45%; z-index: 1; }
+.av-panel--dark .av-blob-c { bottom: 0; right: 0; max-width: 50%; z-index: 1; }
+.av-panel--dark > :not(svg) { position: relative; z-index: 2; }
+.av-panel--dark .av-p-cap { color: #fff; border-bottom-color: rgba(255,255,255,.18); }
+.av-panel--dark .av-r-row { color: rgba(255,255,255,.94); }
+.av-panel--dark .av-r-row .av-lbl { color: rgba(255,255,255,.94); }
+.av-panel--dark .av-r-row + .av-r-row { border-top-color: rgba(255,255,255,.14); }
+.av-panel--dark .av-dots { border-bottom-color: rgba(255,255,255,.30); }
+.av-panel--dark .av-r-total { background: rgba(255,255,255,.08); }
+.av-panel--dark .av-r-total .av-t-label { color: #fff; }
+.av-panel--dark .av-r-total .av-amt { color: #fff; }
+.av-panel--dark .av-r-total .av-t-note { color: rgba(255,255,255,.78); }   /* FAMILJEARV · 0 träffar i HF (AUDIT P2-3) */
+.av-panel--dark .av-fine { color: rgba(255,255,255,.70); }   /* border-top-color struken (AUDIT P2-4): .av-fine har border-top-style:none / width 0px — deklarationen målade aldrig något */
 
 /* ================= CTA — sajtens .hero_2__secondary-button, ring-CTA:n (ground truth) ================= */
 /* ÄGARORDER 2026-08-16: HF-blocket bär sajtens LJUSBLÅ ring-CTA med telefonikon (tel-intent) —
@@ -365,16 +364,17 @@ h2 .accent {
    (ikonen VÄNSTER i vit cirkel 36px, ampyRing-puls 2.8s). Ikonens inline-SVG = sajtens
    telefon+signalvågor (viewBox 0 0 19 20), stroke via currentColor. */
 /* EN spacing-källa per avstånd (spacing P1-3): fine→divider 32 (padding-top),
-   divider→CTA 24 (::before margin), CTA→tel 16 (.tel margin) — linjen fäster vid CTA-zonen */
+   divider→CTA 24 (::before margin) — linjen fäster vid CTA-zonen. (Klausulen "CTA→tel 16
+   (.tel margin)" struken: .tel/.sec-link finns i 0 av 4 block.) */
 /* SLACK-FLYTTEN (slutpanel spacing P1-2, fixprov SPX-fix3): panelens flex-slack (upp till
    87px @1120) dumpades i EN söm mellan finstilt och avdelare och lästes som saknat innehåll.
-   flex:1 0 auto + .cta{margin-top:auto} flyttar slacken IN i CTA-zonen: avdelaren stänger
+   flex:1 0 auto + .av-cta{margin-top:auto} flyttar slacken IN i CTA-zonen: avdelaren stänger
    kvittot 32px under finstilten, luften läses som CTA-luft. Vid slack 0 = pixelidentiskt
    (avdelare→CTA förblir 24px). */
-.cta-wrap { margin-top: 0; padding-top: 32px; flex: 1 0 auto; display: flex; flex-direction: column; align-items: center; gap: 0; }
-.cta-wrap::before { content: ""; display: block; align-self: stretch; height: 1px; background: rgba(255,255,255,.16); margin-bottom: 24px; }
-.cta { margin-top: auto; }
-.cta {
+.av-cta-wrap { margin-top: 0; padding-top: 32px; flex: 1 0 auto; display: flex; flex-direction: column; align-items: center; gap: 0; }
+.av-cta-wrap::before { content: ""; display: block; align-self: stretch; height: 1px; background: rgba(255,255,255,.16); margin-bottom: 24px; }
+.av-cta {
+  margin-top: auto;
   display: inline-flex; align-items: center; justify-content: center; gap: 14px;
   min-height: 58px; padding: 11px 30px 11px 12px; border-radius: 16px;
   font-size: 16px; font-weight: 500; line-height: 1; white-space: nowrap;
@@ -384,101 +384,136 @@ h2 .accent {
   transition: transform .16s ease, box-shadow .16s ease, filter .16s ease;
 }
 /* telefonikonen i vit cirkel — sajtens exakta mått (36px, asymmetrisk padding = optisk centrering) */
-.cta .cta-ring {
+/* AUDIT P1-9 — PULSEN AR FLYTTAD FRAN box-shadow TILL transform+opacity.
+   UPPMATT FORE (CDP Performance, 3 s stillastaende fonster): hemforsakring
+   RecalcStyleCount 183 · TaskDuration 122,7 ms · RecalcStyleDuration 17,9 ms, mot
+   0 / 0,4-2,9 ms i de tre andra. box-shadow ar en MALAD egenskap: varje bildruta
+   kostade omrakning + ommalning pa huvudtraden, i evighet, aven utanfor skarmen,
+   pa 278 sidor.
+   Geometrin oversatt: den gamla ringen var en spread som vaxte 0 -> 9px runt en
+   36px-cirkel. Skivan nedan ar 36px och skalas 1 -> 1,5, dvs 18 -> 27px radie =
+   exakt samma 9px utat. Alfat foljer samma kurva. Den ligger BAKOM ikonen (z-index),
+   sa det synliga ar annulusen mellan 36 och 54px — samma yta som spreaden malade.
+   Vilo-skuggan (0 1px 3px) lag FORR inne i varje keyframe och forsvann darfor helt
+   nar reducerad rorelse slackte animationen (uppmatt: box-shadow none). Den star nu
+   statiskt pa cirkeln, vilket ar vad filens egen kommentar redan pastod. */
+.av-cta .av-cta-ringwrap { position: relative; display: inline-flex; flex: none; }
+.av-cta .av-cta-ring {
   flex: none; width: 36px; height: 36px; padding: 10.5px 10.5px 8.5px 8.5px; box-sizing: border-box;
   background: rgba(255,255,255,.92); border-radius: 50%;
   color: hsl(237 35% 24%); overflow: visible;
-  animation: ampyRing 2.8s cubic-bezier(.4,0,.4,1) infinite;
+  box-shadow: 0 1px 3px rgba(9,11,50,.14);
+  position: relative; z-index: 1;
 }
-@keyframes ampyRing {
-  0%   { box-shadow: 0 1px 3px rgba(9,11,50,.14), 0 0 0 0 rgba(255,255,255,.65); }
-  55%  { box-shadow: 0 1px 3px rgba(9,11,50,.14), 0 0 0 9px transparent; }
-  100% { box-shadow: 0 1px 3px rgba(9,11,50,.14), 0 0 0 0 transparent; }
+.av-cta .av-cta-ringwrap::after {
+  content: ""; position: absolute; inset: 0; z-index: 0;
+  border-radius: 50%; background: rgba(255,255,255,.65);
+  pointer-events: none;
+  /* BASVARDET ar opacity 0, inte 1. Det ar det som galler nar animationen
+     CANCELLERAS — i reducerad rorelse och i den pausade rendering som
+     skarmdumpsgrinden fangar. Skivan kan alltsa aldrig ligga still bakom ikonen. */
+  opacity: 0;
+  animation: av-ring 2.8s cubic-bezier(.4,0,.4,1) infinite;
 }
-.cta:hover {
+@keyframes av-ring {
+  /* EXAKT den gamla keyframe-strukturen: 0 / 55 / 100 %, en enda bezier-intervall
+     0-55 %. (Ett extra insatt steg vid 2 % delade intervallet i tva och gav en
+     annan tidkurva — uppmatt max 36 nivaers avvikelse mitt i pulsen; struket.)
+     Oversattningen: spread 0 -> 9px runt en 36px-cirkel = skala 1 -> 1,5 runt
+     samma cirkel (18 -> 27px radie). Alfat foljer samma kurva via opacity. */
+  0%   { transform: scale(1);   opacity: 1; }
+  55%  { transform: scale(1.5); opacity: 0; }
+  100% { transform: scale(1);   opacity: 0; }
+}
+.av-cta:hover {
   transform: translateY(-1.5px);
   filter: saturate(1.08) brightness(1.02);
   box-shadow: inset 0 1px 0 rgba(255,255,255,.55), 0 3px 6px rgba(9,11,50,.07), 0 16px 34px -8px rgba(94,177,191,.65);
 }
-.cta:active { transform: translateY(0); filter: saturate(1.05); }
-.cta:focus-visible {
-  outline: 3px solid #090b32; outline-offset: 3px;
+.av-cta:active { transform: translateY(0); filter: saturate(1.05); }
+.av-cta:focus-visible {
+  /* AUDIT P1-4: var #090b32 (navy) pa den morka panelen — osynlig indikator, och
+     enda avvikaren i familjen (de tre andra bar #fff). WCAG 2.4.11. */
+  outline: 3px solid #fff; outline-offset: 3px;
   box-shadow: inset 0 1px 0 rgba(255,255,255,.55), 0 2px 4px rgba(9,11,50,.06), 0 10px 26px -6px rgba(94,177,191,.55);
 }
 
-
-
-
 @container (max-width: 400px) {
-  .r-row { display: grid; gap: 6px; padding: 16px 0; }
-  .r-row .dots { display: none; }
-  /* caps-rollen (13/700) i muted — samma skalsteg som .p-cap/.t-label; spärren .09em
+  .av-r-row { display: grid; gap: 6px; padding: 16px 0; }
+  .av-r-row .av-dots { display: none; }
+  /* caps-rollen (13/700) i muted — samma skalsteg som .av-p-cap/.av-t-label; spärren .09em
      (inte .12) så de långa radetiketterna inte tvingas bryta i den smala panelen */
-  .r-row .lbl {
+  .av-r-row .av-lbl {
     font-size: 13px; font-weight: 700; letter-spacing: .09em;
-    text-transform: uppercase; color: var(--muted);
+    text-transform: uppercase; color: var(--av-muted);
   }
-  .r-row .amt { margin-left: 0; white-space: normal; }
-  .r-total { grid-template-columns: 1fr; gap: 4px; }
+  .av-r-row .av-amt { margin-left: 0; white-space: normal; }
+  .av-r-total { grid-template-columns: 1fr; gap: 4px; }
 }
 /* Fallback för Safari ≤15.x utan container-queries (mobil P2-3): spegla det staplade
    radläget på viewport-bredd så "ord på ord"-defekten aldrig återuppstår */
 @supports not (container-type: inline-size) {
+  /* ===== LEGACY-FALLBACK (Safari <=15.x och allt annat utan container queries) =====
+     UTAN det har blocket: cqi ar en okand enhet -> clamp() blir ogiltig -> --av-pad-x/y
+     blir "invalid at computed-value time" -> blockets padding faller till 0, och
+     container-at-reglerna slukas i sin helhet sa rutnatet aldrig staplar.
+     UPPMATT i en trogen simulering (cqi -> okand enhet + container-at-reglerna borttagna,
+     scratchpad/safari15/): padL 0 px pa ALLA bredder, en enda spalt, och horisontell
+     overflow pa 320/390/768/1000. Exakt samma klass av tyst fella som --av-edge i steg 2.
+     Grenen ar DOD kod i varje motor som stoder container queries (CSS.supports = true,
+     uppmatt i Chromium OCH WebKit) -> noll renderingskostnad, bevisat av paritetsgrinden. */
+  .ampy-avdrag { --av-pad-x: clamp(24px, 4.4vw, 80px); --av-pad-y: clamp(44px, 5.4vw, 100px); }
+  .av-grid { grid-template-columns: minmax(0, 1fr) clamp(480px, 33vw, 530px); gap: clamp(48px, 5.5vw, 96px); }
+  @media (min-width: 1700px) { .av-grid { max-width: 1560px; margin-inline: auto; } }
+  /* 1210px = den viewport dar blockets INNERbredd passerar 1024px i bade preview- och
+     produktionsharnesset; basta enskilda viewport-approximation av container-troskeln. */
+  @media (max-width: 1210px) {
+    .av-grid { grid-template-columns: 1fr; gap: 56px; max-width: 700px; margin-inline: auto; }
+    .ampy-avdrag .av-h2 { max-width: 26ch; }
+  }
   @media (max-width: 480px) {
-  .cta { width: 100%; padding: 11px 16px; gap: 10px; }
-    .r-row { display: grid; gap: 6px; padding: 16px 0; }
-    .r-row .dots { display: none; }
-    .r-row .lbl {
+    .av-r-row { display: grid; gap: 6px; padding: 16px 0; }
+    .av-r-row .av-dots { display: none; }
+    .av-r-row .av-lbl {
       font-size: 13px; font-weight: 700; letter-spacing: .09em;
-      text-transform: uppercase; color: var(--muted);
+      text-transform: uppercase; color: var(--av-muted);
     }
-    .r-row .amt { margin-left: 0; white-space: normal; }
-    .r-total { grid-template-columns: 1fr; gap: 4px; }
+    .av-r-row .av-amt { margin-left: 0; white-space: normal; }
+    .av-r-total { grid-template-columns: 1fr; gap: 4px; }
   }
 }
 
 /* ========== Widescreen ≥1700: innerlayouten cappas (slutpanel desktop P1-3) — kortet
    förblir fullbrett (vitmarginalregeln pensionerad, ägardirektiv 2026-08-14, ORÖRT); bara
    grid-innehållet slutar driva isär (@1920 var spåret textkant→panel ~360px dött, uppmätt). ========== */
-@media (min-width: 1700px) {
-  .grid { max-width: 1560px; margin-inline: auto; }
+@container rotblk (min-width: 1497px) {
+  .av-grid { max-width: 1560px; margin-inline: auto; }
 }
 
-/* ========== Mellanläge: tvåspalt kvar, panelen kompakteras ========== */
-@media (max-width: 1120px) {
-  /* clamp-min 430→456 (slutpanel design P1-3): @1024 gav 430px panel 382px innehåll < 400
-     → kvittot kollapsade till staplade rader INUTI tvåspaltsläget (1001-1078px, uppmätt).
-     456 ger ≥408px innehåll i hela bandet; kostar vänsterspalten ~25px @1024. */
-  .grid { grid-template-columns: minmax(0, 1fr) clamp(456px, 42vw, 500px); gap: 44px; }
-}
 
 /* ========== Staplat: H2 → stegen → panelen ========== */
-@media (max-width: 1000px) {
+@container rotblk (max-width: 1024px) {
   /* sektionsbytet steg→panel = blockets största avstånd (spacing P1-4); 48→56 (slutpanel
      spacing P2-4): 48 mot H2→steg 44 var bara 1,09× — 56/44 = 1,27× tydlig sektionskontrast */
-  .grid { grid-template-columns: 1fr; gap: 56px; max-width: 700px; margin-inline: auto; }
-  h2 { max-width: 26ch; }
+  .av-grid { grid-template-columns: 1fr; gap: 56px; max-width: 700px; margin-inline: auto; }
+  .ampy-avdrag .av-h2 { max-width: 26ch; }
 }
 
 /* ================= Mobil ================= */
 @media (max-width: 900px) {
-  :root { --edge: 10px; }                 /* bredare huvudcontainer (ägarorder 8) */
-  body { padding: 18px var(--edge) 56px; }
-  .wf-label { font-size: 11px; letter-spacing: .1em; margin-bottom: 12px; }
-  .wf-label a { display: none; }          /* preview-krom — stjäl höjd på mobil */
-  .block { border-radius: var(--r-lg); padding: 28px 16px; }
+  .av-block { border-radius: var(--av-r-lg); padding: 28px clamp(14px, calc(5vw - 2px), 16px); }  /* AUDIT P2-18: kontinuerlig 14->16px 320-360, ersatter det icke-monotona 345px-steget */
   /* steg→panel = sektionsbyte, blockets största avstånd (spacing P1-4); 48→56 = samma
      sektionskontrast som ≤1000-läget (slutpanel spacing P2-4) */
-  .grid { gap: 56px; max-width: 640px; }
+  .av-grid { gap: 56px; max-width: 640px; }
   /* H2: familje-clampen (--aptext-2xl) ger ~26.8px @390 — INGEN storleksöverstyrning
      (en skala, slutspec C2). H2→steg 44 mot steg↔steg 28 = ≥1.5× kontrast (spacing P0-1) */
   /* CENTRERAD H2 = ägarorder 2026-08-16, ENDAST ≤900 (desktop förblir vänsterställd);
      resten av innehållet förblir vänsterställt. Storleken ORÖRD (samma clamp). */
-  h2 { max-width: none; margin-bottom: 40px; text-align: center; }   /* ägarorder 2026-08-18: mer luft H2→"Steg för steg" på mobil */
-  .steps-cap { margin-bottom: 22px; }
+  .ampy-avdrag .av-h2 { max-width: none; margin-bottom: 40px; text-align: center; }   /* ägarorder 2026-08-18: mer luft H2→"Steg för steg" på mobil */
+  .av-steps-cap { margin-bottom: 22px; }
   /* RAG-FIXEN (ägarorder 5, mätt med _rag.mjs): text-wrap:balance var en NO-OP på gt-produkt
      och gt-generisk @390 — identiska radbredder med och utan. Orsaken var inte balance utan
-     h2 .accent{white-space:nowrap}: accenten blev ett odelbart block som åt upp
+     .ampy-avdrag .av-h2 .av-accent{white-space:nowrap}: accenten blev ett odelbart block som åt upp
      balanseringsutrymmet (gtp @390 sd 54,4 — rad 1 = 48 % av måttet). Nowrap släpps ≤900:
      sd faller gtp 54,4→9,4 · d2 36,1→27,8 · d2 @320 35,9→17,0 · gtg @320 39,1→15,4, och
      HF:s @320-regression (40,1) försvinner. Priset (accenten kan brytas mitt itu) är
@@ -487,39 +522,224 @@ h2 .accent {
      lika naturligt som resten av rubriken. Siffra+enhet skyddas ändå av &nbsp; i copyn
      ("30 % ", "50 % ") så en brytning aldrig kan lägga procenttecknet ensamt på en rad.
      Desktop är ORÖRD (nowrap gäller kvar >900). */
-  h2 .accent { white-space: normal; }
-  /* liten rubrik över stegen (ägarorder 2026-08-17) — samma caps-skala som panelens
-   .p-cap så vänster och höger spalt talar samma typografiska språk */
-.steps-cap {
-  font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
-  color: var(--muted); margin-bottom: 36px;   /* ägarorder: stegen en gnutta längre ner (desktop) */
-}
-.steps { --sgap: 28px; }
+  .ampy-avdrag .av-h2 .av-accent { white-space: normal; }
+.av-steps { --av-sgap: 28px; }
   /* enbart storlekarna byts — linjering + linjeändar följer automatiskt via --nmt-kalkylen.
-     --nsz 38→32 (ägarorder 2026-08-16: mindre siffercirklar på mobil); siffran 15→14
-     håller proportionen i den mindre cirkeln. */
-  .step { --nsz: 36px; column-gap: 16px; row-gap: 6px; }
-  .step .n { font-size: 14.5px; }
-  .step p { max-width: none; }
+     --av-nsz 46→36 (ägarorder 2026-08-16: mindre siffercirklar på mobil); siffran 17→14,5
+     håller proportionen i den mindre cirkeln. (UPPMÄTTA värden 2026-08-19 — kommentaren
+     sa 38→32 respektive 15→14, vilket aldrig har renderats.) */
+  .av-step { --av-nsz: 36px; column-gap: 16px; row-gap: 6px; }
+  .av-step .av-n { font-size: 14.5px; }
+  .av-step p { max-width: none; }
   /* staplat läge 481-900: CTA:n ska inte spänna 600px+ (facit-notering @768) */
-  .cta { width: auto; max-width: 100%; padding: 11px 24px; }
-  .panel { --panel-pad-x: 14px; padding: 24px var(--panel-pad-x) 20px; }  /* bredare innercontainer (ägarorder 8); topp/botten-balans (spacing P2-11) */
+  .av-cta { width: auto; max-width: 100%; padding: 11px 20px 11px 12px; }  /* AUDIT P1-5: familjebasens symmetriska 11px 24px at upp ring-CTA:ns asymmetri — ikonens vansterinset gick 12 -> 24px under 900. 12px = sajtens EGET varde pa .brxe-cbdhet, som punchlistan sjalv anger som det korrekta; fixkolumnens 10px ar darfor rattad till 12. */
+  .av-panel { --av-panel-pad-x: clamp(12px, calc(5vw - 4px), 14px); padding: 24px var(--av-panel-pad-x) 20px; }  /* bredare innercontainer (ägarorder 8); topp/botten-balans (spacing P2-11) */
   /* r-total: INGA mobilöverstyrningar längre — plattan behåller systemets 20px-luft och
      clamp-storleken (20px @390 efter ägarorderns sänkning). Gamla 25px/16px var två extra skalsteg (7b). */
   /* ≤480: sajtens eget mobilmönster för ring-CTA:n (post-15498 @767): fullbredd,
    ikonen HÖGER (row-reverse), text/ikon i var sin ände, radbrytning tillåten */
 }
-@media (max-width: 345px) {
-  .block { padding-inline: 14px; }
-  .panel { --panel-pad-x: 12px; }
-}
-@media (prefers-reduced-motion: reduce) {
-  * { animation: none !important; transition: none !important; }
-  /* ampyRing-pulsen bär cirkelns vilo-skugga — utan animation återförs den statiskt (sajtparitet) */
+/* ================= AUDIT P0-1 — CTA-etiketten utanfor knappen =================
+   UPPMATT FORE (blackets ytterkant -> knappens border-box; negativt = utanfor):
+   produktion @320  d2 -15,17 · gt-generisk -10,08 · hemforsakring -4,67 · gt-produkt +13,50
+   produktion @360  d2   0,00 · gt-generisk  +5,09
+   preview    @320  d2  -5,16 · gt-generisk  -0,06 · hemforsakring +5,34
+   Roten: .av-cta bar white-space:nowrap och far under 900 bara width:auto — knappen
+   kan darfor inte krympa under sin nowrap-bredd, och etiketten skjuter ut ur
+   gradienten. Fixen ger knappen hela panelbredden och slapper radbrytningen;
+   text-wrap:balance jamnar de tva raderna, line-height 1.25 haller dem ihop.
+   Knappen blir 58 -> 62px hog dar etiketten gar pa tva rader. ============ */
+@media (max-width: 430px) {
+  .av-cta {
+    width: 100%; max-width: 100%;
+    /* Symmetriska 14px OCKSA i hf: bladet langst till vanster ar RING-IKONEN, inte texten,
+       sa padding-left ar dess yttermatt. Med 10px matte grinden exakt 10,00px marginal
+       (uppmatt) — under kravet >=14. Ring-ikonens asymmetri lever kvar i 431-900-bandet
+       (P1-5); har binder den mot P0-1 och P0-1 vinner. */
+    padding: 11px 14px; gap: 10px;
+    white-space: normal; text-wrap: balance; line-height: 1.25;
   }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* AUDIT steg 4: pseudoelementen MASTE sta med. `animation` arvs inte, sa ett bart
+     `*` nar aldrig ett ::before/::after — och P1-9-pulsen bor numera pa ett ::after. */
+  .ampy-avdrag, .ampy-avdrag *, .ampy-avdrag *::before, .ampy-avdrag *::after { animation: none !important; transition: none !important; }
+  /* AUDIT P1-9: pulsens vilo-skugga (0 1px 3px) lag FORR inne i keyframes och
+     forsvann darfor helt har (uppmatt: box-shadow none). Den star nu statiskt pa
+     .av-cta-ring, sa cirkeln behaller sin skugga aven utan rorelse. */
+  }
+
+/* ============================================================================
+   ROBUSTHETSLAGRET (AUDIT steg 4) — NYA TILLSTAND, SKARMEN ORORD.
+   Allt harunder ligger i pappersvillkoret respektive hogkontrastvillkoret.
+   Ingen regel kan darfor na det pixelgodkanda skarmlaget: paritetsgrinden
+   (1 428 metrikceller) och skarmdumpsgrinden (24 bilder) ar bada ororda.
+   ============================================================================ */
+
+/* ================= AUDIT P1-10 — PAPPERSLAGET =================
+   UPPMATT FORE (emulateMedia print, alla fyra): NOLL pappersregler i familjen.
+   Panelen bar bakgrunden rgb(27,29,75) som webblasaren SLACKER pa papper
+   (print-color-adjust: economy) medan blacket star kvar pa rgba(255,255,255,.94)
+   och .70 — totalbeloppets uppmatta kontrast mot pappret ar 1,00:1, dvs vit text
+   pa vitt papper: hela kvittot forsvinner. Blobbarna ar varre: deras path-fill
+   (uppmatt rgb(11,13,42)) ar ett SVG-fill, inte en bakgrund, och slacks alltsa
+   INTE — de trycks som tre nastan svarta falt rakt over kvittot.
+   Ett avdragskvitto ar precis vad malgruppen skriver ut. ============ */
+@media print {
+  /* ingen yta far forlita sig pa att bakgrunder trycks: ramar och black bar allt */
+  .av-block {
+    background: #fff; border: 0; border-radius: 0;
+    box-shadow: none; padding: 0; animation: none;
+  }
+  .av-left, .av-panel { animation: none; }
+  /* dekoren bort: vagorna ar brus, blobbarna trycks som svarta falt */
+  .av-block--wave > svg.av-wave,
+  .av-panel--dark > svg.av-blob { display: none; }
+  /* EN spalt pa papper — rutnatet far aldrig stalla kvittot bredvid stegen och
+     riskera att en spalt bryts mitt itu */
+  .av-grid { grid-template-columns: 1fr; gap: 24px; max-width: none; margin-inline: 0; }
+  /* den morka panelen blir en vit yta med svart black */
+  .av-panel, .av-panel--dark {
+    background: #fff; border: 1px solid #000; border-radius: 0;
+    box-shadow: none; overflow: visible;
+  }
+  .av-panel--dark .av-p-cap { color: #000; border-bottom-color: #000; }
+  .av-panel--dark .av-r-row { color: #000; }
+  .av-panel--dark .av-r-row .av-lbl { color: #000; }
+  .av-panel--dark .av-r-row + .av-r-row { border-top-color: #000; }
+  .av-panel--dark .av-dots { border-bottom-color: #767676; }
+  .av-panel--dark .av-r-total { background: none; }
+  .av-panel--dark .av-r-total .av-t-label { color: #000; }
+  .av-panel--dark .av-r-total .av-amt { color: #000; }
+  .av-panel--dark .av-r-total .av-t-note { color: #333; }
+  .av-panel--dark .av-fine { color: #333; }
+  /* ytor som bara BAR en genomskinlig vit och darfor slacks: formen flyttas till ramen */
+  .av-r-total { background: none; border: 1px solid #000; margin-inline: 0; }
+  .av-offert-pill { background: none; border: 1px solid #000; color: #000; }
+  .av-r-row.av-deduct .av-amt { background: none; border: 1px solid #000; color: #000; }
+  /* stegens teal-ring och connector blir nastan osynliga i graskala */
+  .av-step .av-n .av-mark .av-trk { stroke: #767676; }
+  .av-step .av-n .av-mark .av-arc { stroke: #000; }
+  .av-step .av-n { color: #000; }
+  .av-step:not(:last-child)::before { border-left-color: #767676; }
+  /* CTA: gradienten slacks -> ram, och malet skrivs ut som text (en knapp gar
+     inte att trycka pa papper). Platshallaren href="#" skrivs medvetet INTE ut. */
+  .av-cta {
+    display: inline-block; text-align: center;
+    background: none; background-image: none; color: #000;
+    border: 2px solid #000; box-shadow: none;
+    min-height: 0; padding: 10px 16px; white-space: normal; width: auto; max-width: 100%;
+  }
+  .av-cta .av-cta-arrow { display: none; }
+  /* Malet skrivs ut som text — men BARA nar det tillfor nagot. Uppmatt i A4-PDF:en:
+     en tel:-lank duplicerar numret som redan star i etiketten ("Ring oss pa 010-265 79 79
+     (tel:+46102657979)"), sa tel: ar struket ur listan. Platshallaren href="#" star
+     medvetet heller inte med. */
+  .av-cta[href^="http"]::after,
+  .av-cta[href^="/"]::after { content: " (" attr(href) ")"; font-weight: 400; font-size: 12.5px; }
+  /* avdelaren ar en bakgrund (slacks) -> ram pa zonen i stallet */
+  .av-cta-wrap { border-top: 1px solid #000; padding-top: 16px; }
+  .av-cta-wrap::before { display: none; }
+  /* INGA sidbrytningar mitt i ett steg, en kvittorad eller totalplattan.
+     UPPMATT KONTROLL (A6, 3 sidor, med och utan de har raderna): utan dem kapas steg 2
+     mitt itu vid brytningen; med dem flyttas hela steget till nasta sida (sida 1 skiljer
+     sig i en 296x103-ruta langst ned, sida 2 i sin helhet).
+     padding-top: siffercirkeln bar ett NEGATIVT margin-top (den optiska linjeringen mot
+     H3:ns versalband) och hanger darfor 4,4-5,8px ovanfor stegets egen box — den biten
+     ligger utanfor det som break-inside skyddar och blodde igenom som en 6px-bage langst
+     ned pa foregaende sida. 8px padding absorberar overhanget; H3 och cirkel flyttas lika
+     mycket, sa den optiska linjeringen ar ororld. */
+  .av-step { padding-top: 8px; }
+  .av-step, .av-r-row, .av-r-total, .av-cta-wrap, .av-fine {
+    break-inside: avoid; page-break-inside: avoid;
+  }
+  .av-h2, .av-p-cap, .av-steps-cap { break-after: avoid; page-break-after: avoid; }
+
+  /* telefonikonen (och dess puls) ar en skarmaffordans — pa papper star numret
+     redan i etiketten */
+  .av-cta .av-cta-ringwrap { display: none; }
+}
+
+/* ================= AUDIT P1-11 · P1-12 · P2-17 — WINDOWS HOGKONTRAST =========
+   UPPMATT FORE (Playwright forcedColors:'active', alla fyra):
+   · CTA:n renderas som NAKEN LANKTEXT — background-image none, background-color
+     rgba(255,255,255,0), border 0px none, box-shadow none, color rgb(0,0,159).
+     Ingen knappaffordans kvar, pa 278 sidor (WCAG 1.4.11).  [P1-11]
+   · Dekoren tvingas INTE om: vagornas och blobbarnas farg sitter som SVG-fill
+     (uppmatt rgb(238,244,252) resp. rgb(11,13,42)) medan panelen tvingas till
+     rgb(255,255,255) -> nastan svarta blobbar pa vit panel. Samma sak med
+     stegringarna: stroke rgb(0,169,145) star kvar otvingad.  [P1-12]
+   · Ytor som bara bar en genomskinlig vit mattes som OTVINGADE och forsvinner
+     helt: totalplattan rgba(255,255,255,.08) och CTA-avdelaren
+     rgba(255,255,255,.16).  [P2-17]
+   Systemfargerna (ButtonFace/ButtonText/ButtonBorder/CanvasText/GrayText/Highlight)
+   ar hela poangen: blocket ber om ANVANDARENS palett, det satter inga egna. ==== */
+@media (forced-colors: active) {
+  .av-cta {
+    border: 2px solid ButtonBorder; background: ButtonFace; color: ButtonText;
+    box-shadow: none;
+  }
+  .av-cta:hover, .av-cta:active { transform: none; filter: none; box-shadow: none; }
+  .av-cta:focus-visible { outline: 3px solid Highlight; outline-offset: 3px; }
+  .av-block--wave > svg.av-wave,
+  .av-panel--dark > svg.av-blob { display: none; }
+  .av-r-total { border: 1px solid CanvasText; }
+  /* CanvasText racker — uppmatt: bakgrunden blir rgb(0,0,0) bade med och utan
+     forced-color-adjust:none, sa opt-outen ar struken. Blocket ska ALDRIG stanga av
+     anvandarens palett utan skal. */
+  .av-cta-wrap::before { background: CanvasText; }
+  .av-r-row.av-deduct .av-amt { border: 1px solid CanvasText; }
+  .av-step .av-n .av-mark .av-trk { stroke: GrayText; }
+  .av-step .av-n .av-mark .av-arc { stroke: CanvasText; }
+  .av-step:not(:last-child)::before { border-left-color: GrayText; }
+
+  /* ringcirkeln bar en vit yta som tvingas bort; ge den knappens egna systemfarger.
+     Pulsen ar ren dekor och slacks. */
+  .av-cta .av-cta-ring { background: ButtonFace; color: ButtonText; box-shadow: none; }
+  .av-cta .av-cta-ringwrap::after { display: none; }
+}
+</style>
+<style id="av-preview-krom">
+/* ============================================================================
+   PREVIEW-KROM — LEVERERAS ALDRIG TILL WORDPRESS.
+   Här bor allt som förr låg i blockets egna html{} och body{} och som skrev om
+   värdsidan (AUDIT P0-2): sidbakgrunden, kantpaddingen och .wf-label-etiketten
+   (P2-6). Blockets stilmall ovan innehåller noll html/body/global-selektorer.
+   Tokenvärdena står som literaler: --av-* finns bara inuti .ampy-avdrag, så
+   var(--av-muted) hade varit odefinierad här och färgen fallit tyst.
+   WP-bygget tar ENBART blockets stilmall (id ampy-avdrag-css) och wrapper-diven
+   (klass ampy-avdrag). Skriv ALDRIG de taggarna som literaler i en kommentar —
+   en naiv extraktor matchar då kommentaren i stallet for markupen.
+   ============================================================================ */
+html { -webkit-text-size-adjust: 100%; }
+html, body { margin: 0; padding: 0; background: #f5f9ff; }
+.av-preview {
+  padding: 30px 28px 80px;                 /* = gamla body-paddingen (--edge 28px) */
+  font-family: "AvdragOutfit", "Outfit", system-ui, -apple-system, sans-serif;
+  color: #0f123c; line-height: 1.5;
+}
+.av-preview .wf-label, .av-preview .wf-label * { box-sizing: border-box; }
+.wf-label {
+  display: flex; justify-content: flex-start; align-items: baseline; gap: 18px; flex-wrap: wrap;
+  margin: 0 0 16px; padding: 0 4px;
+  font-size: 12.5px; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; color: #565e82;
+}
+/* liten text = aldrig teal (teal klarar bara stor/fet text på vitt) */
+.wf-label a {
+  color: #090b32; text-decoration: none; font-weight: 600; letter-spacing: 0;
+  text-transform: none; font-size: 13.5px; display: inline-block; padding: 10px 8px; border-radius: 8px;
+}
+.wf-label a:hover { text-decoration: underline; }
+@media (max-width: 900px) {
+  .av-preview { padding: 18px 10px 56px; }  /* = gamla mobil-body-paddingen (--edge 10px) */
+  .wf-label { font-size: 11px; letter-spacing: .1em; margin-bottom: 12px; }
+  .wf-label a { display: none; }            /* preview-krom — stjäl höjd på mobil */
+}
 </style>
 </head>
 <body>
+<div class="av-preview">
 
 <div class="wf-label">
   <span>Blockfamiljen · Hemförsäkring</span>
@@ -576,13 +796,15 @@ h2 .accent {
      ============================================================ -->
 <!-- aria-labelledby = familjens metod (paritetssvep P1-5): sektionsnamnet följer H2:an
      automatiskt i stället för en hårdkodad aria-label som kan divergera från rubriken. -->
-<section class="block block--wave" aria-labelledby="hf-h2">
-    <svg class="hero-w1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="984" height="687" viewBox="0 0 984 687" fill="none"><path d="M0.101004 20.0619C0.600584 8.84058 9.84347 1.17382e-07 21.076 2.51328e-07L961.412 1.14647e-05C974.498 1.16208e-05 985.418 10.5972 982.854 23.4296C977.67 49.3741 963.295 73.6508 941.937 90.4135C880.337 138.634 779.032 119.487 722.751 173.262C689.848 204.7 682.055 252.683 681.19 297.121C680.447 341.56 679.548 400.042 664.087 442.116C634.895 521.42 616.787 565.147 537.627 609.796C458.468 654.446 363.331 653.812 293.761 628.364C224.191 602.917 192.614 599.726 146.503 638.806C100.393 677.886 116.456 684.221 85.1146 683.693C53.7734 683.165 -2.71524 700.588 0.101498 660.353C2.91823 620.118 0.101004 20.0619 0.101004 20.0619Z" fill="#eef4fc" fill-opacity="0.67"></path></svg>
-    <svg class="hero-w2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="665" height="431" viewBox="0 0 665 431" fill="none"><path d="M0.0683953 12.5861C0.40702 5.53937 6.21896 7.41603e-08 13.2739 1.58289e-07L643.451 7.67308e-06C656.524 7.82897e-06 667.543 10.7797 663.153 23.093C658.5 36.1404 649.782 48.0384 637.839 56.7222C596.127 86.974 527.527 74.962 489.416 108.699C467.136 128.422 461.859 158.525 461.272 186.404C460.77 214.283 460.161 250.972 449.691 277.368C429.924 327.121 417.662 354.553 364.058 382.565C310.455 410.577 246.032 410.179 198.922 394.214C151.813 378.249 130.43 376.247 99.2059 400.765C67.9818 425.282 78.859 429.256 57.636 428.925C36.413 428.594 -1.83864 439.524 0.0687298 414.283C1.9761 389.041 0.0683953 12.5861 0.0683953 12.5861Z" fill="#e6eff9"></path></svg>
-    <svg class="hero-w3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="742" height="487" viewBox="0 0 742 487" fill="none"><path d="M741.369 472.779C740.991 480.74 734.427 487 726.457 487L21.0013 487C7.92631 487 -3.07046 476.287 0.783671 463.793C5.67881 447.924 15.7866 433.357 29.9721 422.908C76.5003 388.725 153.019 402.298 195.53 364.178C220.382 341.892 226.268 307.878 226.922 276.377C227.483 244.875 228.162 203.419 239.841 173.593C261.89 117.376 275.568 86.3793 335.359 54.7281C395.151 23.0768 467.011 23.5263 519.559 41.5655C572.107 59.6047 595.958 61.8668 630.787 34.1639C665.615 6.46096 653.483 1.97007 677.156 2.34433C700.829 2.7186 743.496 -9.63196 741.369 18.8895C739.241 47.411 741.369 472.779 741.369 472.779Z" fill="#eef4fc" fill-opacity="0.39"></path></svg>
-  <div class="grid">
 
-    <div class="left">
+<div class="ampy-avdrag">
+<section class="av-block av-block--wave" aria-labelledby="av-hf-h2">
+    <svg class="av-wave av-hero-w1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="984" height="687" viewBox="0 0 984 687" fill="none"><path d="M0.101004 20.0619C0.600584 8.84058 9.84347 1.17382e-07 21.076 2.51328e-07L961.412 1.14647e-05C974.498 1.16208e-05 985.418 10.5972 982.854 23.4296C977.67 49.3741 963.295 73.6508 941.937 90.4135C880.337 138.634 779.032 119.487 722.751 173.262C689.848 204.7 682.055 252.683 681.19 297.121C680.447 341.56 679.548 400.042 664.087 442.116C634.895 521.42 616.787 565.147 537.627 609.796C458.468 654.446 363.331 653.812 293.761 628.364C224.191 602.917 192.614 599.726 146.503 638.806C100.393 677.886 116.456 684.221 85.1146 683.693C53.7734 683.165 -2.71524 700.588 0.101498 660.353C2.91823 620.118 0.101004 20.0619 0.101004 20.0619Z" fill="#eef4fc" fill-opacity="0.67"></path></svg>
+    <svg class="av-wave av-hero-w2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="665" height="431" viewBox="0 0 665 431" fill="none"><path d="M0.0683953 12.5861C0.40702 5.53937 6.21896 7.41603e-08 13.2739 1.58289e-07L643.451 7.67308e-06C656.524 7.82897e-06 667.543 10.7797 663.153 23.093C658.5 36.1404 649.782 48.0384 637.839 56.7222C596.127 86.974 527.527 74.962 489.416 108.699C467.136 128.422 461.859 158.525 461.272 186.404C460.77 214.283 460.161 250.972 449.691 277.368C429.924 327.121 417.662 354.553 364.058 382.565C310.455 410.577 246.032 410.179 198.922 394.214C151.813 378.249 130.43 376.247 99.2059 400.765C67.9818 425.282 78.859 429.256 57.636 428.925C36.413 428.594 -1.83864 439.524 0.0687298 414.283C1.9761 389.041 0.0683953 12.5861 0.0683953 12.5861Z" fill="#e6eff9"></path></svg>
+    <svg class="av-wave av-hero-w3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="742" height="487" viewBox="0 0 742 487" fill="none"><path d="M741.369 472.779C740.991 480.74 734.427 487 726.457 487L21.0013 487C7.92631 487 -3.07046 476.287 0.783671 463.793C5.67881 447.924 15.7866 433.357 29.9721 422.908C76.5003 388.725 153.019 402.298 195.53 364.178C220.382 341.892 226.268 307.878 226.922 276.377C227.483 244.875 228.162 203.419 239.841 173.593C261.89 117.376 275.568 86.3793 335.359 54.7281C395.151 23.0768 467.011 23.5263 519.559 41.5655C572.107 59.6047 595.958 61.8668 630.787 34.1639C665.615 6.46096 653.483 1.97007 677.156 2.34433C700.829 2.7186 743.496 -9.63196 741.369 18.8895C739.241 47.411 741.369 472.779 741.369 472.779Z" fill="#eef4fc" fill-opacity="0.39"></path></svg>
+  <div class="av-grid">
+
+    <div class="av-left">
       <!-- H2 = H2-MALLEN (strategen 2026-08-16, ägarens riktning "Nyttja hemförsäkringen vid
            [X] och betala bara för självrisken"): intentordet först, pengafrasen accentuerad
            sist — familjens enda verbform men samma skelett som ROT/GT-basen.
@@ -606,12 +828,16 @@ h2 .accent {
            OBS: slot-nyckeln "tjanst" delas med panelens rad 1 ("Felsökning + reparation") —
            ACF-mappningen måste hålla isär H2-formen (skadeord, gemener) från radformen.
            Nowrap på accenten gäller desktop, ≤900 släpps den (rag-fixen, ägarorder 5). -->
-      <h2 id="hf-h2">Nyttja hemförsäkringen vid <span data-slot="tjanst">ett elfel</span> och betala <span class="accent">endast självrisken</span></h2>
+      <h2 class="av-h2" id="av-hf-h2">Nyttja hemförsäkringen vid <span data-slot="tjanst">ett elfel</span> och betala <span class="av-accent">endast självrisken</span></h2>
 
-      <p class="steps-cap">Steg för steg</p>
-      <ol class="steps">
-        <li class="step">
-          <span class="n" aria-hidden="true"><svg class="mark" viewBox="0 0 48 48" fill="none" aria-hidden="true"><circle class="trk" cx="24" cy="24" r="22" stroke-width="2"/><circle class="arc" cx="24" cy="24" r="22" stroke-width="2" stroke-linecap="round" stroke-dasharray="46.08 92.15" transform="rotate(-90 24 24)"/></svg><span class="d">1</span></span>
+      <p class="av-steps-cap">Steg för steg</p>
+      <!-- AUDIT P1-13: role="list"/"listitem" ar OBLIGATORISKA har. Uppmatt:
+           list-style-type:none + display:flex pa listan, och de synliga siffrorna
+           1/2/3 ligger i aria-hidden-spann — listan ar alltsa enda baren av
+           stegordningen, och WebKit tar bort listrollen nar list-style slacks. -->
+      <ol class="av-steps" role="list">
+        <li class="av-step" role="listitem">
+          <span class="av-n" aria-hidden="true"><svg class="av-mark" viewBox="0 0 48 48" fill="none" aria-hidden="true"><circle class="av-trk" cx="24" cy="24" r="22" stroke-width="2"/><circle class="av-arc" cx="24" cy="24" r="22" stroke-width="2" stroke-linecap="round" stroke-dasharray="46.08 92.15" transform="rotate(-90 24 24)"/></svg><span class="av-d">1</span></span>
           <h3>Vi felsöker, lagar och dokumenterar</h3>
           <!-- ÄGARORDER 2026-08-16: "Behörig elektriker krävs för din rätt till ersättning."
                [FACT] grundmekaniken är faktabas §1.2 + v2 §2/§B: aktsamhetskraven — ersättningen
@@ -620,8 +846,8 @@ h2 .accent {
                v2:s "kan sättas ned" — ryms i [GAP-6]-juristgrinden (hela försäkringsspåret). -->
           <p>En auktoriserad elektriker åtgärdar skadan och dokumenterar orsaken. Behörig elektriker krävs för din rätt till ersättning.</p>
         </li>
-        <li class="step">
-          <span class="n" aria-hidden="true"><svg class="mark" viewBox="0 0 48 48" fill="none" aria-hidden="true"><circle class="trk" cx="24" cy="24" r="22" stroke-width="2"/><circle class="arc" cx="24" cy="24" r="22" stroke-width="2" stroke-linecap="round" stroke-dasharray="92.15 46.08" transform="rotate(-90 24 24)"/></svg><span class="d">2</span></span>
+        <li class="av-step" role="listitem">
+          <span class="av-n" aria-hidden="true"><svg class="av-mark" viewBox="0 0 48 48" fill="none" aria-hidden="true"><circle class="av-trk" cx="24" cy="24" r="22" stroke-width="2"/><circle class="av-arc" cx="24" cy="24" r="22" stroke-width="2" stroke-linecap="round" stroke-dasharray="92.15 46.08" transform="rotate(-90 24 24)"/></svg><span class="av-d">2</span></span>
           <h3>Du får underlaget för ditt försäkringsbolag</h3>
           <!-- [GAP-2]/[GAP-3] SHIP-GATE (blockerande): specificerad faktura (arbete/material/
                utryckning separat) + foton + skriftlig orsaksbeskrivning måste vara Ampys
@@ -630,8 +856,8 @@ h2 .accent {
                Ampy kontrollerar själv. -->
           <p>Specificerad faktura, foton och en skriftlig orsaksbeskrivning. Exakt det underlag ditt försäkringsbolag frågar efter.</p>
         </li>
-        <li class="step">
-          <span class="n" aria-hidden="true"><svg class="mark" viewBox="0 0 48 48" fill="none" aria-hidden="true"><circle class="trk" cx="24" cy="24" r="22" stroke-width="2"/><circle class="arc" cx="24" cy="24" r="22" stroke-width="2" stroke-linecap="round" stroke-dasharray="138.23 0.00" transform="rotate(-90 24 24)"/></svg><span class="d">3</span></span>
+        <li class="av-step" role="listitem">
+          <span class="av-n" aria-hidden="true"><svg class="av-mark" viewBox="0 0 48 48" fill="none" aria-hidden="true"><circle class="av-trk" cx="24" cy="24" r="22" stroke-width="2"/><circle class="av-arc" cx="24" cy="24" r="22" stroke-width="2" stroke-linecap="round" stroke-dasharray="138.23 0.00" transform="rotate(-90 24 24)"/></svg><span class="av-d">3</span></span>
           <h3>Du anmäler skadan själv</h3>
           <!-- ÄGARORDER 2026-08-16. Candour-läge: Ampy anmäler INTE skadan och lovar INTE
                utfall (faktabas §2). "vi stöttar dig i hela processen" är RESEARCHAD mot v2 §C:
@@ -646,30 +872,30 @@ h2 .accent {
       </ol>
     </div>
 
-    <section class="panel panel--dark" aria-labelledby="pcap">
-      <svg class="blob-a" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="984" height="687" viewBox="0 0 984 687" fill="none"><path d="M0.101004 20.0619C0.600584 8.84058 9.84347 1.17382e-07 21.076 2.51328e-07L961.412 1.14647e-05C974.498 1.16208e-05 985.418 10.5972 982.854 23.4296C977.67 49.3741 963.295 73.6508 941.937 90.4135C880.337 138.634 779.032 119.487 722.751 173.262C689.848 204.7 682.055 252.683 681.19 297.121C680.447 341.56 679.548 400.042 664.087 442.116C634.895 521.42 616.787 565.147 537.627 609.796C458.468 654.446 363.331 653.812 293.761 628.364C224.191 602.917 192.614 599.726 146.503 638.806C100.393 677.886 116.456 684.221 85.1146 683.693C53.7734 683.165 -2.71524 700.588 0.101498 660.353C2.91823 620.118 0.101004 20.0619 0.101004 20.0619Z" fill="#0B0D2A" fill-opacity="0.67"></path></svg>
-      <svg class="blob-b" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="665" height="431" viewBox="0 0 665 431" fill="none"><path d="M0.0683953 12.5861C0.40702 5.53937 6.21896 7.41603e-08 13.2739 1.58289e-07L643.451 7.67308e-06C656.524 7.82897e-06 667.543 10.7797 663.153 23.093C658.5 36.1404 649.782 48.0384 637.839 56.7222C596.127 86.974 527.527 74.962 489.416 108.699C467.136 128.422 461.859 158.525 461.272 186.404C460.77 214.283 460.161 250.972 449.691 277.368C429.924 327.121 417.662 354.553 364.058 382.565C310.455 410.577 246.032 410.179 198.922 394.214C151.813 378.249 130.43 376.247 99.2059 400.765C67.9818 425.282 78.859 429.256 57.636 428.925C36.413 428.594 -1.83864 439.524 0.0687298 414.283C1.9761 389.041 0.0683953 12.5861 0.0683953 12.5861Z" fill="#010328"></path></svg>
-      <svg class="blob-c" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="742" height="487" viewBox="0 0 742 487" fill="none"><path d="M741.369 472.779C740.991 480.74 734.427 487 726.457 487L21.0013 487C7.92631 487 -3.07046 476.287 0.783671 463.793C5.67881 447.924 15.7866 433.357 29.9721 422.908C76.5003 388.725 153.019 402.298 195.53 364.178C220.382 341.892 226.268 307.878 226.922 276.377C227.483 244.875 228.162 203.419 239.841 173.593C261.89 117.376 275.568 86.3793 335.359 54.7281C395.151 23.0768 467.011 23.5263 519.559 41.5655C572.107 59.6047 595.958 61.8668 630.787 34.1639C665.615 6.46096 653.483 1.97007 677.156 2.34433C700.829 2.7186 743.496 -9.63196 741.369 18.8895C739.241 47.411 741.369 472.779 741.369 472.779Z" fill="#0B0D2A" fill-opacity="0.39"></path></svg>
+    <section class="av-panel av-panel--dark" aria-labelledby="av-hf-pcap">
+      <svg class="av-blob av-blob-a" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="984" height="687" viewBox="0 0 984 687" fill="none"><path d="M0.101004 20.0619C0.600584 8.84058 9.84347 1.17382e-07 21.076 2.51328e-07L961.412 1.14647e-05C974.498 1.16208e-05 985.418 10.5972 982.854 23.4296C977.67 49.3741 963.295 73.6508 941.937 90.4135C880.337 138.634 779.032 119.487 722.751 173.262C689.848 204.7 682.055 252.683 681.19 297.121C680.447 341.56 679.548 400.042 664.087 442.116C634.895 521.42 616.787 565.147 537.627 609.796C458.468 654.446 363.331 653.812 293.761 628.364C224.191 602.917 192.614 599.726 146.503 638.806C100.393 677.886 116.456 684.221 85.1146 683.693C53.7734 683.165 -2.71524 700.588 0.101498 660.353C2.91823 620.118 0.101004 20.0619 0.101004 20.0619Z" fill="#0B0D2A" fill-opacity="0.67"></path></svg>
+      <svg class="av-blob av-blob-b" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="665" height="431" viewBox="0 0 665 431" fill="none"><path d="M0.0683953 12.5861C0.40702 5.53937 6.21896 7.41603e-08 13.2739 1.58289e-07L643.451 7.67308e-06C656.524 7.82897e-06 667.543 10.7797 663.153 23.093C658.5 36.1404 649.782 48.0384 637.839 56.7222C596.127 86.974 527.527 74.962 489.416 108.699C467.136 128.422 461.859 158.525 461.272 186.404C460.77 214.283 460.161 250.972 449.691 277.368C429.924 327.121 417.662 354.553 364.058 382.565C310.455 410.577 246.032 410.179 198.922 394.214C151.813 378.249 130.43 376.247 99.2059 400.765C67.9818 425.282 78.859 429.256 57.636 428.925C36.413 428.594 -1.83864 439.524 0.0687298 414.283C1.9761 389.041 0.0683953 12.5861 0.0683953 12.5861Z" fill="#010328"></path></svg>
+      <svg class="av-blob av-blob-c" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="742" height="487" viewBox="0 0 742 487" fill="none"><path d="M741.369 472.779C740.991 480.74 734.427 487 726.457 487L21.0013 487C7.92631 487 -3.07046 476.287 0.783671 463.793C5.67881 447.924 15.7866 433.357 29.9721 422.908C76.5003 388.725 153.019 402.298 195.53 364.178C220.382 341.892 226.268 307.878 226.922 276.377C227.483 244.875 228.162 203.419 239.841 173.593C261.89 117.376 275.568 86.3793 335.359 54.7281C395.151 23.0768 467.011 23.5263 519.559 41.5655C572.107 59.6047 595.958 61.8668 630.787 34.1639C665.615 6.46096 653.483 1.97007 677.156 2.34433C700.829 2.7186 743.496 -9.63196 741.369 18.8895C739.241 47.411 741.369 472.779 741.369 472.779Z" fill="#0B0D2A" fill-opacity="0.39"></path></svg>
       <!-- Rubriken är ACF-mallbar och delar slot-nyckel med familjen (ROT/GT = data-slot="avdrag").
            Nyckeln är familjens ACF-fält, INTE ett påstående om ett avdrag: denna yta har ingen
            procentsats, därför ALDRIG "Så räknas avdraget" (faktabas §2). "Så kan kostnaden delas"
            = v2-berättelsen (du + försäkringen delar) med "kan"-hedgen kvar — EN rad i hela svepet. -->
-      <h3 class="p-cap" id="pcap"><span data-slot="avdrag">Så kan kostnaden delas</span></h3>
+      <h3 class="av-p-cap" id="av-hf-pcap"><span data-slot="avdrag">Så kan kostnaden delas</span></h3>
 
-      <div class="r-row">
+      <div class="av-r-row">
         <!-- data-slot="tjanst" = familjens rad 1-slot (basen: "Elcentral" + installation).
              "Felsökning + reparation" (v2 §3): det är REPARATIONEN som är villkorens
              ersättningsmoment — rad 1 måste bära ordet, annars motsäger kvittot finstiltens
              "ren felsökning ersätts normalt inte". Utryckningen ryms i pillens prisbesked. -->
-        <span class="lbl"><span data-slot="tjanst">Felsökning + reparation</span></span>
-        <span class="dots" aria-hidden="true"></span>
+        <span class="av-lbl"><span data-slot="tjanst">Felsökning + reparation</span></span>
+        <span class="av-dots" aria-hidden="true"></span>
         <!-- [GAP-1, BLOCKERANDE] jourpriser saknas helt i datalagret → pill i stället för
              kr-belopp. ÄGARORDER 2026-08-16: pillen bär familjens form "Skräddarsydd offert"
              (= ROT/GT-basens rad 1-pill) i st.f. runda 2:s "Prisbesked på telefon".
              SLUTPANEL CRO P2-7 (läggs på [GAP-1]-grinden, INGEN ändring nu — ägarorder):
              pillen lovar en offert-artefakt medan primärhandlingen är samtalet ("Ring oss");
              när riktiga jourpriser finns bör pillen bära telefon-intentens form igen. -->
-        <span class="amt"><span class="offert-pill">Skräddarsydd offert</span></span>
+        <span class="av-amt"><span class="av-offert-pill">Skräddarsydd offert</span></span>
       </div>
 
       <!-- Ingen procentsats FÅR uppfinnas (faktabas §3, v2 §C) — värdet är hedgad text, inte en
@@ -681,10 +907,10 @@ h2 .accent {
            (−30 %/−50 %) klädsel; en hedgad mening får kvittots normalvikt (17px/600 ink).
            SLUTPANEL MOBIL P2-5: chip-avsteget är MEDVETET och kvarstår — frasen är ingen
            sats och "kan"-hedgen får inte fetmarkeras som ett kanonvärde (candour). -->
-      <div class="r-row">
-        <span class="lbl">Din hemförsäkring</span>
-        <span class="dots" aria-hidden="true"></span>
-        <span class="amt">kan ta delar av kostnaden</span>
+      <div class="av-r-row">
+        <span class="av-lbl">Din hemförsäkring</span>
+        <span class="av-dots" aria-hidden="true"></span>
+        <span class="av-amt">kan ta delar av kostnaden</span>
       </div>
 
       <!-- KVITTOTS TERMINALA BEAT. ÄGARORDER 2026-08-16: beloppet är ägarens siffra
@@ -699,9 +925,9 @@ h2 .accent {
            och odelbar"): åldersavdrags-hedgen + "Vi kan inte lova ersättning" bärs nu ENBART
            av "oftast" (t-label) + villkorstexten under. Juristgrinden [GAP-6]/[GAP-11] ska
            uttryckligen godkänna den här nivån före ship. -->
-      <div class="r-total">
-        <span class="t-label">Du betalar oftast</span>
-        <span class="amt">1&nbsp;000–2&nbsp;000&nbsp;kr</span>
+      <div class="av-r-total">
+        <span class="av-t-label">Du betalar oftast</span>
+        <span class="av-amt">1&nbsp;000–2&nbsp;000&nbsp;kr</span>
       </div>
 
       <!-- VILLKORSTEXTEN — ÄGARORDER 2026-08-16, finslipad till ren svenska (kommat före
@@ -712,21 +938,21 @@ h2 .accent {
            MEDVETET BORTA sedan ägarsvepet: ROT-negationen (§1.8/[GAP-5]), boendeforms-hedgen
            ([GAP-7], §1.6) och "Ditt villkor avgör" — juristgrinden [GAP-6] ska se den här
            smalare finstilten. Besiktning kopplas fortsatt ALDRIG till ersättning. -->
-      <p class="fine">Priset du betalar är oftast bara självrisken. Gäller skador din försäkring täcker, som åska eller kortslutning. Elfel täcks olika beroende på försäkringsbolag och är något du ansvarar för&nbsp;själv.</p>
+      <p class="av-fine">Priset du betalar är oftast bara självrisken. Gäller skador din försäkring täcker, som åska eller kortslutning. Elfel täcks olika beroende på försäkringsbolag och är något du ansvarar för&nbsp;själv.</p>
 
-      <div class="cta-wrap">
+      <div class="av-cta-wrap">
         <!-- CTA: TELEFON PRIMÄR (faktabasens rekommendation §2 — akut kontext, ingen offertform).
              ÄGARORDER 2026-08-16: knappstilen = EXAKT sajtens .hero_2__secondary-button
              (ljusblå ring-CTA); ikonen = sajtens inline-SVG (telefon + signalvågor,
              source/live-source-elcentral.html rad 425), stroke via currentColor. -->
-        <a class="cta" href="tel:+46102657979">
-          <svg class="cta-ring" width="19" height="20" viewBox="0 0 19 20" fill="none" aria-hidden="true"><path d="M11.9146 4.16668C12.6878 4.32548 13.3984 4.72356 13.9555 5.30996C14.5126 5.89635 14.8908 6.6444 15.0416 7.45834M11.9146 0.833344C13.5211 1.02121 15.0191 1.77849 16.1628 2.98085C17.3065 4.18321 18.0278 5.75918 18.2083 7.45001M17.4166 14.1V16.6C17.4175 16.8321 17.3724 17.0618 17.284 17.2745C17.1957 17.4871 17.0662 17.678 16.9037 17.8349C16.7412 17.9918 16.5494 18.1112 16.3406 18.1856C16.1317 18.26 15.9104 18.2876 15.6908 18.2667C13.2547 17.988 10.9147 17.1118 8.85872 15.7083C6.94591 14.4289 5.32419 12.7218 4.10872 10.7083C2.77078 8.53435 1.93816 6.05917 1.6783 3.48334C1.65852 3.2529 1.68454 3.02064 1.7547 2.80136C1.82486 2.58208 1.93763 2.38058 2.08582 2.20969C2.23402 2.0388 2.4144 1.90227 2.61547 1.80878C2.81654 1.71529 3.0339 1.66689 3.25372 1.66668H5.62872C6.01292 1.6627 6.38539 1.80591 6.6767 2.06962C6.968 2.33333 7.15828 2.69955 7.21205 3.10001C7.31229 3.90007 7.4982 4.68562 7.76622 5.44168C7.87273 5.73995 7.89578 6.06411 7.83264 6.37574C7.7695 6.68738 7.62282 6.97344 7.40997 7.20001L6.40455 8.25834C7.53153 10.3446 9.17258 12.072 11.1546 13.2583L12.16 12.2C12.3752 11.976 12.647 11.8216 12.943 11.7551C13.2391 11.6886 13.547 11.7129 13.8304 11.825C14.5486 12.1071 15.2949 12.3028 16.055 12.4083C16.4395 12.4655 16.7907 12.6693 17.0418 12.9813C17.2929 13.2932 17.4263 13.6913 17.4166 14.1Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <a class="av-cta" href="tel:+46102657979">
+          <span class="av-cta-ringwrap"><svg class="av-cta-ring" width="19" height="20" viewBox="0 0 19 20" fill="none" aria-hidden="true"><path d="M11.9146 4.16668C12.6878 4.32548 13.3984 4.72356 13.9555 5.30996C14.5126 5.89635 14.8908 6.6444 15.0416 7.45834M11.9146 0.833344C13.5211 1.02121 15.0191 1.77849 16.1628 2.98085C17.3065 4.18321 18.0278 5.75918 18.2083 7.45001M17.4166 14.1V16.6C17.4175 16.8321 17.3724 17.0618 17.284 17.2745C17.1957 17.4871 17.0662 17.678 16.9037 17.8349C16.7412 17.9918 16.5494 18.1112 16.3406 18.1856C16.1317 18.26 15.9104 18.2876 15.6908 18.2667C13.2547 17.988 10.9147 17.1118 8.85872 15.7083C6.94591 14.4289 5.32419 12.7218 4.10872 10.7083C2.77078 8.53435 1.93816 6.05917 1.6783 3.48334C1.65852 3.2529 1.68454 3.02064 1.7547 2.80136C1.82486 2.58208 1.93763 2.38058 2.08582 2.20969C2.23402 2.0388 2.4144 1.90227 2.61547 1.80878C2.81654 1.71529 3.0339 1.66689 3.25372 1.66668H5.62872C6.01292 1.6627 6.38539 1.80591 6.6767 2.06962C6.968 2.33333 7.15828 2.69955 7.21205 3.10001C7.31229 3.90007 7.4982 4.68562 7.76622 5.44168C7.87273 5.73995 7.89578 6.06411 7.83264 6.37574C7.7695 6.68738 7.62282 6.97344 7.40997 7.20001L6.40455 8.25834C7.53153 10.3446 9.17258 12.072 11.1546 13.2583L12.16 12.2C12.3752 11.976 12.647 11.8216 12.943 11.7551C13.2391 11.6886 13.547 11.7129 13.8304 11.825C14.5486 12.1071 15.2949 12.3028 16.055 12.4083C16.4395 12.4655 16.7907 12.6693 17.0418 12.9813C17.2929 13.2932 17.4263 13.6913 17.4166 14.1Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
           <!-- .nb (slutpanel mobil P1-2): i bandet 346-354px bröt CTA:n numret vid binde-
                strecket ("Ring oss på 010-" / "265 79 79") — ett telefonnummer delas ALDRIG;
                ev. brytning faller nu snyggt före "010". YTTERSPANNET är obligatoriskt:
                .cta är flex med gap 14px — utan wrappern blir .nb ett eget flex-item och
                får 14px extra lucka efter "på" (uppmätt i render, r3-varv 1). -->
-          <span>Ring oss på <span class="nb">010-265&nbsp;79&nbsp;79</span></span>
+          <span>Ring oss på <span class="av-nb">010-265&nbsp;79&nbsp;79</span></span>
         </a>
         <!-- [GAP] sekundärlänkens mål: /offert/ = webb-playbookens rutt för icke-akut intent
              (aldrig href="#" — en död länk får inte gå live). Ägarbeslut: är /offert/ rätt
@@ -736,6 +962,8 @@ h2 .accent {
 
   </div>
 </section>
+</div><!-- /.ampy-avdrag -->
 
+</div><!-- /.av-preview -->
 </body>
 </html>

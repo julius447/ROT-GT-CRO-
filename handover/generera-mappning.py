@@ -97,6 +97,17 @@ BATTERIER = {
 # Batterier vars pris överstiger takets 50 000 kr för EN ägare (kräver 2-ägarraden)
 TAK_VARNING = {"sonnen","sigenstor","pixii-home"}
 
+def bind(namn):
+    """Håller ihop ett flerordigt produktnamn på kvittoraden.
+
+    ~ är shortcodens markör för hårt mellanslag (se ampy-avdrag.php). Uppmätt
+    riskfritt 320–2560 px för samtliga 26 produktnamn i listorna nedan: varken
+    radbrytning av raden eller vågrätt spill. Endast kvittoraden binds — H2:an
+    lämnas fri, precis som i den godkända designen.
+    """
+    return namn.replace(" ", "~")
+
+
 rows = []
 def add(blocktyp, url, sidtyp, h2_bas, h2_accent, kvitto, sats, kommentar=""):
     rows.append({
@@ -144,14 +155,14 @@ for slug in LADDBOX_ORTER:
 # ---------------------------------------------------------------- GT: produkter
 for slug,namn in LADDBOXAR.items():
     add("GT_PRODUKT", f"https://ampy.se/laddboxar/{slug}/", "Produktsida",
-        f"{namn} med", GT_ACCENT, f"{namn} + installation", "50 %",
+        f"{namn} med", GT_ACCENT, f"{bind(namn)} + installation", "50 %",
         "Pris före avdrag + sajtpris fylls per produkt.")
 for slug,namn in BATTERIER.items():
     kom = "Pris före avdrag + sajtpris fylls per produkt. Solcellsgrind gäller batteri."
     if slug in TAK_VARNING:
         kom += " TAK: sajtpriset överstiger 50 000 kr för en ägare — tvåägarraden krävs (ägargrind)."
     add("GT_PRODUKT", f"https://ampy.se/solcellsbatterier/{slug}/", "Produktsida",
-        f"{namn} med", GT_ACCENT, f"{namn} + installation", "50 %", kom)
+        f"{namn} med", GT_ACCENT, f"{bind(namn)} + installation", "50 %", kom)
 
 # ---------------------------------------------------------------- Hemförsäkring
 add("HEMFORSAKRING","https://ampy.se/eljour/","Hubb","Nyttja hemförsäkringen vid eljour och betala",
